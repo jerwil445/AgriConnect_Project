@@ -1,0 +1,47 @@
+/* resources/css/app.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+}
+
+.business_type {
+    position: relative;
+    width: 100%;
+}
+
+.business_type select {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    font-size: 14px;
+    background: #fff;
+    appearance: none;
+}
+
+.business_type label {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: #999;
+    font-size: 14px;
+    transition: 0.3s ease;
+    pointer-events: none;
+    background: white;
+    padding: 0 4px;
+}
+
+.business_type select:focus ~ label,
+.business_type select:valid ~ label {
+    top: -8px;
+    left: 8px;
+    font-size: 13px;
+    color: #16a34a; /* green shade */
+    border-radius: 3px;
+}

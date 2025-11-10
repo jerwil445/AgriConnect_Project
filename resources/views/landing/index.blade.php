@@ -46,7 +46,7 @@
 
 
     <!-- 📖 About Section -->
-    <section id="about" class="h-screen flex flex-col justify-center items-center bg-white text-center px-8">
+    <section id="about" class="h-screen flex relative flex-col justify-center items-center bg-white text-center px-8">
         <h2 class="text-4xl font-bold text-green-700 mb-6">About Us</h2>
         <div class="max-w-4xl text-gray-600 text-lg leading-relaxed">
             <p>
@@ -91,46 +91,57 @@
     </section>
 
     <!-- 🎉 How it work Section -->
-    <section id="how-it-work"
-        class="h-screen w-full flex flex-col justify-center items-center bg-gray-100  px-8">
+    <section id="how-it-work" class="h-screen w-full flex flex-col justify-center items-center bg-gray-100  px-8">
         <h2 class="text-4xl font-bold text-green-700 mt-14 mb-6">How it works </h2>
         <div class="flex border-b-2 pb-2 gap-5 border-gray-300 w-full justify-around items-center mb-4">
             <button class = "font-bold" id = "for-farmer-btn">
                 For Farmers
             </button>
-            <button class = "font-bold"  id = "for-buyers-btn">
+            <button class = "font-bold" id = "for-buyers-btn">
                 For Buyers
             </button>
         </div>
         <div class="grid md:grid-cols-2 gap-8   h-2/3 w-full " id = "for-farmers">
             <div class="bg-white rounded-xl shadow-lg transition w-full flex justify-center flex-col items-center">
                 <div class="    ">
-                    <div class="flex   items-center p-6 gap-4">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                    <div class="flex   items-center p-6 gap-4">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
                         <div>
-                            <h3 class = "font-bold" >1. Register Your Farmer</h3>
-                            <p class = "text-gray-400">Create profile to showcase your farm, your story, and commiment to quality</p>
+                            <h3 class = "font-bold">1. Register Your Farmer</h3>
+                            <p class = "text-gray-400">Create profile to showcase your farm, your story, and commiment to
+                                quality</p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+                    <div class="flex  items-center p-6 gap-4">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                                d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
                         </svg>
-                                    
+
                         <div>
-                            <h3 class = "font-bold" >2. List Your Prodcucts</h3>
-                            <p class = "text-gray-400">Easily upload your available product, including details about quantily, pricing, and certification.  </p>
+                            <h3 class = "font-bold">2. List Your Prodcucts</h3>
+                            <p class = "text-gray-400">Easily upload your available product, including details about
+                                quantily, pricing, and certification. </p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4 ">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-xs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M4.5 17H4a1 1 0 0 1-1-1 3 3 0 0 1 3-3h1m0-3.05A2.5 2.5 0 1 1 9 5.5M19.5 17h.5a1 1 0 0 0 1-1 3 3 0 0 0-3-3h-1m0-3.05a2.5 2.5 0 1 0-2-4.45m.5 13.5h-7a1 1 0 0 1-1-1 3 3 0 0 1 3-3h3a3 3 0 0 1 3 3 1 1 0 0 1-1 1Zm-1-9.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                    <div class="flex  items-center p-6 gap-4 ">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-xs" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+                            viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                                d="M4.5 17H4a1 1 0 0 1-1-1 3 3 0 0 1 3-3h1m0-3.05A2.5 2.5 0 1 1 9 5.5M19.5 17h.5a1 1 0 0 0 1-1 3 3 0 0 0-3-3h-1m0-3.05a2.5 2.5 0 1 0-2-4.45m.5 13.5h-7a1 1 0 0 1-1-1 3 3 0 0 1 3-3h3a3 3 0 0 1 3 3 1 1 0 0 1-1 1Zm-1-9.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z" />
                         </svg>
                         <div>
-                            <h3 class = "font-bold" >3. Connect with Buyers</h3>
-                            <p class = "text-gray-400">Receive inquiries directly from restaurants, retailers, and consumers looking for fresh, local produce </p>
+                            <h3 class = "font-bold">3. Connect with Buyers</h3>
+                            <p class = "text-gray-400">Receive inquiries directly from restaurants, retailers, and consumers
+                                looking for fresh, local produce </p>
                         </div>
                     </div>
                 </div>
@@ -144,56 +155,72 @@
         <div class="grid md:grid-cols-2 gap-8   h-2/3 w-full" id = "for-buyers">
             <div class="bg-white rounded-xl shadow-lg transition w-full flex justify-center flex-col items-center">
                 <div class="    ">
-                    <div class="flex   items-center p-6 gap-4">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                    <div class="flex   items-center p-6 gap-4">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                         </svg>
                         <div>
-                            <h3 class = "font-bold" >1. Register and Create Profile</h3>
+                            <h3 class = "font-bold">1. Register and Create Profile</h3>
                             <p class = "text-gray-400">Sign up and build your buyer profile with your specific needs </p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z"/>
+                    <div class="flex  items-center p-6 gap-4">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2"
+                                d="M10 12v1h4v-1m4 7H6a1 1 0 0 1-1-1V9h14v9a1 1 0 0 1-1 1ZM4 5h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" />
                         </svg>
-                                    
+
                         <div>
-                            <h3 class = "font-bold" >2. Post Product Demands</h3>
-                            <p class = "text-gray-400">Easily list the products you need to specifying quantity and quality.  </p>
+                            <h3 class = "font-bold">2. Post Product Demands</h3>
+                            <p class = "text-gray-400">Easily list the products you need to specifying quantity and
+                                quality. </p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4 ">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+                    <div class="flex  items-center p-6 gap-4 ">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                                d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
                         </svg>
 
 
                         <div>
-                            <h3 class = "font-bold" >3. View Matching Products</h3>
+                            <h3 class = "font-bold">3. View Matching Products</h3>
                             <p class = "text-gray-400">Our platform matches your demands with available farm product. </p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4 ">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11c.889-.086 1.416-.543 2.156-1.057a22.323 22.323 0 0 0 3.958-5.084 1.6 1.6 0 0 1 .582-.628 1.549 1.549 0 0 1 1.466-.087c.205.095.388.233.537.406a1.64 1.64 0 0 1 .384 1.279l-1.388 4.114M7 11H4v6.5A1.5 1.5 0 0 0 5.5 19v0A1.5 1.5 0 0 0 7 17.5V11Zm6.5-1h4.915c.286 0 .372.014.626.15.254.135.472.332.637.572a1.874 1.874 0 0 1 .215 1.673l-2.098 6.4C17.538 19.52 17.368 20 16.12 20c-2.303 0-4.79-.943-6.67-1.475"/>
+                    <div class="flex  items-center p-6 gap-4 ">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 11c.889-.086 1.416-.543 2.156-1.057a22.323 22.323 0 0 0 3.958-5.084 1.6 1.6 0 0 1 .582-.628 1.549 1.549 0 0 1 1.466-.087c.205.095.388.233.537.406a1.64 1.64 0 0 1 .384 1.279l-1.388 4.114M7 11H4v6.5A1.5 1.5 0 0 0 5.5 19v0A1.5 1.5 0 0 0 7 17.5V11Zm6.5-1h4.915c.286 0 .372.014.626.15.254.135.472.332.637.572a1.874 1.874 0 0 1 .215 1.673l-2.098 6.4C17.538 19.52 17.368 20 16.12 20c-2.303 0-4.79-.943-6.67-1.475" />
                         </svg>
 
 
 
                         <div>
-                            <h3 class = "font-bold" >4. Negotiate and Confirm</h3>
+                            <h3 class = "font-bold">4. Negotiate and Confirm</h3>
                             <p class = "text-gray-400">Communicate with farmer to negotiate prices and confirm orders. </p>
                         </div>
                     </div>
-                    <div class="flex  items-center p-6 gap-4 ">    
-                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5m3.5 5.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm-10 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/>
+                    <div class="flex  items-center p-6 gap-4 ">
+                        <svg class="w-12 h-12 bg-green-200 rounded-full p-2  text-green-600 mb-3 text-sm"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7h6l2 4m-8-4v8m0-8V6a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v9h2m8 0H9m4 0h2m4 0h2v-4m0 0h-5m3.5 5.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Zm-10 0a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z" />
                         </svg>
 
 
                         <div>
-                            <h3 class = "font-bold" >5. View Matching Products</h3>
+                            <h3 class = "font-bold">5. View Matching Products</h3>
                             <p class = "text-gray-400">Monitor your order form the farm to your doorstep. </p>
                         </div>
                     </div>

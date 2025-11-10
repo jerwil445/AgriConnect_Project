@@ -16,9 +16,9 @@ body {
 
 .business_type select {
     width: 100%;
-    padding: 9px;
+    padding: 7px;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 6px;
     outline: none;
     font-size: 14px;
     background: #fff;
@@ -28,7 +28,7 @@ body {
 .business_type label {
     position: absolute;
     left: 10px;
-    top: 10px;
+    top: 7px;
     color: #999;
     font-size: 14px;
     transition: 0.3s ease;
@@ -44,4 +44,15 @@ body {
     font-size: 13px;
     color: #16a34a; /* green shade */
     border-radius: 3px;
+}
+
+.farm-h4 {
+    display: flex;
+    justify-content: center; /* centers horizontally */
+    align-items: center;
+}
+.buyer-h4 {
+    display: none;
+    justify-content: center; /* centers horizontally */
+    align-items: center;
 }

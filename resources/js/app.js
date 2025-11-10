@@ -1,5 +1,6 @@
 import "../css/app.css"; // imports Tailwind
-import "./role-toggle";
+import "./role-toggle.js";
+import "./register.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     window.openModal = function (id) {
@@ -55,18 +56,4 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 300);
         });
     }
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-    const highlight = document.getElementById("highlight");
-    const farmerBtn = document.getElementById("farmerBtn");
-    const buyerBtn = document.getElementById("buyerBtn");
-
-    farmerBtn.addEventListener("click", () => {
-        highlight.style.left = "0"; // move to Farmer
-    });
-
-    buyerBtn.addEventListener("click", () => {
-        highlight.style.left = "50%"; // move to Buyer
-    });
 });

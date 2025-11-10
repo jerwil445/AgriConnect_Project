@@ -17,15 +17,21 @@
     @include('partials.navbar')
 
     {{-- Page Content --}}
-    @yield('content')
+    <main class="min-h-[calc(100vh-150px)]">
+        @yield('content')
+    </main>
+
 
     {{-- Footer --}}
     @include('partials.footer')
 
     <!-- ✅ Include modal contents -->
     <!-- s -->
-
+    @if (!Route::is('login') && !Route::is('register'))
+        @vite('resources/js/app.js')
+    @endif
     @vite('resources/js/app.js')
+
 </body>
 
 </html>

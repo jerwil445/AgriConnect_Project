@@ -36,10 +36,9 @@
                     class="bg-white text-green-700 font-semibold px-6 py-3 rounded-full shadow hover:bg-gray-100 transition">
                     Learn More
                 </a>
-                <button onclick="openModal('registerModal')"
-                    class="border border-white font-semibold px-6 py-3 rounded-full hover:bg-white hover:text-green-700 transition">
-                    Join Now
-                </button>
+                <a href = "{{ route('register') }}" class="border border-white font-semibold px-6 py-3 rounded-full hover:bg-white hover:text-green-700 transition">
+                        Join Now
+                    </a>
             </div>
         </div>
     </section>

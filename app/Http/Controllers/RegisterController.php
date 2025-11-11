@@ -21,8 +21,17 @@ class RegisterController extends Controller
             'password'  => 'required|min:6|confirmed',
             'role'      => 'required|in:farmer,buyer',
             'phone_number'   => 'nullable|string|max:20',
-            'city-region'   => 'nullable|string|max:50',
-            'full-address'  => 'nullable|string|max:255',
+            'address'  => 'nullable|string|max:255',
+            // Farmer fields
+            'farm_name' => 'nullable|string|max:255',
+            'farm_size' => 'nullable|string|max:50',
+            'product_type' => 'nullable|string|max:255',
+            'experience_years' => 'nullable|numeric|min:0|max:100',
+            // Buyer fields
+            'company_name' => 'nullable|string|max:255',
+            'business_type' => 'required_if:role,buyer|string|max:50',
+            'preferred_products' => 'nullable|string|max:255',
+            'buyer_address' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -47,9 +56,9 @@ class RegisterController extends Controller
                 'farm_name' => $request->farm_name ?? 'Unnamed Farm',
                 'farm_size' => $request->farm_size ?? null,
                 'product_type' => $request->product_type ?? null,
-                'experience_years' => $request->experience_years ?? null,
-                'certification' => $request->certification ?? null,
-                'farm_address' => $request->farm_address ?? null,
+                'experience_years' => $request->experience_years ? (int)$request->experience_years : null,
+                'certification' => null,
+                'farm_address' => $request->address ?? null,
             ]);
         } elseif ($request->role === 'buyer') {
             Buyer::create([
@@ -57,11 +66,11 @@ class RegisterController extends Controller
                 'company_name' => $request->company_name ?? null,
                 'business_type' => $request->business_type ?? null,
                 'preferred_products' => $request->preferred_products ?? null,
-                'address' => $request->address ?? null,
+                'address' => $request->buyer_address ?? null,
             ]);
         }
 
-        // Redirect back with success message
-        return redirect()->back()->with('success', ucfirst($request->role) . ' registered successfully!');
+        // Redirect to login with success message
+        return redirect()->route('login')->with('success', ucfirst($request->role) . ' registered successfully! Please login.');
     }
 }

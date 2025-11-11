@@ -3,6 +3,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegisterController;
 
 // Public Routes
 Route::get('/', function () {
@@ -23,6 +24,9 @@ Route::get('/login', function ()  {
 Route::get('/register', function ()  {
     return view('auth.register');
 })->name('register');
+
+// Registration POST route
+Route::post('/register', [RegisterController::class, 'register']);
 // Route::middleware(['auth'])->group(function () {
 //     Route::get('/dashboard', function () {
 //         return view('dashboard.index');

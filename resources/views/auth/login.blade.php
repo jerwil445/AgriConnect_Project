@@ -10,7 +10,7 @@
             <img src="{{ asset('images/farmer.jpg') }} " class = " rounded-lg" alt="Alumni Talk"
                 class="w-full  h-48 object-cover">
         </div>
-        <div class = "w-full">
+        <div class = "w-full   flex flex-col justify-center items-center bg-gray-100s">
             <!-- <button onclick="closeModal('loginModal')"
             class="absolute  top-3 right-4 text-gray-500 hover:text-red-500 text-2xl">&times;</button> -->
             <h2 class="text-2xl font-bold text-center text-green-700 mb-2 flex items-center justify-center space-x-2">
@@ -18,10 +18,10 @@
                     <path d="M17,8C8,10,5.9,16.17,3.82,21.34L5.71,22l1.47-4.5C9,17,17,15,21,15c0-9-4-7-4-7Z" />
                 </svg>
                 <span>Argi-Connect </span>
-            </h2>
+            </h2>   
 
             <p class = "text-gray-400 text-xs ">Welcome! Please Login or Register to continue.</p>
-            <form action="#" method="POST" class="space-y-6">
+            <form action="#" method="POST" class="space-y-6 w-full">
                 @csrf
                 <!-- Username -->
                 <div class="relative mb-6">

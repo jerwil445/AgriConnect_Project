@@ -1,6 +1,7 @@
 @extends('layouts.app')
 @vite('resources/css/app.css')
 
+@section('content')
 <div id="registerModal"
     class="fixed inset-0 bg-gray-100 flex items-center justify-center overflow-hidden transition-all duration-300">
     <!-- Inner content container -->
@@ -22,14 +23,17 @@
                 class="mt-3 transition-opacity duration-300 flex-col w-full">
                 @csrf
 
+                <!-- Hidden role input -->
+                <input type="hidden" name="role" id="roleInput" value="{{ old('role', 'farmer') }}" required>
+
                 <!-- Toggle buttons -->
                 <div class="flex justify-around mt-3 bg-zinc-100 p-2 rounded-sm relative">
                     <div id="highlight"
                         class="absolute bg-green-500 w-1/2 h-full top-0 left-0 rounded-md transition-all duration-300">
                     </div>
-                    <button type="button" id="farmerBtn" name="role" value="farmer"
+                    <button type="button" id="farmerBtn" data-role="farmer"
                         class="z-20 relative font-semibold text-gray-700">Farmer</button>
-                    <button type="button" id="buyerBtn" name="role" value="buyer"
+                    <button type="button" id="buyerBtn" data-role="buyer"
                         class="z-20 relative font-semibold text-gray-700">Buyer</button>
                 </div>
 
@@ -50,7 +54,7 @@
                             <div class="relative w-full">
                                 <input type="text" id="first_name" name="first_name"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " required />
+                                    placeholder=" " value="{{ old('first_name') }}" required />
                                 <label for="first_name"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     First Name
@@ -60,7 +64,7 @@
                             <div class="relative w-full">
                                 <input type="text" id="last_name" name="last_name"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " required />
+                                    placeholder=" " value="{{ old('last_name') }}" required />
                                 <label for="last_name"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Last Name
@@ -72,7 +76,7 @@
                             <div class="relative w-full">
                                 <input type="text" id="phone" name="phone_number"
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('phone_number') }}" />
                                 <label for="phone"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Phone
@@ -82,7 +86,7 @@
                             <div class="relative w-full">
                                 <input type="text" id="city" name="city_region"
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('city_region') }}" />
                                 <label for="city"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     City/Region
@@ -93,7 +97,7 @@
                         <div class="relative">
                             <input type="text" id="address" name="address"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                placeholder=" " />
+                                placeholder=" " value="{{ old('address') }}" />
                             <label for="address"
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Full Address
@@ -103,7 +107,7 @@
                         <div class="relative">
                             <input type="email" id="email" name="email"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                placeholder=" " required />
+                                placeholder=" " value="{{ old('email') }}" required />
                             <label for="email"
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Email
@@ -119,6 +123,16 @@
                                 Password
                             </label>
                         </div>
+
+                        <div class="relative">
+                            <input type="password" id="password_confirmation" name="password_confirmation"
+                                class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                                placeholder=" " required />
+                            <label for="password_confirmation"
+                                class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
+                                Confirm Password
+                            </label>
+                        </div>
                     </div>
 
                     <!-- FARMER INFO -->
@@ -132,7 +146,7 @@
                             <div class="relative">
                                 <input type="text" name="farm_name" id="f_farmname"
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('farm_name') }}" />
                                 <label for="f_farmname"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Farm Name (Optional)
@@ -142,7 +156,7 @@
                             <div class="relative w-full">
                                 <input type="text" name="farm_size" id="farm-size"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('farm_size') }}" />
                                 <label for="farm-size"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Farm Size (Acres/Hectares)
@@ -150,9 +164,9 @@
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="years_experience" id="year-experience"
+                                <input type="text" name="experience_years" id="year-experience"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('experience_years') }}" />
                                 <label for="year-experience"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Years of Experience
@@ -162,7 +176,7 @@
                             <div class="relative w-full">
                                 <input type="text" name="product_type" id="product_type"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('product_type') }}" />
                                 <label for="product_type"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Product Type/s
@@ -180,31 +194,34 @@
                             <div class="relative w-full">
                                 <input type="text" id="company-name" name="company_name"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('company_name') }}" />
                                 <label for="company-name"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-green-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Business/Company Name (Optional)
                                 </label>
                             </div>
 
-                            <div class="business_type"> <select name="business_type" id="business_type"
-                                    class = "focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    required>
-                                    <option value="" disabled selected hidden></option>
-                                    <option value="wholesaler">Wholesaler</option>
-                                    <option value="retailer">Retailer</option>
-                                    <option value="exporter">Exporter</option>
-                                    <option value="processor">Processor</option>
-                                    <option value="restaurant">Restaurant</option>
-                                    <option value="others">Others:</option>
+                            <div class="relative w-full">
+                                <select name="business_type" id="business_type"
+                                    class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 bg-white">
+                                    <option value="" disabled {{ old('business_type') ? '' : 'selected' }} hidden></option>
+                                    <option value="wholesaler" {{ old('business_type') == 'wholesaler' ? 'selected' : '' }}>Wholesaler</option>
+                                    <option value="retailer" {{ old('business_type') == 'retailer' ? 'selected' : '' }}>Retailer</option>
+                                    <option value="exporter" {{ old('business_type') == 'exporter' ? 'selected' : '' }}>Exporter</option>
+                                    <option value="processor" {{ old('business_type') == 'processor' ? 'selected' : '' }}>Processor</option>
+                                    <option value="restaurant" {{ old('business_type') == 'restaurant' ? 'selected' : '' }}>Restaurant</option>
+                                    <option value="others" {{ old('business_type') == 'others' ? 'selected' : '' }}>Others</option>
                                 </select>
-                                <label for="business_type" class = "">Business Type</label>
+                                <label for="business_type"
+                                    class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all">
+                                    Business Type
+                                </label>
                             </div>
 
                             <div class="relative w-full">
                                 <input type="text" id="preferred_products" name="preferred_products"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('preferred_products') }}" />
                                 <label for="preferred_products"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-green-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Preferred Products
@@ -212,9 +229,9 @@
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" id="b_address" name="b_address"
+                                <input type="text" id="b_address" name="buyer_address"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " />
+                                    placeholder=" " value="{{ old('buyer_address') }}" />
                                 <label for="b_address"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Address
@@ -237,6 +254,112 @@
                     Login here
                 </a>
             </p>
+
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
     </div>
 </div>
+
+<script>
+    // Role toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const farmerBtn = document.getElementById('farmerBtn');
+        const buyerBtn = document.getElementById('buyerBtn');
+        const highlight = document.getElementById('highlight');
+        const roleInput = document.getElementById('roleInput');
+        const farmInfo = document.getElementById('farm-info');
+        const buyerInfo = document.getElementById('buyer-info');
+        const farmH4 = document.querySelector('.farm-h4');
+        const buyerH4 = document.querySelector('.buyer-h4');
+        const businessTypeSelect = document.getElementById('business_type');
+        const form = document.getElementById('farmerForm');
+
+        // Set initial state
+        let currentRole = roleInput.value || 'farmer';
+
+        function switchToFarmer() {
+            currentRole = 'farmer';
+            roleInput.value = 'farmer';
+            highlight.style.transform = 'translateX(0)';
+            farmInfo.classList.remove('hidden');
+            buyerInfo.classList.add('hidden');
+            farmH4.classList.remove('hidden');
+            buyerH4.classList.add('hidden');
+            // Remove required from business_type when farmer is selected
+            if (businessTypeSelect) {
+                businessTypeSelect.removeAttribute('required');
+            }
+        }
+
+        function switchToBuyer() {
+            currentRole = 'buyer';
+            roleInput.value = 'buyer';
+            highlight.style.transform = 'translateX(100%)';
+            farmInfo.classList.add('hidden');
+            buyerInfo.classList.remove('hidden');
+            farmH4.classList.add('hidden');
+            buyerH4.classList.remove('hidden');
+            // Add required to business_type when buyer is selected
+            if (businessTypeSelect) {
+                businessTypeSelect.setAttribute('required', 'required');
+            }
+        }
+
+        // If there's an old role value, switch to that role on page load
+        if (roleInput.value === 'buyer') {
+            switchToBuyer();
+        } else {
+            switchToFarmer();
+        }
+
+        // Handle form submission - ensure business_type is only required for buyers
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Remove required from hidden fields to prevent HTML5 validation issues
+                const hiddenFields = form.querySelectorAll('[hidden], .hidden input, .hidden select');
+                hiddenFields.forEach(field => {
+                    if (field.hasAttribute('required')) {
+                        field.removeAttribute('required');
+                    }
+                });
+
+                if (currentRole === 'farmer') {
+                    // Remove required from business_type before submission
+                    if (businessTypeSelect) {
+                        businessTypeSelect.removeAttribute('required');
+                    }
+                } else if (currentRole === 'buyer') {
+                    // Ensure business_type is required for buyers
+                    if (businessTypeSelect && !businessTypeSelect.value) {
+                        e.preventDefault();
+                        alert('Please select a Business Type');
+                        businessTypeSelect.focus();
+                        return false;
+                    }
+                }
+
+                // Allow form to submit normally
+                return true;
+            });
+        }
+
+        farmerBtn.addEventListener('click', switchToFarmer);
+        buyerBtn.addEventListener('click', switchToBuyer);
+    });
+</script>
+@endsection

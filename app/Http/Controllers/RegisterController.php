@@ -20,18 +20,19 @@ class RegisterController extends Controller
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|min:6|confirmed',
             'role'      => 'required|in:farmer,buyer',
-            'phone_number'   => 'nullable|string|max:20',
-            'address'  => 'nullable|string|max:255',
+            'phone_number'   => 'required|string|max:20',
+            'city_region'    => 'required|string|max:255',
+            'address'  => 'required|string|max:255',
             // Farmer fields
             'farm_name' => 'nullable|string|max:255',
-            'farm_size' => 'nullable|string|max:50',
-            'product_type' => 'nullable|string|max:255',
-            'experience_years' => 'nullable|numeric|min:0|max:100',
+            'farm_size' => 'required_if:role,farmer|numeric|min:0',
+            'product_type' => 'required_if:role,farmer|string|max:255',
+            'experience_years' => 'required_if:role,farmer|numeric|min:0|max:100',
             // Buyer fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'required_if:role,buyer|string|max:50',
-            'preferred_products' => 'nullable|string|max:255',
-            'buyer_address' => 'nullable|string|max:255',
+            'preferred_products' => 'required_if:role,buyer|string|max:255',
+            'buyer_address' => 'required_if:role,buyer|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -54,7 +55,7 @@ class RegisterController extends Controller
             Farmer::create([
                 'user_id' => $user->id,
                 'farm_name' => $request->farm_name ?? 'Unnamed Farm',
-                'farm_size' => $request->farm_size ?? null,
+                'farm_size' => $request->farm_size !== null ? (float)$request->farm_size : null,
                 'product_type' => $request->product_type ?? null,
                 'experience_years' => $request->experience_years ? (int)$request->experience_years : null,
                 'certification' => null,

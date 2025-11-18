@@ -1,6 +1,6 @@
 <!-- Main Content Area -->
 <div class="md:ml-64 mt-16 flex flex-col min-h-screen">
-
+@vite('resources/css/app.css')
 
     <!-- Main Content -->
     <main class="flex-1 p-6">

@@ -24,7 +24,8 @@
                 @csrf
 
                 <!-- Hidden role input -->
-                <input type="hidden" name="role" id="roleInput" value="{{ old('role', 'farmer') }}" required>
+                @php($activeRole = old('role', 'farmer'))
+                <input type="hidden" name="role" id="roleInput" value="{{ $activeRole }}" required>
 
                 <!-- Toggle buttons -->
                 <div class="flex justify-around mt-3 bg-zinc-100 p-2 rounded-sm relative">
@@ -52,6 +53,7 @@
 
                         <div class="flex space-x-2">
                             <div class="relative w-full">
+                                @php($firstNameError = $errors->first('first_name'))
                                 <input type="text" id="first_name" name="first_name"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                     placeholder=" " value="{{ old('first_name') }}" required />
@@ -59,9 +61,14 @@
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     First Name
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $firstNameError ? '' : 'hidden' }}"
+                                    data-error-for="first_name">
+                                    {{ $firstNameError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
+                                @php($lastNameError = $errors->first('last_name'))
                                 <input type="text" id="last_name" name="last_name"
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                     placeholder=" " value="{{ old('last_name') }}" required />
@@ -69,42 +76,62 @@
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Last Name
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $lastNameError ? '' : 'hidden' }}"
+                                    data-error-for="last_name">
+                                    {{ $lastNameError }}
+                                </p>
                             </div>
                         </div>
 
                         <div class="flex space-x-2">
                             <div class="relative w-full">
+                                @php($phoneError = $errors->first('phone_number'))
                                 <input type="text" id="phone" name="phone_number"
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                    placeholder=" " value="{{ old('phone_number') }}" />
+                                    placeholder=" " value="{{ old('phone_number') }}" required />
                                 <label for="phone"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Phone
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $phoneError ? '' : 'hidden' }}"
+                                    data-error-for="phone_number">
+                                    {{ $phoneError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
+                                @php($cityError = $errors->first('city_region'))
                                 <input type="text" id="city" name="city_region"
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                    placeholder=" " value="{{ old('city_region') }}" />
+                                    placeholder=" " value="{{ old('city_region') }}" required />
                                 <label for="city"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     City/Region
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $cityError ? '' : 'hidden' }}"
+                                    data-error-for="city_region">
+                                    {{ $cityError }}
+                                </p>
                             </div>
                         </div>
 
                         <div class="relative">
+                            @php($addressError = $errors->first('address'))
                             <input type="text" id="address" name="address"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
-                                placeholder=" " value="{{ old('address') }}" />
+                                placeholder=" " value="{{ old('address') }}" required />
                             <label for="address"
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Full Address
                             </label>
+                            <p class="input-error text-sm text-red-600 mt-1 {{ $addressError ? '' : 'hidden' }}"
+                                data-error-for="address">
+                                {{ $addressError }}
+                            </p>
                         </div>
 
                         <div class="relative">
+                            @php($emailError = $errors->first('email'))
                             <input type="email" id="email" name="email"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                 placeholder=" " value="{{ old('email') }}" required />
@@ -112,9 +139,14 @@
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Email
                             </label>
+                            <p class="input-error text-sm text-red-600 mt-1 {{ $emailError ? '' : 'hidden' }}"
+                                data-error-for="email">
+                                {{ $emailError }}
+                            </p>
                         </div>
 
                         <div class="relative">
+                            @php($passwordError = $errors->first('password'))
                             <input type="password" id="password" name="password"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                 placeholder=" " required />
@@ -122,9 +154,14 @@
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Password
                             </label>
+                            <p class="input-error text-sm text-red-600 mt-1 {{ $passwordError ? '' : 'hidden' }}"
+                                data-error-for="password">
+                                {{ $passwordError }}
+                            </p>
                         </div>
 
                         <div class="relative">
+                            @php($passwordConfirmationError = $errors->first('password_confirmation'))
                             <input type="password" id="password_confirmation" name="password_confirmation"
                                 class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                 placeholder=" " required />
@@ -132,19 +169,24 @@
                                 class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                 Confirm Password
                             </label>
+                            <p class="input-error text-sm text-red-600 mt-1 {{ $passwordConfirmationError ? '' : 'hidden' }}"
+                                data-error-for="password_confirmation">
+                                {{ $passwordConfirmationError }}
+                            </p>
                         </div>
                     </div>
 
                     <!-- FARMER INFO -->
                     <div class="relative w-full">
-                        <div class="farmer-info-container flex flex-col space-y-4 bg-white pb-2 border-green-400 absolute top-0 z-10 rounded-sm w-full"
+                        <div class="farmer-info-container flex flex-col space-y-4 bg-white pb-2 border-green-400 absolute top-0 z-10 rounded-sm w-full {{ $activeRole === 'buyer' ? 'hidden' : '' }}"
                             id="farm-info">
                             <h4 class="text-md font-semibold text-gray-700 border-b-2 border-green-500 pb-2">
                                 Farm Information
                             </h4>
 
                             <div class="relative">
-                                <input type="text" name="farm_name" id="f_farmname"
+                                <input type="text" name="farm_name" id="f_farmname" data-role-field="farmer"
+                                    @if($activeRole === 'buyer') disabled @endif
                                     class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                     placeholder=" " value="{{ old('farm_name') }}" />
                                 <label for="f_farmname"
@@ -154,45 +196,64 @@
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="farm_size" id="farm-size"
+                                @php($farmSizeError = $errors->first('farm_size'))
+                                <input type="number" name="farm_size" id="farm-size" step="0.01" min="0" data-role-field="farmer"
+                                    @if($activeRole === 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('farm_size') }}" />
+                                    placeholder=" " value="{{ old('farm_size') }}" data-role-required="farmer" required />
                                 <label for="farm-size"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Farm Size (Acres/Hectares)
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $farmSizeError ? '' : 'hidden' }}"
+                                    data-error-for="farm_size">
+                                    {{ $farmSizeError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="experience_years" id="year-experience"
+                                @php($experienceError = $errors->first('experience_years'))
+                                <input type="number" name="experience_years" id="year-experience" min="0" max="100" step="1" data-role-field="farmer"
+                                    @if($activeRole === 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('experience_years') }}" />
+                                    placeholder=" " value="{{ old('experience_years') }}" data-role-required="farmer" required />
                                 <label for="year-experience"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Years of Experience
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $experienceError ? '' : 'hidden' }}"
+                                    data-error-for="experience_years">
+                                    {{ $experienceError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" name="product_type" id="product_type"
+                                @php($productTypeError = $errors->first('product_type'))
+                                <input type="text" name="product_type" id="product_type" data-role-field="farmer"
+                                    @if($activeRole === 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('product_type') }}" />
+                                    placeholder=" " value="{{ old('product_type') }}" data-role-required="farmer" required />
                                 <label for="product_type"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Product Type/s
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $productTypeError ? '' : 'hidden' }}"
+                                    data-error-for="product_type">
+                                    {{ $productTypeError }}
+                                </p>
                             </div>
                         </div>
 
                         <!-- BUYER INFO -->
-                        <div class="buyer-info-container flex flex-col space-y-4 bg-white w-full rounded-sm hidden"
+                        <div class="buyer-info-container flex flex-col space-y-4 bg-white w-full rounded-sm {{ $activeRole === 'buyer' ? '' : 'hidden' }}"
                             id="buyer-info">
                             <h4 class="text-md font-semibold text-gray-700 border-b-2 border-green-500 pb-2">
                                 Buyer Business Information
                             </h4>
 
                             <div class="relative w-full">
-                                <input type="text" id="company-name" name="company_name"
+                                <input type="text" id="company-name" name="company_name" data-role-field="buyer"
+                                    @if($activeRole !== 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                                     placeholder=" " value="{{ old('company_name') }}" />
                                 <label for="company-name"
@@ -202,8 +263,11 @@
                             </div>
 
                             <div class="relative w-full">
-                                <select name="business_type" id="business_type"
-                                    class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 bg-white">
+                                @php($businessTypeError = $errors->first('business_type'))
+                                <select name="business_type" id="business_type" data-role-field="buyer"
+                                    @if($activeRole !== 'buyer') disabled @endif
+                                    class="peer w-full px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 bg-white"
+                                    data-role-required="buyer" required>
                                     <option value="" disabled {{ old('business_type') ? '' : 'selected' }} hidden></option>
                                     <option value="wholesaler" {{ old('business_type') == 'wholesaler' ? 'selected' : '' }}>Wholesaler</option>
                                     <option value="retailer" {{ old('business_type') == 'retailer' ? 'selected' : '' }}>Retailer</option>
@@ -216,26 +280,42 @@
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all">
                                     Business Type
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $businessTypeError ? '' : 'hidden' }}"
+                                    data-error-for="business_type">
+                                    {{ $businessTypeError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" id="preferred_products" name="preferred_products"
+                                @php($preferredProductsError = $errors->first('preferred_products'))
+                                <input type="text" id="preferred_products" name="preferred_products" data-role-field="buyer"
+                                    @if($activeRole !== 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('preferred_products') }}" />
+                                    placeholder=" " value="{{ old('preferred_products') }}" data-role-required="buyer" required />
                                 <label for="preferred_products"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-green-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Preferred Products
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $preferredProductsError ? '' : 'hidden' }}"
+                                    data-error-for="preferred_products">
+                                    {{ $preferredProductsError }}
+                                </p>
                             </div>
 
                             <div class="relative w-full">
-                                <input type="text" id="b_address" name="buyer_address"
+                                @php($buyerAddressError = $errors->first('buyer_address'))
+                                <input type="text" id="b_address" name="buyer_address" data-role-field="buyer"
+                                    @if($activeRole !== 'buyer') disabled @endif
                                     class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('buyer_address') }}" />
+                                    placeholder=" " value="{{ old('buyer_address') }}" data-role-required="buyer" required />
                                 <label for="b_address"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
                                     Address
                                 </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $buyerAddressError ? '' : 'hidden' }}"
+                                    data-error-for="buyer_address">
+                                    {{ $buyerAddressError }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -275,91 +355,4 @@
     </div>
 </div>
 
-<script>
-    // Role toggle functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const farmerBtn = document.getElementById('farmerBtn');
-        const buyerBtn = document.getElementById('buyerBtn');
-        const highlight = document.getElementById('highlight');
-        const roleInput = document.getElementById('roleInput');
-        const farmInfo = document.getElementById('farm-info');
-        const buyerInfo = document.getElementById('buyer-info');
-        const farmH4 = document.querySelector('.farm-h4');
-        const buyerH4 = document.querySelector('.buyer-h4');
-        const businessTypeSelect = document.getElementById('business_type');
-        const form = document.getElementById('farmerForm');
-
-        // Set initial state
-        let currentRole = roleInput.value || 'farmer';
-
-        function switchToFarmer() {
-            currentRole = 'farmer';
-            roleInput.value = 'farmer';
-            highlight.style.transform = 'translateX(0)';
-            farmInfo.classList.remove('hidden');
-            buyerInfo.classList.add('hidden');
-            farmH4.classList.remove('hidden');
-            buyerH4.classList.add('hidden');
-            // Remove required from business_type when farmer is selected
-            if (businessTypeSelect) {
-                businessTypeSelect.removeAttribute('required');
-            }
-        }
-
-        function switchToBuyer() {
-            currentRole = 'buyer';
-            roleInput.value = 'buyer';
-            highlight.style.transform = 'translateX(100%)';
-            farmInfo.classList.add('hidden');
-            buyerInfo.classList.remove('hidden');
-            farmH4.classList.add('hidden');
-            buyerH4.classList.remove('hidden');
-            // Add required to business_type when buyer is selected
-            if (businessTypeSelect) {
-                businessTypeSelect.setAttribute('required', 'required');
-            }
-        }
-
-        // If there's an old role value, switch to that role on page load
-        if (roleInput.value === 'buyer') {
-            switchToBuyer();
-        } else {
-            switchToFarmer();
-        }
-
-        // Handle form submission - ensure business_type is only required for buyers
-        if (form) {
-            form.addEventListener('submit', function(e) {
-                // Remove required from hidden fields to prevent HTML5 validation issues
-                const hiddenFields = form.querySelectorAll('[hidden], .hidden input, .hidden select');
-                hiddenFields.forEach(field => {
-                    if (field.hasAttribute('required')) {
-                        field.removeAttribute('required');
-                    }
-                });
-
-                if (currentRole === 'farmer') {
-                    // Remove required from business_type before submission
-                    if (businessTypeSelect) {
-                        businessTypeSelect.removeAttribute('required');
-                    }
-                } else if (currentRole === 'buyer') {
-                    // Ensure business_type is required for buyers
-                    if (businessTypeSelect && !businessTypeSelect.value) {
-                        e.preventDefault();
-                        alert('Please select a Business Type');
-                        businessTypeSelect.focus();
-                        return false;
-                    }
-                }
-
-                // Allow form to submit normally
-                return true;
-            });
-        }
-
-        farmerBtn.addEventListener('click', switchToFarmer);
-        buyerBtn.addEventListener('click', switchToBuyer);
-    });
-</script>
 @endsection

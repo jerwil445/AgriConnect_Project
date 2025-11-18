@@ -21,33 +21,41 @@
             </h2>   
 
             <p class = "text-gray-400 text-xs ">Welcome! Please Login or Register to continue.</p>
-            <form action="#" method="POST" class="space-y-6 w-full">
+            <form action="{{ route('login.perform') }}" method="POST" class="space-y-6 w-full">
                 @csrf
-                <!-- Username -->
+                <!-- Email -->
                 <div class="relative mb-6">
-                    <input type="text" id="username"
+                    @php($emailError = $errors->first('email'))
+                    <input type="email" id="email" name="email"
                         class="peer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                        placeholder=" " />
-                    <label for="username"
+                        placeholder=" " value="{{ old('email') }}" required autocomplete="email" />
+                    <label for="email"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-                        Username
+                        Email
                     </label>
+                    @if($emailError)
+                        <p class="text-sm text-red-600 mt-1">{{ $emailError }}</p>
+                    @endif
                 </div>
 
                 <!-- Password -->
                 <div class="relative mb-4">
-                    <input type="password" id="password"
+                    @php($passwordError = $errors->first('password'))
+                    <input type="password" id="password" name="password"
                         class="peer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                        placeholder=" " />
+                        placeholder=" " required autocomplete="current-password" />
                     <label for="password"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
                         Password
                     </label>
+                    @if($passwordError)
+                        <p class="text-sm text-red-600 mt-1">{{ $passwordError }}</p>
+                    @endif
                 </div>
 
                 <div class="flex justify-between">
                     <div class="flex items-center">
-                        <input type="checkbox" id="remember-me"
+                        <input type="checkbox" id="remember-me" name="remember" value="1"
                             class="h-4 w-4 border-gray-300 rounded focus:ring-green-700" />
                         <label for="remember-me" class="ml-2 text-sm text-gray-600">Remember me</label>
                     </div>

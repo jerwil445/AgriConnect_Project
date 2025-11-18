@@ -17,13 +17,11 @@ Route::get('/error', function () {
     return view('error.404');
 })->name('error');
 
-Route::get('/login', function ()  {
-    return view('auth.login');
-})->name('login');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/register', function ()  {
-    return view('auth.register');
-})->name('register');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 
 // Registration POST route
 Route::post('/register', [RegisterController::class, 'register']);
@@ -51,10 +49,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/admin', function () {
     return view('layouts.admin_page');
-});
+})->name('admin.dashboard');
 Route::get('/buyer', function () {
     return view('buyers.dashboard');
-});
+})->name('buyer.dashboard');
 Route::get('/farmer', function () {
     return view('farmers.dashboard');
-});
+})->name('farmer.dashboard');

@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     buyerBtn.addEventListener("click", () => {
-        highlight.style.left = "50%";
+        highlight.style.left = "0%";
         buyerBtn.classList.add("text-white");
         farmerBtn.classList.remove("text-white");
         farmerBtn.classList.add("text-gray-700");

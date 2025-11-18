@@ -19,15 +19,7 @@
             @endif
             {{-- Auth-aware login/register links --}}
             @auth
-                <div class="flex items-center space-x-4">
-                    <span class="text-gray-700">Hi, {{ Auth::user()->name }}!</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                            Logout
-                        </button>
-                    </form>
-                </div>
+                
             @else
                 <div class="space-x-4">
                     <a href ="{{ route('login') }}"

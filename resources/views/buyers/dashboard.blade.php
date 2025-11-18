@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    @vite('resources/css/app.css')
     <script>
         tailwind.config = {
             theme: {
@@ -316,6 +317,14 @@
                 </nav>
 
                 <div class="flex items-center space-x-4">
+                    <form action="{{ route('logout') }}" method="POST" class="hidden md:block">
+                        @csrf
+                        <button type="submit"
+                            class="flex items-center gap-2 border border-primary-500 text-primary-700 px-4 py-2 rounded-lg hover:bg-primary-50 transition duration-200 text-sm font-semibold">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </button>
+                    </form>
                     <button
                         class="hidden md:flex bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition duration-200 font-medium items-center space-x-2">
                         <i class="fas fa-plus"></i>
@@ -330,6 +339,16 @@
     </header>
 
     <div class="container mx-auto px-4 py-2">
+        <div class="md:hidden mb-4">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit"
+                    class="w-full flex items-center justify-center gap-2 border border-primary-500 text-primary-700 px-4 py-2 rounded-lg hover:bg-primary-50 transition duration-200 text-sm font-semibold">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
         <!-- Page Header -->
         <div class="mb-8 flex  flex-col  text-center ">
             <h1 class="text-xl font-bold text-gray-800 mb-2">Agricultural Products</h1>
@@ -630,7 +649,7 @@
     </div>
 
     <!-- Footer -->
-    <footer class="bg-primary-800 text-white mt-16">
+    <footer class="bg-green-700 text-white mt-16">
         <div class="container mx-auto px-4 py-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
@@ -685,7 +704,7 @@
 
     <script>
         // Mobile sidebar functionality
-        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const mobileSidebarTogssgle = document.getElementById('mobileSidebarToggle');
         const mobileSidebar = document.getElementById('mobileSidebar');
         const closeSidebar = document.getElementById('closeSidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');

@@ -17,7 +17,7 @@ class User extends Authenticatable
      *
      * @var bool
      */
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -56,5 +56,37 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the farmer profile associated with the user.
+     */
+    public function farmer()
+    {
+        return $this->hasOne(Farmer::class);
+    }
+    
+    /**
+     * Get the buyer profile associated with the user.
+     */
+    public function buyer()
+    {
+        return $this->hasOne(Buyer::class);
+    }
+    
+    /**
+     * Get the demands posted by the user (if they are a buyer).
+     */
+    public function demands()
+    {
+        return $this->hasMany(Demand::class, 'buyer_id');
+    }
+    
+    /**
+     * Get the matches related to demands posted by the user.
+     */
+    public function demandMatches()
+    {
+        return $this->hasManyThrough(DemandMatch::class, Demand::class, 'buyer_id', 'demand_id');
     }
 }

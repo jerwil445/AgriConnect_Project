@@ -17,7 +17,7 @@
 @endphp
 
 @section('content')
-    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+    <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 ml-64">
         @foreach($metrics as $metric)
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-5 py-4">
                 <p class="text-sm text-gray-500">{{ $metric['label'] }}</p>
@@ -29,7 +29,7 @@
         @endforeach
     </div>
 
-    <div class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr]">
+    <div class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr] ml-64">
         <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
@@ -63,7 +63,7 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
             <div class="space-y-4">
                 @foreach($activities as $activity)
@@ -81,7 +81,7 @@
         </section>
     </div>
 
-    <div class="mt-8 grid md:grid-cols-3 gap-6">
+    <div class="mt-8 grid md:grid-cols-3 gap-6 ml-64">
         <section class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
             <h3 class="text-sm font-semibold text-gray-700">Supply Status</h3>
             <p class="text-3xl font-bold text-gray-900 mt-3">82%</p>

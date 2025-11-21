@@ -18,9 +18,11 @@
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                {{-- <input type="text"
-                    class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm"
-                    placeholder="Search..."> --}}
+                <!-- <form method="GET" action="{{ route('admin.users.index') }}">
+                    <input type="text" name="search"
+                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm"
+                        placeholder="Search users..." value="{{ request('search') }}">
+                </form> -->
             </div>
         </div>
 
@@ -81,29 +83,30 @@
             </button>
         </div>
         <nav class="flex-1 p-4 space-y-2">
-            <a href="#" class="flex items-center gap-3 p-2 rounded-lg text-green-600 bg-green-100 font-medium">
+            <a href="{{ route('admin.dashboard') }}" 
+               class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+               {{ request()->routeIs('admin.dashboard') || request()->path() == 'admin' ? 'bg-green-100 text-green-600' : '' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="m4 12 8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5" />
                 </svg>
 
-                Home
+                Dashboard
             </a>
-            <a href="#"
+            <a href="{{ route('admin.users.index') }}"
                 class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
-                ">
+                {{ request()->routeIs('admin.users.*') ? 'bg-green-100 text-green-600' : '' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-width="2"
                         d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
 
-                Profile
+               Users
             </a>
             <a href="#"
-                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 font-medium transition-all duration-300
-                ">
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 font-medium transition-all duration-300">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="2"

@@ -1,8 +1,7 @@
-<!-- Main Content Area -->
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
-@vite('resources/css/app.css')
+@extends('layouts.admin_page')
 
-    <!-- Main Content -->
+@section('content')
+<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
@@ -35,8 +34,10 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">New Users</p>
-                            <p class="text-2xl font-semibold text-gray-800">1,258</p>
+                            <p class="text-sm font-medium text-gray-500">Total Users</p>
+                            <p class="text-2xl font-semibold text-gray-800">
+                                {{ \App\Models\User::count() }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -51,8 +52,10 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Page Views</p>
-                            <p class="text-2xl font-semibold text-gray-800">45,289</p>
+                            <p class="text-sm font-medium text-gray-500">Farmers</p>
+                            <p class="text-2xl font-semibold text-gray-800">
+                                {{ \App\Models\User::where('role', 'farmer')->count() }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -67,8 +70,10 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-medium text-gray-500">Avg. Time</p>
-                            <p class="text-2xl font-semibold text-gray-800">3:42</p>
+                            <p class="text-sm font-medium text-gray-500">Buyers</p>
+                            <p class="text-2xl font-semibold text-gray-800">
+                                {{ \App\Models\User::where('role', 'buyer')->count() }}
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -132,3 +137,5 @@
             </div>
         </div>
     </main>
+</div>
+@endsection

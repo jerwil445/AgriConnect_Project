@@ -3,23 +3,42 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create admin user only if it doesn't exist
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::factory()->create([
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'email' => 'admin@example.com',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'kyc_status' => 'verified'
+            ]);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create sample farmers
+        User::factory()->count(5)->create([
+            'role' => 'farmer'
+        ]);
+
+        // Create sample buyers
+        User::factory()->count(5)->create([
+            'role' => 'buyer'
+        ]);
+
+        // Seed products
+        $this->call([
+            ProductSeeder::class,
+            FarmerProfileSeeder::class,
+            DemandMatchSeeder::class,
         ]);
     }
 }

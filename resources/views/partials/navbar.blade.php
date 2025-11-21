@@ -17,17 +17,13 @@
                 <li><a href="#alumni" class="hover:text-green-600 font-medium">Alumni</a></li>
                 <li><a href="#contact" class="hover:text-green-600 font-medium">Contact</a></li>
             @endif
-            {{-- Auth-aware login/register links --}}
-            @auth
-                
-            @else
-                <div class="space-x-4">
-                    <a href ="{{ route('login') }}"
-                        class="bg-white text-green-600 px-4 py-1 border border-green-600 rounded hover:bg-green-600 hover:text-white transition-all duration-500">Login</a>
-                    <a href = "{{ route('register') }}"
-                        class="bg-green-600 text-white px-4 py-1  border rounded hover:bg-white hover:text-green-600 hover:border-green-600 transition-all duration-500">Register</a>
-                </div>
-            @endauth
+            {{-- Always show login/register links --}}
+            <div class="space-x-4">
+                <a href="{{ route('login') }}"
+                    class="bg-white text-green-600 px-4 py-1 border border-green-600 rounded hover:bg-green-600 hover:text-white transition-all duration-500">Login</a>
+                <a href="{{ route('register') }}"
+                    class="bg-green-600 text-white px-4 py-1  border rounded hover:bg-white hover:text-green-600 hover:border-green-600 transition-all duration-500">Register</a>
+            </div>
         </ul>
     </nav>
 </header>

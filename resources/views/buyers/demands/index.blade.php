@@ -1,0 +1,291 @@
+@extends('layouts.buyers_page')
+
+@section('content')
+<div class="container mx-auto px-4 ">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">My Demands</h1>
+        <button id="openDemandModal" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            Post New Demand
+        </button>
+    </div>
+
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if($demands->isEmpty())
+        <div class="bg-white shadow-md rounded-lg p-6 text-center">
+            <p class="text-gray-600">You haven't posted any demands yet.</p>
+            <button id="openDemandModalEmpty" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                Post Your First Demand
+            </button>
+        </div>
+    @else
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach($demands as $demand)
+                <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <h2 class="text-xl font-bold text-gray-800">{{ $demand->product_name }}</h2>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                {{ $demand->quantity }} {{ $demand->unit ?? 'units' }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-4 space-y-2">
+                            <div class="flex items-center text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ $demand->location }}
+                            </div>
+                            
+                            <div class="flex items-center text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Delivery by: {{ $demand->delivery_date->format('M d, Y') }}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h3 class="font-medium text-gray-700">Matches Found: {{ $demand->matches->count() }}</h3>
+                            <div class="mt-2 space-y-2">
+                                @foreach($demand->matches->take(3) as $match)
+                                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded">
+                                        <div>
+                                            <p class="text-sm font-medium">{{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}</p>
+                                            <p class="text-xs text-gray-500">{{ $match->product->quantity }} {{ $match->product->unit }} available</p>
+                                        </div>
+                                        <span class="px-2 py-1 text-xs rounded 
+                                            @if($match->status == 'Matched') bg-green-100 text-green-800
+                                            @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
+                                            @else bg-red-100 text-red-800
+                                            @endif">
+                                            {{ $match->status }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                                @if($demand->matches->count() > 3)
+                                    <p class="text-sm text-gray-500 text-center">+{{ $demand->matches->count() - 3 }} more matches</p>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <a href="{{ route('demands.show', $demand) }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+
+<!-- Demand Creation Modal -->
+<div id="demandModal" class="fixed inset-0 bg-gray-600 bg-opacity-70 hidden overflow-y-auto h-full w-full z-50" style="z-index: 9999;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Post New Demand</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-500 bg-transparent hover:bg-gray-200 rounded-full p-1 transition duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Loading Overlay -->
+            <div id="loadingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-md">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+                    <p class="mt-4 text-gray-700">Finding matches for your demand...</p>
+                </div>
+            </div>
+            
+            <form id="demandForm" action="{{ route('demands.store') }}" method="POST">
+                @csrf
+                
+                <div class="mb-4">
+                    <label for="modal_product_name" class="block text-gray-700 font-medium mb-2">Product Name</label>
+                    <input type="text" name="product_name" id="modal_product_name" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                           required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="modal_quantity" class="block text-gray-700 font-medium mb-2">Quantity</label>
+                    <input type="number" name="quantity" id="modal_quantity" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                           min="1" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="modal_location" class="block text-gray-700 font-medium mb-2">Delivery Location</label>
+                    <input type="text" name="location" id="modal_location" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                           required>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="modal_delivery_date" class="block text-gray-700 font-medium mb-2">Delivery Date</label>
+                    <input type="date" name="delivery_date" id="modal_delivery_date" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                           required min="{{ date('Y-m-d') }}">
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelModal" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit" id="submitDemand" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        Post Demand
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('demandModal');
+        const openModalBtn = document.getElementById('openDemandModal');
+        const openModalBtnEmpty = document.getElementById('openDemandModalEmpty');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelModalBtn = document.getElementById('cancelModal');
+        const demandForm = document.getElementById('demandForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Open modal
+        function openModal() {
+            modal.classList.remove('hidden');
+            // Prevent scrolling when modal is open
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close modal
+        function closeModal() {
+            modal.classList.add('hidden');
+            // Re-enable scrolling when modal is closed
+            document.body.style.overflow = 'auto';
+            if (demandForm) {
+                demandForm.reset();
+            }
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hidden');
+            }
+        }
+        
+        // Event listeners
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', openModal);
+        }
+        
+        if (openModalBtnEmpty) {
+            openModalBtnEmpty.addEventListener('click', openModal);
+        }
+        
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+        
+        if (cancelModalBtn) {
+            cancelModalBtn.addEventListener('click', closeModal);
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (modal && event.target === modal) {
+                closeModal();
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
+        
+        // Handle form submission
+        if (demandForm) {
+            demandForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Show loading overlay
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('hidden');
+                }
+                
+                // Submit form via AJAX
+                const formData = new FormData(demandForm);
+                
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                if (!csrfToken) {
+                    console.error('CSRF token not found');
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.add('hidden');
+                    }
+                    alert('There was an error with the form submission. Please try again.');
+                    return;
+                }
+                
+                fetch(demandForm.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', [...response.headers.entries()]);
+                    
+                    // Check if response is OK
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    
+                    // Check content type
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error('Response is not JSON: ' + contentType);
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data && data.success) {
+                        // Redirect to demands index page
+                        window.location.href = "{{ route('demands.index') }}";
+                    } else {
+                        // Handle validation errors or other issues
+                        if (loadingOverlay) {
+                            loadingOverlay.classList.add('hidden');
+                        }
+                        const errorMessage = (data && data.message) ? data.message : 'There was an error submitting your demand. Please try again.';
+                        console.error('Server error:', errorMessage);
+                        alert(errorMessage);
+                    }
+                })
+                .catch(error => {
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.add('hidden');
+                    }
+                    console.error('Fetch error:', error);
+                    alert('There was an error submitting your demand. Please check your connection and try again. Error: ' + error.message);
+                });
+            });
+        }
+    });
+</script>
+@endsection

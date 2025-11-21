@@ -33,10 +33,8 @@
     {{-- sidebar and Header --}}
     @include('partials.admin.sidebar_and_header')
 
-    {{-- main  --}}
-    @include('admin.dashboard')
-
-
+    {{-- main content section --}}
+    @yield('content')
 
 </body>
 

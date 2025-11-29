@@ -96,8 +96,10 @@ class RunMatchingEngine extends Command
     private function matchProduct(Product $product)
     {
         // Find demands that match the product criteria
+        // Only match with products that are available
         $matchingDemands = Demand::where('product_name', 'LIKE', '%' . $product->product_name . '%')
             ->where('quantity', '<=', $product->quantity)
+            ->where('status', 'Available')
             ->get();
 
         // For each matching demand, create a match record

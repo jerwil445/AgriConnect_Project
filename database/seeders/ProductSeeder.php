@@ -25,6 +25,16 @@ class ProductSeeder extends Seeder
                     return $farmers->random()->id;
                 },
             ]);
+        } else {
+            // If no farmers exist, create 5 sample farmers first
+            $farmers = Farmer::factory()->count(5)->create();
+            
+            // Then create 50 products distributed among these farmers
+            Product::factory()->count(50)->create([
+                'farmer_id' => function() use ($farmers) {
+                    return $farmers->random()->id;
+                },
+            ]);
         }
     }
 }

@@ -1,8 +1,6 @@
 <body class="bg-gray-100">
-
     <!-- Header -->
     <header class="fixed top-0 left-0 right-0 bg-green-500 shadow-lg z-30 flex items-center justify-between px-4 py-3  ">
-
         <!-- Left: Mobile Menu Button -->
         <button id="menu-btn" class="md:hidden text-white focus:outline-none">
             <i class="fa-solid fa-bars text-2xl"></i>
@@ -65,7 +63,6 @@
         </div>
     </header>
 
-
     <!-- Sidebar -->
     <aside id="sidebar"
         class="fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
@@ -95,15 +92,48 @@
                 Dashboard
             </a>
             <a href="{{ route('admin.users.index') }}"
-                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
-                {{ request()->routeIs('admin.users.*') ? 'bg-green-100 text-green-600' : '' }}">
-                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-width="2"
-                        d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
+            class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+            {{ request()->routeIs('admin.users.*') ? 'bg-green-100 text-green-600' : '' }}">
+            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-width="2"
+            d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
 
                Users
+            </a>
+            <a href="{{ route('admin.products.index') }}"
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.products.*') ? 'bg-green-100 text-green-600' : '' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 icon-hover" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+               Products list
+            </a>
+            <a href="{{ route('admin.demands.index') }}"
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.demands.*') ? 'bg-green-100 text-green-600' : '' }}">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4.5V19a1 1 0 0 0 1 1h15M7 14l4-4 4 4 5-5m0 0h-3.207M20 9v3.207"/>
+                </svg>
+
+               Demands
+            </a>
+            <a href="{{ route('admin.matches.index') }}"
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.matches.*') ? 'bg-green-100 text-green-600' : '' }}">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+  <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+</svg>
+
+               Matches
+            </a>
+            <a href="{{ route('admin.transactions.index') }}"
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.transactions.*') ? 'bg-green-100 text-green-600' : '' }}">
+                <i class="fa-regular fa-handshake text-base text-gray-800 dark:text-white"></i>
+               Transactions
             </a>
             <a href="#"
                 class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 font-medium transition-all duration-300">
@@ -120,8 +150,6 @@
 
     <!-- Overlay (for mobile) -->
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-30 md:hidden"></div>
-
-
 
     <script>
         // Sidebar toggle for mobile
@@ -156,5 +184,4 @@
             }
         });
     </script>
-
 </body>

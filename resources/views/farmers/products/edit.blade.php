@@ -24,6 +24,17 @@
             </div>
 
             <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea name="description" id="description" rows="3"
+                          class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                          placeholder="Enter product description...">{{ old('description', $product->description) }}</textarea>
+                <p class="mt-1 text-sm text-gray-500">Provide details about the product quality, farming methods, etc.</p>
+                @error('description')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                 <input type="number" name="quantity" id="quantity" 
                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
@@ -70,32 +81,56 @@
                 @enderror
             </div>
 
-            <div>
-                <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Product Images (Up to 10)</label>
-                <input type="file" name="images[]" id="images" multiple 
-                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                       accept="image/*">
-                <p class="mt-1 text-sm text-gray-500">You can select up to 10 images. The first image will be used as the primary image.</p>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
+                
+                <!-- Current Images Display -->
                 @if($product->images->count() > 0)
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-500">Current images:</p>
-                        <div class="flex flex-wrap gap-2 mt-2">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-700 font-medium mb-2">Current Images:</p>
+                        <div class="flex flex-wrap gap-3">
                             @foreach($product->images as $image)
-                                <div class="relative">
-                                    <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->product_name }}" class="h-20 w-20 object-cover rounded-md">
+                                <div class="relative group">
+                                    <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->product_name }}" class="h-24 w-24 object-cover rounded-md border border-gray-200">
                                     @if($image->is_primary)
-                                        <span class="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded-br">Primary</span>
+                                        <span class="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded-br rounded-tl">Primary</span>
                                     @endif
+                                    <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+                                        <span class="text-white text-xs text-center px-1">Existing Image</span>
+                                    </div>
                                 </div>
                             @endforeach
                         </div>
                     </div>
                 @elseif($product->image)
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-500">Current primary image:</p>
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}" class="mt-1 h-20 w-20 object-cover rounded-md">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-700 font-medium mb-2">Current Primary Image:</p>
+                        <div class="flex items-center gap-3">
+                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}" class="h-24 w-24 object-cover rounded-md border border-gray-200">
+                        </div>
                     </div>
                 @endif
+                
+                <!-- Upload New Images -->
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50 hover:border-green-400 transition-colors cursor-pointer" 
+                     onclick="document.getElementById('images').click()">
+                    <div class="flex flex-col items-center justify-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="images" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
+                                <span>Upload new images</span>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        <p class="text-xs text-gray-500 mt-1">You can select up to 10 images. The first image will be used as the primary image.</p>
+                    </div>
+                    <input type="file" name="images[]" id="images" multiple 
+                           class="sr-only" accept="image/*">
+                </div>
+                <p class="mt-2 text-sm text-gray-500">Click or drag images to this area to upload new images</p>
                 @error('images')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror

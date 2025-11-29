@@ -85,7 +85,20 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($demand->matches as $match)
-                        <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow duration-300">
+                        <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow duration-300 relative">
+                            <!-- Delete Match Icon (X) in top right corner -->
+                            <form action="{{ route('matches.destroy', $match) }}" method="POST" class="absolute top-3 right-3">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="text-gray-400 hover:text-red-500 transition-colors duration-200"
+                                        onclick="return confirm('Are you sure you want to delete this match? This action cannot be undone.')">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                            
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 class="font-bold text-lg text-gray-900">{{ $match->product->product_name }}</h3>
@@ -94,6 +107,8 @@
                                 <span class="px-2 py-1 rounded-full text-xs font-medium 
                                     @if($match->status == 'Matched') bg-green-100 text-green-800
                                     @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
+                                    @elseif($match->status == 'New') bg-blue-100 text-blue-800
+                                    @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
                                     @else bg-red-100 text-red-800
                                     @endif">
                                     {{ $match->status }}
@@ -113,63 +128,52 @@
                                     <span class="text-gray-500 text-sm">Harvest Date:</span>
                                     <span class="font-medium">{{ $match->product->harvest_date->format('M d, Y') }}</span>
                                 </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Status:</span>
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                        @if($match->product->status == 'Available') bg-green-100 text-green-800
+                                        @elseif($match->product->status == 'Sold Out') bg-red-100 text-red-800
+                                        @else bg-yellow-100 text-yellow-800 @endif">
+                                        {{ ucfirst(str_replace('_', ' ', $match->product->status)) }}
+                                    </span>
+                                </div>
                             </div>
                             
-                            @if($match->status == 'Pending')
+                            <div class="flex space-x-3 mb-3">
+                                <a href="{{ route('buyer.products.show', $match->product) }}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
+                                    View Product
+                                </a>
+                                <!-- Button to view farmer profile -->
+                                <button type="button" 
+                                        class="flex-1 text-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors view-profile-btn"
+                                        data-first-name="{{ $match->product->farmer->user->first_name }}"
+                                        data-last-name="{{ $match->product->farmer->user->last_name }}"
+                                        data-email="{{ $match->product->farmer->user->email }}"
+                                        data-phone="{{ $match->product->farmer->user->phone_number ?? 'N/A' }}"
+                                        data-farm-name="{{ $match->product->farmer->farm_name ?? 'N/A' }}"
+                                        data-product-type="{{ $match->product->farmer->product_type ?? 'N/A' }}"
+                                        data-farm-address="{{ $match->product->farmer->farm_address ?? 'N/A' }}">
+                                    View Profile
+                                </button>
+                            </div>
+                            
+                            @if($match->product->status == 'Sold Out')
                                 <div class="flex space-x-3 mb-3">
-                                    <a href="{{ route('buyer.products.show', $match->product) }}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
-                                        View Product
-                                    </a>
-                                    <!-- Button to view farmer profile -->
-                                    <button type="button" 
-                                            class="flex-1 text-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors view-profile-btn"
-                                            data-first-name="{{ $match->product->farmer->user->first_name }}"
-                                            data-last-name="{{ $match->product->farmer->user->last_name }}"
-                                            data-email="{{ $match->product->farmer->user->email }}"
-                                            data-phone="{{ $match->product->farmer->user->phone_number ?? 'N/A' }}"
-                                            data-farm-name="{{ $match->product->farmer->farm_name ?? 'N/A' }}"
-                                            data-product-type="{{ $match->product->farmer->product_type ?? 'N/A' }}"
-                                            data-farm-address="{{ $match->product->farmer->farm_address ?? 'N/A' }}">
-                                        View Profile
+                                    <button disabled class="w-full inline-block text-center px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                                        Product Sold Out
                                     </button>
                                 </div>
-                                <div class="flex space-x-3">
-                                    <!-- Updated Accept button to use AJAX -->
-                                    <button type="button" 
-                                            class="flex-1 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors accept-btn"
-                                            data-match-id="{{ $match->id }}"
-                                            data-action="{{ route('matches.accept', $match) }}">
-                                        Accept
-                                    </button>
-                                    <form action="{{ route('matches.reject', $match) }}" method="POST" class="flex-1">
+                            @else
+                                <div class="flex space-x-3 mb-3">
+                                    <form action="{{ route('matches.startConversation', $match) }}" method="POST" class="w-full">
                                         @csrf
-                                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors">
-                                            Reject
+                                        <button type="submit" class="w-full inline-block text-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
+                                            Message
                                         </button>
                                     </form>
                                 </div>
-                            @elseif($match->status == 'Matched')
-                                <div class="flex space-x-3 mb-3">
-                                    <a href="{{ route('buyer.products.show', $match->product) }}" class="flex-1 text-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors">
-                                        View Product
-                                    </a>
-                                    <!-- Button to view farmer profile -->
-                                    <button type="button" 
-                                            class="flex-1 text-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors view-profile-btn"
-                                            data-first-name="{{ $match->product->farmer->user->first_name }}"
-                                            data-last-name="{{ $match->product->farmer->user->last_name }}"
-                                            data-email="{{ $match->product->farmer->user->email }}"
-                                            data-phone="{{ $match->product->farmer->user->phone_number ?? 'N/A' }}"
-                                            data-farm-name="{{ $match->product->farmer->farm_name ?? 'N/A' }}"
-                                            data-product-type="{{ $match->product->farmer->product_type ?? 'N/A' }}"
-                                            data-farm-address="{{ $match->product->farmer->farm_address ?? 'N/A' }}">
-                                        View Profile
-                                    </button>
-                                </div>
-                                <a href="#" class="w-full inline-block text-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors">
-                                    Start Transaction
-                                </a>
                             @endif
+
                         </div>
                     @endforeach
                 </div>
@@ -249,21 +253,7 @@
     </div>
 </div>
 
-<!-- Waiting for Farmer Acceptance Popup -->
-<div id="waitingPopup" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 w-full max-w-md mx-4 p-6 text-center">
-        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
-            <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-        </div>
-        <h3 class="text-lg font-medium text-gray-900 mt-4">Waiting for Farmer's Acceptance...</h3>
-        <p class="text-gray-500 mt-2">The farmer has been notified of your interest. Please wait for their response.</p>
-        <button id="closePopupBtn" class="mt-6 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-            Close
-        </button>
-    </div>
-</div>
+
 
 <script>
     // Initialize modal functionality after DOM is loaded
@@ -328,68 +318,7 @@
             }
         });
 
-        // Handle Accept button clicks with AJAX
-        var acceptButtons = document.querySelectorAll('.accept-btn');
-        acceptButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                var matchId = this.getAttribute('data-match-id');
-                var actionUrl = this.getAttribute('data-action');
-                
-                // Send AJAX request
-                fetch(actionUrl, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Show the waiting popup
-                        var popup = document.getElementById('waitingPopup');
-                        if (popup) {
-                            popup.classList.remove('hidden');
-                            popup.classList.add('flex');
-                        }
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while accepting the match.');
-                });
-            });
-        });
 
-        // Close popup button
-        var closePopupBtn = document.getElementById('closePopupBtn');
-        if (closePopupBtn) {
-            closePopupBtn.addEventListener('click', function() {
-                var popup = document.getElementById('waitingPopup');
-                if (popup) {
-                    popup.classList.add('hidden');
-                    popup.classList.remove('flex');
-                    // Reload the page to reflect the updated status
-                    location.reload();
-                }
-            });
-        }
-
-        // Close popup when clicking outside
-        var waitingPopup = document.getElementById('waitingPopup');
-        if (waitingPopup) {
-            waitingPopup.addEventListener('click', function(event) {
-                if (event.target === waitingPopup) {
-                    waitingPopup.classList.add('hidden');
-                    waitingPopup.classList.remove('flex');
-                    // Reload the page to reflect the updated status
-                    location.reload();
-                }
-            });
-        }
     });
 </script>
 @endsection

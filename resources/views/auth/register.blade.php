@@ -355,4 +355,7 @@
     </div>
 </div>
 
+<!-- Include the register.js file directly for this page -->
+@vite('resources/js/register.js')
+
 @endsection

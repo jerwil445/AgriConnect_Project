@@ -71,8 +71,8 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            @if($product->status == 'available') bg-green-100 text-green-800
-                            @elseif($product->status == 'sold_out') bg-red-100 text-red-800
+                            @if($product->status == 'Available') bg-green-100 text-green-800
+                            @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
                             @else bg-yellow-100 text-yellow-800 @endif">
                             {{ ucfirst(str_replace('_', ' ', $product->status)) }}
                         </span>
@@ -112,19 +112,19 @@
                                         <a href="#" 
                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                                            role="menuitem" 
-                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'available');">
+                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Available');">
                                             <i class="fas fa-check-circle mr-2 text-green-500"></i> Mark as Available
                                         </a>
                                         <a href="#" 
                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                                            role="menuitem" 
-                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'pending');">
+                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Pending');">
                                             <i class="fas fa-clock mr-2 text-yellow-500"></i> Mark as Pending
                                         </a>
                                         <a href="#" 
                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" 
                                            role="menuitem" 
-                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'sold_out');">
+                                           onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Sold Out');">
                                             <i class="fas fa-times-circle mr-2 text-red-500"></i> Mark as Sold Out
                                         </a>
                                     </div>

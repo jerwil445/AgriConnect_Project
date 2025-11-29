@@ -32,4 +32,10 @@ class DemandMatch extends Model
     {
         return $this->belongsTo(Demand::class);
     }
+    
+    public function transaction()
+    {
+        return $this->hasOne(Transaction::class, 'demand_id', 'demand_id')
+            ->where('product_id', $this->product_id);
+    }
 }

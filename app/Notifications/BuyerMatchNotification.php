@@ -48,7 +48,9 @@ class BuyerMatchNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'message' => $this->data['message'],
+            'transaction_id' => $this->data['transaction_id'] ?? null,
+            'data' => $this->data
         ];
     }
 }

@@ -34,10 +34,12 @@ class DatabaseSeeder extends Seeder
             'role' => 'buyer'
         ]);
 
-        // Seed products
+        // Seed products and demands
         $this->call([
             ProductSeeder::class,
             FarmerProfileSeeder::class,
+            ProductImageSeeder::class,
+            DemandSeeder::class,
             DemandMatchSeeder::class,
         ]);
     }

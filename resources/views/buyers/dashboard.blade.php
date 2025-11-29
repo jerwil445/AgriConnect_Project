@@ -207,6 +207,14 @@
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">{{ $product->product_name }}</h3>
+                            <div class="mt-1">
+                                <span class="px-2 py-1 text-xs rounded-full font-medium 
+                                    @if($product->status == 'Available') bg-green-100 text-green-800
+                                    @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
+                                    @else bg-yellow-100 text-yellow-800 @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $product->status)) }}
+                                </span>
+                            </div>
                             <p class="text-gray-600 text-sm flex items-center mt-1">
                                 <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> {{ $product->farmer->user->address ?? 'Farm Location' }}, {{ $product->farmer->user->state ?? 'State' }}
                             </p>
@@ -223,16 +231,24 @@
                             <p class="text-gray-700 font-medium">{{ $product->harvest_date?->format('d M Y') ?? 'N/A' }}</p>
                         </div>
                     </div>
+                    @if($product->status == 'Sold Out')
+                    <button
+                        class="w-full bg-gray-300 text-gray-500 py-2.5 rounded-lg cursor-not-allowed font-medium flex items-center justify-center space-x-2" disabled>
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Sold Out</span>
+                    </button>
+                    @else
                     <button
                         class="w-full bg-green-500 text-white py-2.5 rounded-lg hover:bg-primary-600 transition duration-200 font-medium flex items-center justify-center space-x-2">
                         <i class="fas fa-shopping-cart"></i>
                         <span><a href="{{ route('buyer.products.show', $product) }}" class="text-white hover:text-white">View Details</a></span>
                     </button>
+                    @endif
                 </div>
             </div>
             @empty
             <div class="col-span-full text-center py-12">
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">No products available</h3>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">No products found</h3>
                 <p class="text-gray-600">Check back later for new listings.</p>
             </div>
             @endforelse

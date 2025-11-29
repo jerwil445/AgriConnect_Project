@@ -16,15 +16,40 @@ class DemandMatchSeeder extends Seeder
      */
     public function run(): void
     {
-        // Get sample buyer and farmer users
-        $buyer = User::where('role', 'buyer')->first();
-        $farmer = User::where('role', 'farmer')->first();
+        // Get all buyers and farmers
+        $buyers = User::where('role', 'buyer')->get();
+        $farmers = User::where('role', 'farmer')->get();
         
-        if (!$buyer || !$farmer) {
+        if ($buyers->isEmpty() || $farmers->isEmpty()) {
             return; // Exit if we don't have the required users
         }
         
-        // Create sample demand
+        // Get all demands and products
+        $demands = Demand::all();
+        $products = Product::all();
+        
+        if ($demands->isEmpty() || $products->isEmpty()) {
+            return; // Exit if we don't have demands or products
+        }
+        
+        // Create matches between demands and products
+        foreach ($demands->take(20) as $demand) {
+            // Get a random product
+            $product = $products->random();
+            
+            // Create a match between the demand and product
+            DemandMatch::create([
+                'product_id' => $product->id,
+                'demand_id' => $demand->id,
+                'status' => 'New',
+                'matched_date' => now(),
+            ]);
+        }
+        
+        // Create sample demand for demonstration
+        $buyer = $buyers->first();
+        $farmer = $farmers->first();
+        
         $demand = Demand::create([
             'buyer_id' => $buyer->id,
             'product_name' => 'Corn',
@@ -45,14 +70,5 @@ class DemandMatchSeeder extends Seeder
                 'matched_date' => now(),
             ]);
         }
-        
-        // Create another demand
-        $demand2 = Demand::create([
-            'buyer_id' => $buyer->id,
-            'product_name' => 'Rice',
-            'quantity' => 100,
-            'location' => 'Town B',
-            'delivery_date' => '2025-11-30',
-        ]);
     }
 }

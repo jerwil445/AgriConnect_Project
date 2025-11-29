@@ -11,14 +11,14 @@ class FarmerMatchNotification extends Notification
 {
     use Queueable;
 
-    protected $message;
+    protected $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct($message)
+    public function __construct($data)
     {
-        $this->message = $message;
+        $this->data = $data;
     }
 
     /**
@@ -50,7 +50,9 @@ class FarmerMatchNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return [
-            'message' => $this->message,
+            'message' => $this->data['message'],
+            'transaction_id' => $this->data['transaction_id'] ?? null,
+            'data' => $this->data
         ];
     }
 }

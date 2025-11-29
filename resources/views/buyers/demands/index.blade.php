@@ -63,6 +63,7 @@
                                         <span class="px-2 py-1 text-xs rounded 
                                             @if($match->status == 'Matched') bg-green-100 text-green-800
                                             @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
+                                            @elseif($match->status == 'New') bg-blue-100 text-blue-800
                                             @else bg-red-100 text-red-800
                                             @endif">
                                             {{ $match->status }}
@@ -75,10 +76,19 @@
                             </div>
                         </div>
                         
-                        <div class="mt-6">
-                            <a href="{{ route('demands.show', $demand) }}" class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
+                        <div class="mt-6 flex space-x-2">
+                            <a href="{{ route('demands.show', $demand) }}" class="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
                                 View Details
                             </a>
+                            <form action="{{ route('demands.destroy', $demand) }}" method="POST" class="delete-form">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="delete-button p-2 border border-transparent rounded-md text-white bg-red-200 hover:bg-red-700" title="Delete Demand">
+                                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -148,6 +158,90 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-70 hidden overflow-y-auto h-full w-full z-50" style="z-index: 10000;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Confirm Deletion</h3>
+                <button id="closeDeleteModal" class="text-gray-400 hover:text-gray-500 bg-transparent hover:bg-gray-200 rounded-full p-1 transition duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mt-2 px-4 py-3">
+                <p class="text-gray-700">Are you sure you want to delete this demand? This action cannot be undone.</p>
+            </div>
+            
+            <div class="mt-4 flex justify-end space-x-4">
+                <button id="cancelDelete" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Message Modal -->
+<div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-70 hidden overflow-y-auto h-full w-full z-50" style="z-index: 10001;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Success</h3>
+                <button id="closeSuccessModal" class="text-gray-400 hover:text-gray-500 bg-transparent hover:bg-gray-200 rounded-full p-1 transition duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mt-2 px-4 py-3">
+                <p id="successMessage" class="text-gray-700"></p>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button id="okSuccess" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Message Modal -->
+<div id="errorModal" class="fixed inset-0 bg-gray-600 bg-opacity-70 hidden overflow-y-auto h-full w-full z-50" style="z-index: 10001;">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Error</h3>
+                <button id="closeErrorModal" class="text-gray-400 hover:text-gray-500 bg-transparent hover:bg-gray-200 rounded-full p-1 transition duration-200">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mt-2 px-4 py-3">
+                <p id="errorMessage" class="text-gray-700"></p>
+            </div>
+            
+            <div class="mt-4 flex justify-end">
+                <button id="okError" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                    OK
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -249,6 +343,13 @@
                     console.log('Response status:', response.status);
                     console.log('Response headers:', [...response.headers.entries()]);
                     
+                    // Handle validation errors (422)
+                    if (response.status === 422) {
+                        return response.json().then(data => {
+                            throw new Error('Validation failed: ' + JSON.stringify(data.errors || data.message || 'Please check your form data'));
+                        });
+                    }
+                    
                     // Check if response is OK
                     if (!response.ok) {
                         throw new Error('Network response was not ok: ' + response.status);
@@ -286,6 +387,113 @@
                 });
             });
         }
+        
+        // Delete functionality
+        let deleteFormToSubmit = null;
+        
+        // Add event listeners to delete buttons
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', function() {
+                deleteFormToSubmit = this.closest('.delete-form');
+                document.getElementById('deleteModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Close delete modal
+        document.getElementById('closeDeleteModal').addEventListener('click', function() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            deleteFormToSubmit = null;
+        });
+        
+        // Cancel delete
+        document.getElementById('cancelDelete').addEventListener('click', function() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            deleteFormToSubmit = null;
+        });
+        
+        // Confirm delete
+        document.getElementById('confirmDelete').addEventListener('click', function() {
+            if (deleteFormToSubmit) {
+                // Get the form action and CSRF token
+                const action = deleteFormToSubmit.getAttribute('action');
+                const csrfToken = deleteFormToSubmit.querySelector('input[name="_token"]').getAttribute('value');
+                
+                // Close the modal
+                document.getElementById('deleteModal').classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                
+                // Send AJAX request
+                fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        '_method': 'DELETE'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Show success popup
+                        document.getElementById('successMessage').textContent = data.message;
+                        document.getElementById('successModal').classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        // Show error message
+                        document.getElementById('errorMessage').textContent = data.message;
+                        document.getElementById('errorModal').classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('errorMessage').textContent = 'An error occurred while deleting the demand.';
+                    document.getElementById('errorModal').classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                });
+                
+                deleteFormToSubmit = null;
+            }
+        });
+        
+        // Success modal event listeners
+        document.getElementById('okSuccess').addEventListener('click', function() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            location.reload();
+        });
+        
+        document.getElementById('closeSuccessModal').addEventListener('click', function() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            location.reload();
+        });
+        
+        // Error modal event listeners
+        document.getElementById('okError').addEventListener('click', function() {
+            document.getElementById('errorModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+        
+        document.getElementById('closeErrorModal').addEventListener('click', function() {
+            document.getElementById('errorModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('deleteModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                this.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                deleteFormToSubmit = null;
+            }
+        });
     });
 </script>
 @endsection

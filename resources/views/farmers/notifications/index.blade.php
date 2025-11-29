@@ -69,7 +69,7 @@
         // Handle mark as read buttons
         var markAsReadButtons = document.querySelectorAll('.mark-as-read');
         markAsReadButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
                 var notificationId = this.getAttribute('data-notification-id');
                 
                 // Send AJAX request to mark as read

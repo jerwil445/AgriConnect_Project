@@ -17,19 +17,29 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        // Extended list of product names for more variety
+        $productNames = [
+            'Tomatoes', 'Potatoes', 'Carrots', 'Lettuce', 'Cucumbers',
+            'Bell Peppers', 'Onions', 'Garlic', 'Spinach', 'Cabbage',
+            'Apples', 'Bananas', 'Oranges', 'Grapes', 'Strawberries',
+            'Corn', 'Rice', 'Wheat', 'Soybeans', 'Barley',
+            'Milk', 'Cheese', 'Yogurt', 'Butter', 'Cream',
+            'Broccoli', 'Cauliflower', 'Celery', 'Mushrooms', 'Avocados',
+            'Pineapples', 'Mangoes', 'Watermelons', 'Peaches', 'Cherries',
+            'Beef', 'Pork', 'Chicken', 'Lamb', 'Fish',
+            'Eggs', 'Honey', 'Flour', 'Sugar', 'Salt',
+            'Coffee Beans', 'Tea Leaves', 'Herbs', 'Spices', 'Nuts',
+            'Olives', 'Pumpkins', 'Sweet Potatoes', 'Radishes', 'Peas'
+        ];
+
         return [
-            'product_name' => $this->faker->randomElement([
-                'Tomatoes', 'Potatoes', 'Carrots', 'Lettuce', 'Cucumbers',
-                'Bell Peppers', 'Onions', 'Garlic', 'Spinach', 'Cabbage',
-                'Apples', 'Bananas', 'Oranges', 'Grapes', 'Strawberries',
-                'Corn', 'Rice', 'Wheat', 'Soybeans', 'Barley',
-                'Milk', 'Cheese', 'Yogurt', 'Butter', 'Cream'
-            ]),
-            'quantity' => $this->faker->numberBetween(10, 1000),
-            'unit' => $this->faker->randomElement(['kilos', 'pieces', 'bunches', 'boxes', 'tons']),
-            'price' => $this->faker->randomFloat(2, 20, 1000),
-            'harvest_date' => $this->faker->dateTimeBetween('-1 month', '+1 month'),
-            'status' => $this->faker->randomElement(['available', 'sold_out', 'pending']),
+            'farmer_id' => Farmer::factory(), // Add farmer_id
+            'product_name' => $this->faker->randomElement($productNames),
+            'quantity' => $this->faker->numberBetween(10, 2000),
+            'unit' => $this->faker->randomElement(['kilos', 'pieces', 'bunches', 'boxes', 'tons', 'liters', 'grams']),
+            'price' => $this->faker->randomFloat(2, 10, 2000),
+            'harvest_date' => $this->faker->dateTimeBetween('-2 weeks', '+2 weeks'),
+            'status' => $this->faker->randomElement(['Available', 'Available', 'Available', 'Sold Out', 'Pending']), // More available products
             'image' => null,
         ];
     }

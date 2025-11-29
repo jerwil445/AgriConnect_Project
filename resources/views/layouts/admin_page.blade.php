@@ -7,6 +7,7 @@
     <title>Dashboard with Proper Alignment</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         .sidebar-transition {
             transition: all 0.3s ease;
@@ -29,7 +30,7 @@
 </head>
 
 <body class="bg-gray-100 min-h-screen">
-
+    @vite('resources/css/app.css')
     {{-- sidebar and Header --}}
     @include('partials.admin.sidebar_and_header')
 

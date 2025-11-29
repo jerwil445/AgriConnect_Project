@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\MatchingService;
 
 class Product extends Model
 {
@@ -12,6 +13,7 @@ class Product extends Model
     protected $fillable = [
         'farmer_id',
         'product_name',
+        'description',
         'quantity',
         'unit',
         'price',
@@ -24,6 +26,21 @@ class Product extends Model
         'harvest_date' => 'date',
         'price' => 'decimal:2',
     ];
+    
+    // Boot the model
+    protected static function boot()
+    {
+        parent::boot();
+        
+        // When a product is created, check for matching demands with zero matches
+        static::created(function ($product) {
+            // Only run this for available products
+            if ($product->status === 'Available') {
+                // Resolve the matching service from the container and call the method
+                app()->make(MatchingService::class)->matchNewProductWithZeroMatchDemands($product);
+            }
+        });
+    }
     
     public function farmer()
     {

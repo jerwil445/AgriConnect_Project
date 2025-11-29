@@ -33,6 +33,7 @@ class User extends Authenticatable
         'phone_number',
         'address',
         'kyc_status',
+        'profile_picture',
     ];
 
     /**

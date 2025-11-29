@@ -71,6 +71,7 @@ class ProductController extends Controller
         
         $request->validate([
             'product_name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
@@ -188,6 +189,7 @@ class ProductController extends Controller
         
         $request->validate([
             'product_name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
@@ -301,7 +303,7 @@ class ProductController extends Controller
         
         // Validate status
         $request->validate([
-            'status' => 'required|in:available,pending,sold_out',
+            'status' => 'required|in:Available,Pending,Sold Out',
         ]);
         
         // Update product status

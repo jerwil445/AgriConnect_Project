@@ -3,7 +3,7 @@
 @section('content')
     
     <div class="container mx-auto px-4 py-8">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="bg-white rounc  d-xl shadow-sm border border-gray-100">
             <!-- <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
                 <h2 class="text-lg font-semibold text-gray-900">Product Details</h2>
                 <div class="flex gap-2">
@@ -66,10 +66,13 @@
             <div class="md:col-span-2">
                 <div class="mb-6">
                     <h3 class="text-2xl font-bold text-gray-900">{{ $product->product_name }}</h3>
+                    @if($product->description)
+                        <p class="mt-2 text-gray-600">{{ $product->description }}</p>
+                    @endif
                     <div class="mt-2 flex items-center">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            @if($product->status == 'available') bg-green-100 text-green-800
-                            @elseif($product->status == 'sold_out') bg-red-100 text-red-800
+                            @if($product->status == 'Available') bg-green-100 text-green-800
+                            @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
                             @else bg-yellow-100 text-yellow-800 @endif">
                             {{ ucfirst(str_replace('_', ' ', $product->status)) }}
                         </span>
@@ -84,7 +87,7 @@
 
                     <div>
                         <p class="text-sm text-gray-500">Price</p>
-                        <p class="text-lg font-semibold">${{ number_format($product->price, 2) }}</p>
+                        <p class="text-lg font-semibold">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</p>
                     </div>
 
                     <div>
@@ -124,12 +127,19 @@
 
                 <!-- Action Buttons -->
                 <div class="mt-8 flex flex-col sm:flex-row gap-3">
-                    <button class="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
-                    </button>
-                    <button class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        <i class="fas fa-envelope mr-2"></i> Contact Farmer
-                    </button>
+                    @if($product->status == 'Sold Out')
+                        <button disabled 
+                           class="flex-1 rounded-lg border border-gray-300 bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-500 cursor-not-allowed text-center">
+                            <i class="fas fa-envelope mr-2"></i> Product Sold Out
+                        </button>
+                    @else
+                        <form action="{{ route('buyer.message-farmer', $product) }}" method="POST" class="w-full">
+                            @csrf
+                            <button type="submit" class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 text-center">
+                                <i class="fas fa-envelope mr-2"></i> Message Farmer
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>

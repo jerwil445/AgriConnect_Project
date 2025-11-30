@@ -105,10 +105,7 @@
             <a href="{{ route('admin.products.index') }}"
                 class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
                 {{ request()->routeIs('admin.products.*') ? 'bg-green-100 text-green-600' : '' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 icon-hover" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+                <i class="fas fa-box-open text-base text-black"></i>
                Products list
             </a>
             <a href="{{ route('admin.demands.index') }}"

@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6" style="overflow: visible;">
@@ -161,7 +161,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Egg Type</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer Name</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
@@ -175,7 +175,7 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @forelse($products as $product)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->product_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->egg_type }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $product->farmer->user->first_name }} {{ $product->farmer->user->last_name }}
                                 </td>
@@ -246,7 +246,7 @@
                                                 <!-- Delete Action -->
                                                 <div class="border-t border-gray-200 my-1"></div>
                                                 <form action="{{ route('admin.products.delete', $product) }}" method="POST" 
-                                                      class="inline delete-form" data-product-name="{{ $product->product_name }}">
+                                                      class="inline delete-form" data-product-name="{{ $product->egg_type }}">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" 

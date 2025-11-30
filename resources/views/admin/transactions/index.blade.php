@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
     <main class="flex-1 p-6 ">
         <div class="max-w-7xl mx-auto ">
             <div class="bg-white rounded-lg shadow p-6 overflow-auto" >
@@ -178,10 +178,10 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $transaction->product ? $transaction->product->product_name : 'N/A' }}
+                                    {{ $transaction->product ? $transaction->product->egg_type : 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $transaction->demand ? $transaction->demand->product_name : 'N/A' }}
+                                    {{ $transaction->demand ? $transaction->demand->egg_type : 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $transaction->buyer ? $transaction->buyer->first_name . ' ' . $transaction->buyer->last_name : 'N/A' }}

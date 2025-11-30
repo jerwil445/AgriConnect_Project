@@ -1,12 +1,12 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Audit Matches for "{{ $demand->product_name }}"</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Audit Matches for "{{ $demand->egg_type }}"</h2>
                     <a href="{{ route('admin.demands.index') }}" 
                        class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
@@ -21,7 +21,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
                         <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Product</label>
-                            <p class="text-sm text-gray-900">{{ $demand->product_name }}</p>
+                            <p class="text-sm text-gray-900">{{ $demand->egg_type }}</p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Quantity</label>
@@ -56,7 +56,7 @@
                             @forelse($demand->matches as $match)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $match->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $match->product->product_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $match->product->egg_type }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}
                                 </td>

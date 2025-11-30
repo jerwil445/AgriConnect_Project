@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6" style="overflow: visible;">
@@ -137,8 +137,32 @@
                             @forelse($matches as $match)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $match->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $match->product->product_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $match->demand->product_name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @php
+                                        $eggTypes = [
+                                            'chicken' => 'Chicken',
+                                            'duck' => 'Duck',
+                                            'quail' => 'Quail',
+                                            'native_chicken' => 'Native Chicken',
+                                            'brown' => 'Brown Egg',
+                                            'white' => 'White Egg'
+                                        ];
+                                    @endphp
+                                    {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    @php
+                                        $eggTypes = [
+                                            'chicken' => 'Chicken',
+                                            'duck' => 'Duck',
+                                            'quail' => 'Quail',
+                                            'native_chicken' => 'Native Chicken',
+                                            'brown' => 'Brown Egg',
+                                            'white' => 'White Egg'
+                                        ];
+                                    @endphp
+                                    {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}
                                 </td>

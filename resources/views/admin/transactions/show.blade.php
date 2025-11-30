@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6">
@@ -86,8 +86,8 @@
                         @if($transaction->product)
                         <div class="space-y-3">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Product Name:</span>
-                                <span class="font-medium">{{ $transaction->product->product_name }}</span>
+                                <span class="text-gray-600">Egg Type:</span>
+                                <span class="font-medium">{{ $transaction->product->egg_type }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Category:</span>
@@ -114,7 +114,7 @@
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Demand Name:</span>
-                                <span class="font-medium">{{ $transaction->demand->product_name }}</span>
+                                <span class="font-medium">{{ $transaction->demand->egg_type }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Quantity:</span>

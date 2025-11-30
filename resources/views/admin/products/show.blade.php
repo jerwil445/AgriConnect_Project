@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20n">
     <main class="flex-1 p-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6">
@@ -22,8 +22,8 @@
                         
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-600">Product Name</label>
-                                <p class="mt-1 text-sm text-gray-900">{{ $product->product_name }}</p>
+                                <label class="block text-sm font-medium text-gray-600">Egg Type</label>
+                                <p class="mt-1 text-sm text-gray-900">{{ $product->egg_type }}</p>
                             </div>
                             
                             <div>
@@ -113,6 +113,35 @@
                     </div>
                 </div>
                 
+                @if($product->sizes->count() > 0)
+                <div class="mt-6 bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Size</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Trays</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Price per Tray</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">Total Price</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach($product->sizes as $size)
+                                <tr>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ ucfirst(str_replace('_', ' ', $size->size_name)) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $size->tray_count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱{{ number_format($size->price_per_tray, 2) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₱{{ number_format($size->total_price, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endif
+                
                 <div class="mt-6 flex space-x-4">
                     <a href="{{ route('admin.products.edit', $product) }}" 
                        class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center">
@@ -123,7 +152,7 @@
                     </a>
                     
                     <form action="{{ route('admin.products.delete', $product) }}" method="POST" 
-                          class="inline delete-form" data-product-name="{{ $product->product_name }}">
+                          class="inline delete-form" data-product-name="{{ $product->egg_type }}">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 

@@ -140,8 +140,20 @@
                         @endif
                     </div>
                     @if(isset($notification->data['data']) && is_array($notification->data['data']))
-                        @if(isset($notification->data['data']['product_name']))
-                            <p class="text-xs text-gray-600 mt-1">Product: {{ $notification->data['data']['product_name'] }}</p>
+                        @if(isset($notification->data['data']['egg_type']))
+                            <p class="text-xs text-gray-600 mt-1">Product: 
+                                @php
+                                    $eggTypes = [
+                                        'chicken' => 'Chicken',
+                                        'duck' => 'Duck',
+                                        'quail' => 'Quail',
+                                        'native_chicken' => 'Native Chicken',
+                                        'brown' => 'Brown Egg',
+                                        'white' => 'White Egg'
+                                    ];
+                                @endphp
+                                {{ $eggTypes[$notification->data['data']['egg_type']] ?? ucfirst(str_replace('_', ' ', $notification->data['data']['egg_type'])) }}
+                            </p>
                         @endif
                         @if(isset($notification->data['data']['farmer_name']) && isset($notification->data['data']['buyer_name']))
                             @if(auth()->id() == $notification->notifiable_id)

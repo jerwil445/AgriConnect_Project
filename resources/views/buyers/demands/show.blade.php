@@ -13,7 +13,19 @@
         <div class="bg-white shadow-md rounded-lg p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">{{ $demand->product_name }}</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                                                @php
+                                                    $eggTypes = [
+                                                        'chicken' => 'Chicken',
+                                                        'duck' => 'Duck',
+                                                        'quail' => 'Quail',
+                                                        'native_chicken' => 'Native Chicken',
+                                                        'brown' => 'Brown Egg',
+                                                        'white' => 'White Egg'
+                                                    ];
+                                                @endphp
+                                                {{ $eggTypes[$demand->egg_type] ?? ucfirst(str_replace('_', ' ', $demand->egg_type)) }}
+                                            </h2>
                     <div class="space-y-3">
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -21,6 +33,26 @@
                             </svg>
                             <span class="text-gray-700">Quantity: <span class="font-medium">{{ $demand->quantity }} {{ $demand->unit ?? 'units' }}</span></span>
                         </div>
+                        
+                        <!-- Egg-specific information -->
+                        @if($demand->egg_type || $demand->egg_size)
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                            <span class="text-gray-700">
+                                @if($demand->egg_type)
+                                    Egg Type: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $demand->egg_type)) }}</span>
+                                    @if($demand->egg_size)
+                                        <span class="mx-1">•</span>
+                                    @endif
+                                @endif
+                                @if($demand->egg_size)
+                                    Size: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $demand->egg_size)) }}</span>
+                                @endif
+                            </span>
+                        </div>
+                        @endif
                         
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -85,6 +117,7 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($demand->matches as $match)
+                        @if($match->product && $match->product->farmer && $match->product->farmer->user)
                         <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow duration-300 relative">
                             <!-- Delete Match Icon (X) in top right corner -->
                             <form action="{{ route('matches.destroy', $match) }}" method="POST" class="absolute top-3 right-3">
@@ -101,8 +134,20 @@
                             
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 class="font-bold text-lg text-gray-900">{{ $match->product->product_name }}</h3>
-                                    <p class="text-gray-600 text-sm">{{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}</p>
+                                    <h3 class="font-bold text-lg text-gray-900">
+                                                                        @php
+                                                                            $eggTypes = [
+                                                                                'chicken' => 'Chicken',
+                                                                                'duck' => 'Duck',
+                                                                                'quail' => 'Quail',
+                                                                                'native_chicken' => 'Native Chicken',
+                                                                                'brown' => 'Brown Egg',
+                                                                                'white' => 'White Egg'
+                                                                            ];
+                                                                        @endphp
+                                                                        {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                                                    </h3>
+                                    <p class="text-gray-600 text-sm">{{ $match->product->farmer->user->first_name ?? '' }} {{ $match->product->farmer->user->last_name ?? '' }}</p>
                                 </div>
                                 <span class="px-2 py-1 rounded-full text-xs font-medium 
                                     @if($match->status == 'Matched') bg-green-100 text-green-800
@@ -128,6 +173,25 @@
                                     <span class="text-gray-500 text-sm">Harvest Date:</span>
                                     <span class="font-medium">{{ $match->product->harvest_date->format('M d, Y') }}</span>
                                 </div>
+                                
+                                <!-- Egg-specific information for matched product -->
+                                @if($match->product->egg_type || $match->product->egg_size)
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Egg Details:</span>
+                                    <span class="font-medium">
+                                        @if($match->product->egg_type)
+                                            {{ ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                            @if($match->product->egg_size)
+                                                <span class="mx-1">•</span>
+                                            @endif
+                                        @endif
+                                        @if($match->product->egg_size)
+                                            {{ ucfirst(str_replace('_', ' ', $match->product->egg_size)) }}
+                                        @endif
+                                    </span>
+                                </div>
+                                @endif
+                                
                                 <div class="flex justify-between">
                                     <span class="text-gray-500 text-sm">Status:</span>
                                     <span class="px-2 py-1 rounded-full text-xs font-medium 
@@ -146,9 +210,9 @@
                                 <!-- Button to view farmer profile -->
                                 <button type="button" 
                                         class="flex-1 text-center px-4 py-2 bg-blue-100 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-200 transition-colors view-profile-btn"
-                                        data-first-name="{{ $match->product->farmer->user->first_name }}"
-                                        data-last-name="{{ $match->product->farmer->user->last_name }}"
-                                        data-email="{{ $match->product->farmer->user->email }}"
+                                        data-first-name="{{ $match->product->farmer->user->first_name ?? '' }}"
+                                        data-last-name="{{ $match->product->farmer->user->last_name ?? '' }}"
+                                        data-email="{{ $match->product->farmer->user->email ?? '' }}"
                                         data-phone="{{ $match->product->farmer->user->phone_number ?? 'N/A' }}"
                                         data-farm-name="{{ $match->product->farmer->farm_name ?? 'N/A' }}"
                                         data-product-type="{{ $match->product->farmer->product_type ?? 'N/A' }}"
@@ -175,6 +239,7 @@
                             @endif
 
                         </div>
+                        @endif
                     @endforeach
                 </div>
             @endif

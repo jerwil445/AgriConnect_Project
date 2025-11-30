@@ -35,8 +35,8 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Egg Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harvest Date</th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -56,12 +56,41 @@
                                 </div>
                             @endif
                             <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $product->product_name }}</div>
+                                <div class="text-sm font-medium text-gray-900">
+                                    @php
+                                        $eggTypes = [
+                                            'chicken' => 'Chicken',
+                                            'duck' => 'Duck',
+                                            'quail' => 'Quail',
+                                            'native_chicken' => 'Native Chicken',
+                                            'brown' => 'Brown Egg',
+                                            'white' => 'White Egg'
+                                        ];
+                                    @endphp
+                                    {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                </div>
                             </div>
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ $product->quantity }} {{ $product->unit }}
+                        <div>{{ $product->quantity }} {{ $product->unit }}</div>
+                        <!-- Display egg-specific details -->
+                        @if($product->egg_type)
+                            <div class="text-xs text-gray-400 mt-1">
+                                @if($product->egg_size)
+                                    @php
+                                        $eggSizes = [
+                                            'small' => 'Small',
+                                            'medium' => 'Medium',
+                                            'large' => 'Large',
+                                            'extra_large' => 'Extra Large',
+                                            'jumbo' => 'Jumbo'
+                                        ];
+                                    @endphp
+                                    {{ $eggSizes[$product->egg_size] ?? ucfirst(str_replace('_', ' ', $product->egg_size)) }}
+                                @endif
+                            </div>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         ₱{{ number_format($product->price, 2) }}

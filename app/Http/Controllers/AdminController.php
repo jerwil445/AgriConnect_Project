@@ -40,8 +40,8 @@ class AdminController extends Controller
         
         // Product Popularity (top 5 products by transaction count)
         $productPopularity = Transaction::join('products', 'transactions.product_id', '=', 'products.id')
-            ->selectRaw('products.product_name, COUNT(transactions.id) as transaction_count')
-            ->groupBy('products.product_name')
+            ->selectRaw('products.egg_type, COUNT(transactions.id) as transaction_count')
+            ->groupBy('products.egg_type')
             ->orderBy('transaction_count', 'desc')
             ->limit(5)
             ->get();
@@ -97,7 +97,7 @@ class AdminController extends Controller
         
         // Apply search filter
         if ($search) {
-            $productsQuery->where('product_name', 'LIKE', "%{$search}%");
+            $productsQuery->where('egg_type', 'LIKE', "%{$search}%");
         }
         
         // Apply farmer filter
@@ -142,6 +142,7 @@ class AdminController extends Controller
      */
     public function viewProduct(Product $product)
     {
+        $product->load('sizes');
         return view('admin.products.show', compact('product'));
     }
     
@@ -159,7 +160,7 @@ class AdminController extends Controller
     public function updateProduct(Request $request, Product $product)
     {
         $request->validate([
-            'product_name' => 'required|string|max:255',
+            'egg_type' => 'required|string|max:255',
             'description' => 'nullable|string',
             'category' => 'nullable|string|max:255',
             'quantity' => 'required|numeric|min:0',
@@ -240,7 +241,7 @@ class AdminController extends Controller
         
         // Apply search filter
         if ($search) {
-            $demandsQuery->where('product_name', 'LIKE', "%{$search}%");
+            $demandsQuery->where('egg_type', 'LIKE', "%{$search}%");
         }
         
         // Apply buyer filter
@@ -296,15 +297,61 @@ class AdminController extends Controller
     public function updateDemand(Request $request, Demand $demand)
     {
         $request->validate([
-            'product_name' => 'required|string|max:255',
+            'egg_type' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0',
             'target_price' => 'nullable|numeric|min:0',
             'location' => 'required|string|max:255',
             'delivery_date' => 'required|date',
             'buyer_id' => 'required|exists:users,id',
+            'egg_type' => 'nullable|string|max:50',
+            'egg_size' => 'nullable|string|max:255',
+            'small_trays' => 'nullable|integer|min:1',
+            'medium_trays' => 'nullable|integer|min:1',
+            'large_trays' => 'nullable|integer|min:1',
+            'extra_large_trays' => 'nullable|integer|min:1',
+            'jumbo_trays' => 'nullable|integer|min:1',
         ]);
         
-        $demandData = $request->except(['_token', '_method']);
+        // Process egg sizes if they come from checkboxes
+        $eggSize = $request->input('egg_size');
+        if ($request->has('egg_sizes')) {
+            $eggSizes = $request->input('egg_sizes');
+            $processedSizes = [];
+            
+            foreach ($eggSizes as $size) {
+                $trayCount = null;
+                
+                switch ($size) {
+                    case 'small':
+                        $trayCount = $request->input('small_trays');
+                        break;
+                    case 'medium':
+                        $trayCount = $request->input('medium_trays');
+                        break;
+                    case 'large':
+                        $trayCount = $request->input('large_trays');
+                        break;
+                    case 'extra_large':
+                        $trayCount = $request->input('extra_large_trays');
+                        break;
+                    case 'jumbo':
+                        $trayCount = $request->input('jumbo_trays');
+                        break;
+                }
+                
+                if ($trayCount) {
+                    $processedSizes[] = "{$size} ({$trayCount} tray" . ($trayCount > 1 ? 's' : '') . ')';
+                } else {
+                    $processedSizes[] = $size;
+                }
+            }
+            
+            $eggSize = implode(', ', $processedSizes);
+        }
+        
+        $demandData = $request->except(['_token', '_method', 'egg_sizes', 'small_trays', 'medium_trays', 'large_trays', 'extra_large_trays', 'jumbo_trays']);
+        $demandData['egg_size'] = $eggSize;
+        $demandData['egg_type'] = $request->input('egg_type');
         
         $demand->update($demandData);
         
@@ -337,9 +384,9 @@ class AdminController extends Controller
         // Apply search filter
         if ($search) {
             $matchesQuery->whereHas('product', function ($query) use ($search) {
-                $query->where('product_name', 'LIKE', "%{$search}%");
+                $query->where('egg_type', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
-                $query->where('product_name', 'LIKE', "%{$search}%");
+                $query->where('egg_type', 'LIKE', "%{$search}%");
             });
         }
         
@@ -423,9 +470,9 @@ class AdminController extends Controller
         // Apply search filter
         if ($search) {
             $transactionsQuery->whereHas('product', function ($query) use ($search) {
-                $query->where('product_name', 'LIKE', "%{$search}%");
+                $query->where('egg_type', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
-                $query->where('product_name', 'LIKE', "%{$search}%");
+                $query->where('egg_type', 'LIKE', "%{$search}%");
             })->orWhereHas('buyer', function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
                       ->orWhere('last_name', 'LIKE', "%{$search}%");

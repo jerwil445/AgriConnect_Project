@@ -10,7 +10,7 @@
             <div class="flex justify-between items-center">
                 <h1 class="text-xl font-bold text-white">Messages</h1>
                 <span class="px-3 py-1 bg-white bg-opacity-20 text-white rounded-full text-sm">
-                    {{ count($mainTransactions) }} Conversations
+                    {{ count($transactions ?? []) }} Conversations
                 </span>
             </div>
         </div>
@@ -24,8 +24,8 @@
                     <h2 class="text-lg font-semibold text-gray-800">Conversations</h2>
                 </div>
                 <div class="flex-1 overflow-y-auto">
-                    @if(count($mainTransactions) > 0)
-                        @foreach($mainTransactions as $transaction)
+                    @if(count($transactions ?? []) > 0)
+                        @foreach($transactions as $transaction)
                             <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer conversation-item {{ isset($selectedTransaction) && $selectedTransaction->id == $transaction->id ? 'bg-indigo-100 border-l-4 border-l-indigo-500' : '' }}" 
                                  data-transaction-id="{{ $transaction->id }}"
                                  data-conversation-thread-id="{{ $transaction->conversation_thread_id }}"
@@ -54,7 +54,17 @@
                                             </span>
                                         </div>
                                         <p class="text-sm text-gray-600 truncate">
-                                            {{ $transaction->product->product_name }}
+                                            @php
+                                                $eggTypes = [
+                                                    'chicken' => 'Chicken',
+                                                    'duck' => 'Duck',
+                                                    'quail' => 'Quail',
+                                                    'native_chicken' => 'Native Chicken',
+                                                    'brown' => 'Brown Egg',
+                                                    'white' => 'White Egg'
+                                                ];
+                                            @endphp
+                                            {{ $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type)) }}
                                         </p>
                                         <div class="flex justify-between items-center mt-1">
                                             <!-- <span class="text-xs text-gray-500">
@@ -65,9 +75,9 @@
                                             </span>
                                             
                                             <!-- Unread message indicator -->
-                                            @if(isset($unreadCounts[$transaction->conversation_thread_id]) && $unreadCounts[$transaction->conversation_thread_id]->unread_count > 0)
+                                            @if(isset($unreadCounts[$transaction->conversation_thread_id]) && $unreadCounts[$transaction->conversation_thread_id] > 0)
                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 unread-count">
-                                                    {{ $unreadCounts[$transaction->conversation_thread_id]->unread_count }}
+                                                    {{ $unreadCounts[$transaction->conversation_thread_id] }}
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 unread-count hidden">
@@ -227,8 +237,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         const countElement = item.querySelector('.unread-count');
                         
                         if (countElement) {
-                            if (data.counts[conversationThreadId] && data.counts[conversationThreadId].unread_count > 0) {
-                                countElement.textContent = data.counts[conversationThreadId].unread_count;
+                            if (data.counts[conversationThreadId] && data.counts[conversationThreadId] > 0) {
+                                countElement.textContent = data.counts[conversationThreadId];
                                 countElement.classList.remove('hidden');
                             } else {
                                 countElement.classList.add('hidden');
@@ -281,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     // Add message to container
-                    const isSender = data.data.sender === '{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}';
+                    const isSender = data.data.is_sender;
                     const messageElement = document.createElement('div');
                     messageElement.className = 'mb-4 ' + (isSender ? 'text-right' : 'text-left');
                     messageElement.innerHTML = `
@@ -302,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     refreshUnreadCounts();
                     
                     // If this is the first message, send an automatic follow-up
-                    if (data.data.message.toLowerCase() === 'is this available?') {
+                    if (data.data.message.toLowerCase().includes('is this available?')) {
                         // Don't send another follow-up
                         return;
                     }
@@ -345,7 +355,60 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        const messageText = `Is this available?\n\nProduct: ${productName}`;
+        // Get egg type display name
+        let eggTypeName = 'Eggs';
+        const eggTypes = {
+            'chicken': 'Chicken Eggs',
+            'duck': 'Duck Eggs',
+            'quail': 'Quail Eggs',
+            'native_chicken': 'Native Chicken Eggs',
+            'brown': 'Brown Eggs',
+            'white': 'White Eggs'
+        };
+        
+        if (conversationHeader) {
+            const productElement = conversationHeader.querySelector('.product-egg-type');
+            if (productElement) {
+                eggTypeName = productElement.textContent.trim();
+            }
+        }
+        
+        // Extract quantity and price from the transaction details
+        let quantity = '';
+        let unit = '';
+        let price = '';
+        
+        // Try to get actual values from the transaction details panel if available
+        const transactionDetails = document.getElementById('transaction-details');
+        if (transactionDetails) {
+            const quantityElement = transactionDetails.querySelector('.quantity-value');
+            const priceElement = transactionDetails.querySelector('.price-value');
+            if (quantityElement) {
+                const quantityText = quantityElement.textContent.trim();
+                const quantityParts = quantityText.split(' ');
+                if (quantityParts.length >= 2) {
+                    quantity = quantityParts[0];
+                    unit = quantityParts.slice(1).join(' ');
+                }
+            }
+            if (priceElement) {
+                price = priceElement.textContent.replace('₱', '').trim();
+            }
+        }
+        
+        // Build message text with available information
+        let messageLines = ['Is this available?'];
+        if (eggTypeName && eggTypeName !== 'Eggs') {
+            messageLines.push(`Egg Type: ${eggTypeName}`);
+        }
+        if (quantity && unit) {
+            messageLines.push(`Quantity: ${quantity} ${unit}`);
+        }
+        if (price && unit) {
+            messageLines.push(`Price: ₱${price}/${unit}`);
+        }
+        
+        const messageText = messageLines.join('\n');
         
         fetch(`/transactions/${transactionId}/messages`, {
             method: 'POST',
@@ -361,7 +424,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Add follow-up message to container
                 const messagesContainer = document.getElementById('messages-container');
                 if (messagesContainer) {
-                    const isSender = data.data.sender === '{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}';
+                    const isSender = data.data.is_sender;
                     const messageElement = document.createElement('div');
                     messageElement.className = 'mb-4 ' + (isSender ? 'text-right' : 'text-left');
                     messageElement.innerHTML = `

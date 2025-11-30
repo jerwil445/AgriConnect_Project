@@ -17,6 +17,8 @@ class Transaction extends Model
         'final_quantity',
         'final_price',
         'total_amount',
+        'tray_counts',
+        'size_details',
         'payment_status',
         'delivery_status',
         'negotiation_messages',
@@ -28,6 +30,11 @@ class Transaction extends Model
         'buyer_phone',
         'buyer_address',
         'payment_method'
+    ];
+
+    protected $casts = [
+        'tray_counts' => 'array',
+        'size_details' => 'array',
     ];
 
     public function buyer()
@@ -65,5 +72,11 @@ class Transaction extends Model
     public function conversationThread()
     {
         return $this->belongsTo(ConversationThread::class);
+    }
+
+    // Relationship to size transactions
+    public function sizeTransactions()
+    {
+        return $this->hasMany(SizeTransaction::class);
     }
 }

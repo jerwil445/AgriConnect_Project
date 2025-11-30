@@ -4,7 +4,19 @@
 <div class=" mx-auto px-4 py-4 buyer-content">
     <div class="shadow-sm  ml-64">
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Matches for "{{ $product->product_name }}"</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Matches for 
+                                        @php
+                                            $eggTypes = [
+                                                'chicken' => 'Chicken',
+                                                'duck' => 'Duck',
+                                                'quail' => 'Quail',
+                                                'native_chicken' => 'Native Chicken',
+                                                'brown' => 'Brown Egg',
+                                                'white' => 'White Egg'
+                                            ];
+                                        @endphp
+                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                    </h1>
             <a href="{{ route('farmer.matches') }}" class="text-indigo-600 hover:text-indigo-800">
                 &larr; Back to All Matches
             </a>
@@ -40,7 +52,19 @@
                 <div class="lg:col-span-1">
                     <div class="bg-white shadow-md rounded-lg p-5 sticky top-6">
                         <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-xl font-bold text-gray-800">{{ $product->product_name }}</h2>
+                            <h2 class="text-xl font-bold text-gray-800">
+                                                        @php
+                                                            $eggTypes = [
+                                                                'chicken' => 'Chicken',
+                                                                'duck' => 'Duck',
+                                                                'quail' => 'Quail',
+                                                                'native_chicken' => 'Native Chicken',
+                                                                'brown' => 'Brown Egg',
+                                                                'white' => 'White Egg'
+                                                            ];
+                                                        @endphp
+                                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                    </h2>
                             <span class="px-2 py-1 rounded-full text-xs font-medium 
                                 @if($product->status == 'Available') bg-green-100 text-green-800
                                 @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
@@ -119,6 +143,7 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($product->matches as $match)
+                        @if($match->demand && $match->demand->buyer)
                         <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow duration-300 relative">
                             <!-- Delete Match Icon (X) in top right corner -->
                             <form action="{{ route('matches.destroy', $match) }}" method="POST" class="absolute top-3 right-3">
@@ -135,8 +160,20 @@
                             
                             <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <h3 class="font-bold text-lg text-gray-900">{{ $match->demand->product_name }}</h3>
-                                    <p class="text-gray-600 text-sm">{{ $match->demand->buyer->first_name }} {{ $match->demand->buyer->last_name }}</p>
+                                    <h3 class="font-bold text-lg text-gray-900">
+                                                                @php
+                                                                    $eggTypes = [
+                                                                        'chicken' => 'Chicken',
+                                                                        'duck' => 'Duck',
+                                                                        'quail' => 'Quail',
+                                                                        'native_chicken' => 'Native Chicken',
+                                                                        'brown' => 'Brown Egg',
+                                                                        'white' => 'White Egg'
+                                                                    ];
+                                                                @endphp
+                                                                {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                                            </h3>
+                                    <p class="text-gray-600 text-sm">{{ $match->demand->buyer->first_name ?? '' }} {{ $match->demand->buyer->last_name ?? '' }}</p>
                                 </div>
                                 <span class="px-2 py-1 rounded-full text-xs font-medium 
                                     @if($match->status == 'Matched') bg-green-100 text-green-800
@@ -172,7 +209,7 @@
                                 <!-- Button to view buyer profile -->
                                 <button type="button" 
                                         class="flex-1 text-center px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
-                                        onclick="openBuyerModal({{ $match->demand->buyer->id }}, '{{ $match->demand->buyer->first_name }}', '{{ $match->demand->buyer->last_name }}', '{{ $match->demand->buyer->email }}', '{{ $match->demand->buyer->phone_number ?? 'N/A' }}', '{{ $match->demand->buyer->company_name ?? 'N/A' }}', '{{ $match->demand->buyer->business_type ?? 'N/A' }}', '{{ $match->demand->buyer->address ?? 'N/A' }}')">
+                                        onclick="openBuyerModal({{ $match->demand->buyer->id ?? 0 }}, '{{ $match->demand->buyer->first_name ?? '' }}', '{{ $match->demand->buyer->last_name ?? '' }}', '{{ $match->demand->buyer->email ?? '' }}', '{{ $match->demand->buyer->phone_number ?? 'N/A' }}', '{{ $match->demand->buyer->company_name ?? 'N/A' }}', '{{ $match->demand->buyer->business_type ?? 'N/A' }}', '{{ $match->demand->buyer->address ?? 'N/A' }}')">
                                     View Profile
                                 </button>
                             </div>
@@ -182,7 +219,7 @@
                                     Product Sold Out
                                 </button>
                             @else
-                                <form action="{{ route('matches.startConversation', $match) }}" method="POST" class="w-full">
+                                <form action="{{ route('matches.startTransaction', $match) }}" method="POST" class="w-full">
                                     @csrf
                                     <button type="submit" class="w-full inline-block text-center px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
                                         Message
@@ -190,6 +227,7 @@
                                 </form>
                             @endif
                         </div>
+                        @endif
                     @endforeach
                 </div>
             @endif

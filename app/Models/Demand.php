@@ -11,9 +11,11 @@ class Demand extends Model
     
     protected $fillable = [
         'buyer_id',
-        'product_name',
+        'egg_type',
+        'egg_size',
         'quantity',
         'location',
+        'address',
         'delivery_date'
     ];
     

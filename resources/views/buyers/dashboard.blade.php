@@ -207,6 +207,23 @@
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800">{{ $product->product_name }}</h3>
+                            @if($product->egg_type)
+                                <div class="mt-1">
+                                    <span class="inline-flex items-center .5 py-0.5 rounded-full text-xl font-medium  text-black mb-5">
+                                        @php
+                                            $eggTypes = [
+                                                'chicken' => 'Chicken Eggs',
+                                                'duck' => 'Duck Eggs',
+                                                'quail' => 'Quail Eggs',
+                                                'native_chicken' => 'Native Chicken Eggs',
+                                                'brown' => 'Brown Eggs',
+                                                'white' => 'White Eggs'
+                                            ];
+                                        @endphp
+                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                    </span>
+                                </div>
+                            @endif
                             <div class="mt-1">
                                 <span class="px-2 py-1 text-xs rounded-full font-medium 
                                     @if($product->status == 'Available') bg-green-100 text-green-800

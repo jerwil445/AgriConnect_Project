@@ -1,7 +1,7 @@
 @extends('layouts.buyers_page')
 
 @section('content')
-<div class="container mx-auto px-4 ">
+<div class="container mx-auto px-4  ">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">My Demands</h1>
         <button id="openDemandModal" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
@@ -28,7 +28,19 @@
                 <div class="bg-white shadow-md rounded-lg overflow-hidden">
                     <div class="p-6">
                         <div class="flex justify-between items-start">
-                            <h2 class="text-xl font-bold text-gray-800">{{ $demand->product_name }}</h2>
+                            <h2 class="text-xl font-bold text-gray-800">
+                                                        @php
+                                                            $eggTypes = [
+                                                                'chicken' => 'Chicken',
+                                                                'duck' => 'Duck',
+                                                                'quail' => 'Quail',
+                                                                'native_chicken' => 'Native Chicken',
+                                                                'brown' => 'Brown Egg',
+                                                                'white' => 'White Egg'
+                                                            ];
+                                                        @endphp
+                                                        {{ $eggTypes[$demand->egg_type] ?? ucfirst(str_replace('_', ' ', $demand->egg_type)) }}
+                                                    </h2>
                             <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                                 {{ $demand->quantity }} {{ $demand->unit ?? 'units' }}
                             </span>
@@ -42,6 +54,26 @@
                                 </svg>
                                 {{ $demand->location }}
                             </div>
+                            
+                            <!-- Egg-specific information -->
+                            @if($demand->egg_type || $demand->egg_size)
+                            <div class="flex items-center text-gray-600">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                                <span>
+                                    @if($demand->egg_type)
+                                        {{ ucfirst(str_replace('_', ' ', $demand->egg_type)) }}
+                                        @if($demand->egg_size)
+                                            <span class="mx-1">•</span>
+                                        @endif
+                                    @endif
+                                    @if($demand->egg_size)
+                                        {{ ucfirst(str_replace('_', ' ', $demand->egg_size)) }}
+                                    @endif
+                                </span>
+                            </div>
+                            @endif
                             
                             <div class="flex items-center text-gray-600">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -99,7 +131,7 @@
 
 <!-- Demand Creation Modal -->
 <div id="demandModal" class="fixed inset-0 bg-gray-600 bg-opacity-70 hidden overflow-y-auto h-full w-full z-50" style="z-index: 9999;">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+    <div class="relative top-20 mx-auto p-5 border w-3/6 shadow-lg rounded-md bg-white">
         <div class="mt-3">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-medium text-gray-900">Post New Demand</h3>
@@ -121,32 +153,152 @@
             <form id="demandForm" action="{{ route('demands.store') }}" method="POST">
                 @csrf
                 
-                <div class="mb-4">
-                    <label for="modal_product_name" class="block text-gray-700 font-medium mb-2">Product Name</label>
-                    <input type="text" name="product_name" id="modal_product_name" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                           required>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="modal_quantity" class="block text-gray-700 font-medium mb-2">Quantity</label>
-                    <input type="number" name="quantity" id="modal_quantity" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                           min="1" required>
-                </div>
-                
-                <div class="mb-4">
-                    <label for="modal_location" class="block text-gray-700 font-medium mb-2">Delivery Location</label>
-                    <input type="text" name="location" id="modal_location" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                           required>
-                </div>
-                
-                <div class="mb-6">
-                    <label for="modal_delivery_date" class="block text-gray-700 font-medium mb-2">Delivery Date</label>
-                    <input type="date" name="delivery_date" id="modal_delivery_date" 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                           required min="{{ date('Y-m-d') }}">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Left Column -->
+                    <div>
+                        <div class="mb-4">
+                            <label for="modal_egg_type" class="block text-gray-700 font-medium mb-2">Egg Type / Category</label>
+                            <select name="egg_type" id="modal_egg_type" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                <option value="">Select Egg Type</option>
+                                <option value="chicken">Chicken</option>
+                                <option value="duck">Duck</option>
+                                <option value="quail">Quail</option>
+                                <option value="native_chicken">Native Chicken</option>
+                                <option value="brown">Brown Egg</option>
+                                <option value="white">White Egg</option>
+                            </select>
+                        </div>
+                        
+                        <!-- <div class="mb-4">
+                            <label for="modal_address" class="block text-gray-700 font-medium mb-2">Address</label>
+                            <input type="text" name="address" id="modal_address" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                   placeholder="Enter delivery address">
+                        </div> -->
+                        
+                        <div class="mb-4">
+                            <label for="modal_quantity" class="block text-gray-700 font-medium mb-2">Quantity</label>
+                            <input type="number" name="quantity" id="modal_quantity" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                   min="1" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="modal_location" class="block text-gray-700 font-medium mb-2">Delivery Location</label>
+                            <input type="text" name="location" id="modal_location" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                   required>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label for="modal_delivery_date" class="block text-gray-700 font-medium mb-2">Delivery Date</label>
+                            <input type="date" name="delivery_date" id="modal_delivery_date" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                   required min="{{ date('Y-m-d') }}">
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div>
+                        <!-- Egg-specific fields -->
+                        <div id="egg-demand-fields" class="mb-4">
+                            <div class=" ">
+                                <h4 class="text-md font-medium text-gray-900 mb-3">Egg-Specific Details</h4>
+                                
+                                <div class="mb-3">
+                                    <label class="block text-gray-700 font-medium mb-2">Size / Grade</label>
+                                    <div class="space-y-3">
+                                        <div class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="checkbox" name="egg_sizes[]" value="small" id="modal_small_checkbox" 
+                                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                    <span class="font-medium text-gray-700 ml-2">Small</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Size</span>
+                                                </label>
+                                                <div id="modal_small_tray_container" class="hidden flex items-center">
+                                                    <label for="modal_small_trays" class="text-sm text-gray-600 mr-2">Tray(s):</label>
+                                                    <input type="number" name="small_trays" id="modal_small_trays" min="1" 
+                                                           class="w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                           placeholder="Qty">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="checkbox" name="egg_sizes[]" value="medium" id="modal_medium_checkbox" 
+                                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                    <span class="font-medium text-gray-700 ml-2">Medium</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Size</span>
+                                                </label>
+                                                <div id="modal_medium_tray_container" class="hidden flex items-center">
+                                                    <label for="modal_medium_trays" class="text-sm text-gray-600 mr-2">Tray(s):</label>
+                                                    <input type="number" name="medium_trays" id="modal_medium_trays" min="1" 
+                                                           class="w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                           placeholder="Qty">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="checkbox" name="egg_sizes[]" value="large" id="modal_large_checkbox" 
+                                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                    <span class="font-medium text-gray-700 ml-2">Large</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Size</span>
+                                                </label>
+                                                <div id="modal_large_tray_container" class="hidden flex items-center">
+                                                    <label for="modal_large_trays" class="text-sm text-gray-600 mr-2">Tray(s):</label>
+                                                    <input type="number" name="large_trays" id="modal_large_trays" min="1" 
+                                                           class="w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                           placeholder="Qty">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="checkbox" name="egg_sizes[]" value="extra_large" id="modal_extra_large_checkbox" 
+                                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                    <span class="font-medium text-gray-700 ml-2">Extra Large</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Size</span>
+                                                </label>
+                                                <div id="modal_extra_large_tray_container" class="hidden flex items-center">
+                                                    <label for="modal_extra_large_trays" class="text-sm text-gray-600 mr-2">Tray(s):</label>
+                                                    <input type="number" name="extra_large_trays" id="modal_extra_large_trays" min="1" 
+                                                           class="w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                           placeholder="Qty">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="border border-gray-200 rounded-lg p-3 hover:border-green-300 transition-colors">
+                                            <div class="flex items-center justify-between">
+                                                <label class="flex items-center cursor-pointer">
+                                                    <input type="checkbox" name="egg_sizes[]" value="jumbo" id="modal_jumbo_checkbox" 
+                                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                                    <span class="font-medium text-gray-700 ml-2">Jumbo</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Size</span>
+                                                </label>
+                                                <div id="modal_jumbo_tray_container" class="hidden flex items-center">
+                                                    <label for="modal_jumbo_trays" class="text-sm text-gray-600 mr-2">Tray(s):</label>
+                                                    <input type="number" name="jumbo_trays" id="modal_jumbo_trays" min="1" 
+                                                           class="w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
+                                                           placeholder="Qty">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="egg_size" id="modal_egg_size_hidden">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="flex justify-end space-x-4">
@@ -387,6 +539,148 @@
                 });
             });
         }
+        
+        // Egg-specific fields are always visible now
+        
+        // Handle egg tray inputs for all sizes
+        const modalEggSizeHidden = document.getElementById('modal_egg_size_hidden');
+        
+        // Function to update the hidden input with egg sizes and tray counts
+        function updateModalEggSizeHidden() {
+            const checkboxes = document.querySelectorAll('input[name="egg_sizes[]"]');
+            const selectedValues = [];
+            
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    let trayCount = '';
+                    let trayElement = null;
+                    
+                    switch (checkbox.value) {
+                        case 'small':
+                            trayElement = document.getElementById('modal_small_trays');
+                            break;
+                        case 'medium':
+                            trayElement = document.getElementById('modal_medium_trays');
+                            break;
+                        case 'large':
+                            trayElement = document.getElementById('modal_large_trays');
+                            break;
+                        case 'extra_large':
+                            trayElement = document.getElementById('modal_extra_large_trays');
+                            break;
+                        case 'jumbo':
+                            trayElement = document.getElementById('modal_jumbo_trays');
+                            break;
+                    }
+                    
+                    if (trayElement) {
+                        trayCount = trayElement.value;
+                    }
+                    
+                    if (trayCount) {
+                        selectedValues.push(`${checkbox.value} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
+                    } else {
+                        selectedValues.push(checkbox.value);
+                    }
+                }
+            });
+            
+            if (modalEggSizeHidden) {
+                modalEggSizeHidden.value = selectedValues.join(', ');
+            }
+            
+            // Update the main quantity field based on tray inputs
+            updateTotalQuantity();
+        }
+        
+        // Function to calculate and update the total quantity
+        function updateTotalQuantity() {
+            let totalTrays = 0;
+            
+            // Get all tray inputs and sum their values
+            const trayInputs = [
+                document.getElementById('modal_small_trays'),
+                document.getElementById('modal_medium_trays'),
+                document.getElementById('modal_large_trays'),
+                document.getElementById('modal_extra_large_trays'),
+                document.getElementById('modal_jumbo_trays')
+            ];
+            
+            trayInputs.forEach(input => {
+                if (input && input.value) {
+                    totalTrays += parseInt(input.value) || 0;
+                }
+            });
+            
+            // Update the main quantity field
+            const quantityField = document.getElementById('modal_quantity');
+            if (quantityField) {
+                quantityField.value = totalTrays;
+            }
+        }
+        
+        // Add event listeners to all egg size checkboxes
+        document.querySelectorAll('input[name="egg_sizes[]"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Show/hide tray input for each size
+                let trayContainer = null;
+                let trayInput = null;
+                
+                switch (this.value) {
+                    case 'small':
+                        trayContainer = document.getElementById('modal_small_tray_container');
+                        trayInput = document.getElementById('modal_small_trays');
+                        break;
+                    case 'medium':
+                        trayContainer = document.getElementById('modal_medium_tray_container');
+                        trayInput = document.getElementById('modal_medium_trays');
+                        break;
+                    case 'large':
+                        trayContainer = document.getElementById('modal_large_tray_container');
+                        trayInput = document.getElementById('modal_large_trays');
+                        break;
+                    case 'extra_large':
+                        trayContainer = document.getElementById('modal_extra_large_tray_container');
+                        trayInput = document.getElementById('modal_extra_large_trays');
+                        break;
+                    case 'jumbo':
+                        trayContainer = document.getElementById('modal_jumbo_tray_container');
+                        trayInput = document.getElementById('modal_jumbo_trays');
+                        break;
+                }
+                
+                if (trayContainer) {
+                    if (this.checked) {
+                        trayContainer.classList.remove('hidden');
+                        trayContainer.classList.add('flex');
+                    } else {
+                        trayContainer.classList.add('hidden');
+                        trayContainer.classList.remove('flex');
+                        if (trayInput) {
+                            trayInput.value = '';
+                        }
+                    }
+                }
+                updateModalEggSizeHidden();
+            });
+        });
+        
+        // Add event listeners to all tray inputs
+        const trayInputs = [
+            document.getElementById('modal_small_trays'),
+            document.getElementById('modal_medium_trays'),
+            document.getElementById('modal_large_trays'),
+            document.getElementById('modal_extra_large_trays'),
+            document.getElementById('modal_jumbo_trays')
+        ];
+        
+        trayInputs.forEach(input => {
+            if (input) {
+                input.addEventListener('input', function() {
+                    updateModalEggSizeHidden();
+                });
+            }
+        });
         
         // Delete functionality
         let deleteFormToSubmit = null;

@@ -48,10 +48,10 @@ class AutomaticMatchingTest extends TestCase
     /** @test */
     public function it_automatically_matches_new_product_with_existing_demand_that_has_zero_matches()
     {
-        // Create a demand for 10 boxes of mango with zero matches
+        // Create a demand for 10 boxes of chicken eggs with zero matches
         $demand = Demand::factory()->create([
             'buyer_id' => $this->buyerUser->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 10
         ]);
 
@@ -61,7 +61,7 @@ class AutomaticMatchingTest extends TestCase
         // Create a product that matches the demand
         $product = Product::factory()->create([
             'farmer_id' => $this->farmer->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 20,
             'unit' => 'boxes',
             'status' => 'Available'
@@ -83,17 +83,17 @@ class AutomaticMatchingTest extends TestCase
     /** @test */
     public function it_does_not_match_new_product_with_existing_demand_that_already_has_matches()
     {
-        // Create a demand for 10 boxes of mango
+        // Create a demand for 10 boxes of chicken eggs
         $demand = Demand::factory()->create([
             'buyer_id' => $this->buyerUser->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 10
         ]);
 
         // Create another product that matches this demand to create an existing match
         $existingProduct = Product::factory()->create([
             'farmer_id' => $this->farmer->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 20,
             'unit' => 'boxes',
             'status' => 'Available'
@@ -112,7 +112,7 @@ class AutomaticMatchingTest extends TestCase
         // Create a new product that would match the demand
         $newProduct = Product::factory()->create([
             'farmer_id' => $this->farmer->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 15,
             'unit' => 'boxes',
             'status' => 'Available'
@@ -129,10 +129,10 @@ class AutomaticMatchingTest extends TestCase
     /** @test */
     public function it_does_not_match_new_product_when_product_is_not_available()
     {
-        // Create a demand for 10 boxes of mango with zero matches
+        // Create a demand for 10 boxes of chicken eggs with zero matches
         $demand = Demand::factory()->create([
             'buyer_id' => $this->buyerUser->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 10
         ]);
 
@@ -142,7 +142,7 @@ class AutomaticMatchingTest extends TestCase
         // Create a product that matches the demand but is not available
         $product = Product::factory()->create([
             'farmer_id' => $this->farmer->id,
-            'product_name' => 'Mango',
+            'egg_type' => 'chicken',
             'quantity' => 20,
             'unit' => 'boxes',
             'status' => 'Sold Out'

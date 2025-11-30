@@ -236,7 +236,7 @@ class ConversationThreadTest extends TestCase
         
         $message = Message::first();
         $this->assertStringContainsString('Is this available?', $message->message);
-        $this->assertStringContainsString($this->product1->product_name, $message->message);
+        $this->assertStringContainsString($this->product1->egg_type, $message->message);
         $this->assertStringContainsString((string)$this->product1->quantity, $message->message);
         $this->assertStringContainsString($this->product1->unit, $message->message);
         $this->assertStringContainsString(number_format($this->product1->price, 2), $message->message);

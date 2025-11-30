@@ -29,7 +29,7 @@
     </style>
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 min-h-screen ">
     @vite('resources/css/app.css')
     {{-- sidebar and Header --}}
     @include('partials.admin.sidebar_and_header')

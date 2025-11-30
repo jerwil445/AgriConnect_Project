@@ -1,7 +1,7 @@
 @extends('layouts.admin_page')
 @vite('resources/css/app.css')
 @section('content')
-    <div class="md:ml-64 mt-16 flex flex-col min-h-screen">
+    <div class=" rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
         <main class="flex-1 p-6">
             <div class="max-w-7xl mx-auto">
                 <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
@@ -219,7 +219,7 @@
         const productPopularityData = [
             @foreach ($productPopularity as $product)
                 {
-                    name: '{{ $product->product_name }}',
+                    name: '{{ $product->egg_type }}',
                     count: {{ $product->transaction_count }}
                 },
             @endforeach

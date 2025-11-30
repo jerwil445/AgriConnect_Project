@@ -81,66 +81,52 @@
                         <span class="text-gray-600">Total Amount:</span>
                         <span class="font-bold text-green-600">₱{{ number_format($order->total_amount, 2) }}</span>
                     </div>
+                    
+                    <!-- Ordered Sizes Information (if applicable) -->
+                    @if($order->tray_counts && is_array(json_decode($order->tray_counts, true)))
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                        <h5 class="font-medium text-gray-800 mb-2">Ordered Sizes</h5>
+                        <div class="space-y-1">
+                            @foreach(json_decode($order->tray_counts, true) as $sizeId => $trayCount)
+                                @php
+                                    $size = $order->product->sizes->find($sizeId);
+                                @endphp
+                                @if($size && $trayCount > 0)
+                                <div class="flex justify-between text-sm">
+                                    <span>{{ $size->size_name }}:</span>
+                                    <span>{{ $trayCount }} trays</span>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
             
             <!-- Egg Sizes Information -->
-            @if($order->sizeTransactions && $order->sizeTransactions->count() > 0)
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
-                <div class="space-y-3">
-                    @foreach($order->sizeTransactions as $sizeTransaction)
-                    <div class="flex justify-between items-center p-2 bg-white rounded border">
-                        <div>
-                            <span class="font-medium">{{ $sizeTransaction->size_name }}</span>
-                            <span class="text-gray-600 text-sm ml-2">({{ $sizeTransaction->tray_count }} trays)</span>
-                        </div>
-                        <div class="text-right">
-                            <div>₱{{ number_format($sizeTransaction->price_per_tray, 2) }}/tray</div>
-                            <div class="text-sm text-gray-600">Total: ₱{{ number_format($sizeTransaction->total_price, 2) }}</div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @elseif($order->tray_counts && is_array(json_decode($order->tray_counts, true)) && count(json_decode($order->tray_counts, true)) > 0)
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
-                <div class="space-y-3">
-                    @foreach(json_decode($order->tray_counts, true) as $sizeId => $trayCount)
-                        @php
-                            $size = $order->product->sizes->find($sizeId);
-                        @endphp
-                        @if($size && $trayCount > 0)
-                        <div class="flex justify-between items-center p-2 bg-white rounded border">
-                            <div>
-                                <span class="font-medium">{{ $size->size_name }}</span>
-                                <span class="text-gray-600 text-sm ml-2">({{ $trayCount }} trays)</span>
-                            </div>
-                            <div class="text-right">
-                                <div>₱{{ number_format($size->price_per_tray ?? 0, 2) }}/tray</div>
-                                <div class="text-sm text-gray-600">Total: ₱{{ number_format(($size->price_per_tray ?? 0) * $trayCount, 2) }}</div>
-                            </div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-            @elseif($order->product->sizes && $order->product->sizes->count() > 0)
-            <!-- Show product sizes when no specific tray counts were ordered -->
+            @if($order->product->sizes && $order->product->sizes->count() > 0)
             <div class="bg-gray-50 rounded-lg p-6">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
                 <div class="space-y-3">
                     @foreach($order->product->sizes as $size)
-                        @if($size->tray_count > 0)
+                        @php
+                            // Get ordered tray count for this size
+                            $orderedTrayCount = 0;
+                            $trayCounts = json_decode($order->tray_counts, true);
+                            if (is_array($trayCounts) && isset($trayCounts[$size->id])) {
+                                $orderedTrayCount = $trayCounts[$size->id];
+                            }
+                        @endphp
+                        @if($orderedTrayCount > 0)
                         <div class="flex justify-between items-center p-2 bg-white rounded border">
                             <div>
                                 <span class="font-medium">{{ $size->size_name }}</span>
-                                <span class="text-gray-600 text-sm ml-2">({{ $size->tray_count }} trays)</span>
+                                <span class="text-gray-600 text-sm ml-2">({{ $orderedTrayCount }} trays)</span>
                             </div>
                             <div class="text-right">
                                 <div>₱{{ number_format($size->price_per_tray ?? 0, 2) }}/tray</div>
-                                <div class="text-sm text-gray-600">Total: ₱{{ number_format(($size->price_per_tray ?? 0) * $size->tray_count, 2) }}</div>
+                                <div class="text-sm text-gray-600">Total: ₱{{ number_format(($size->price_per_tray ?? 0) * $orderedTrayCount, 2) }}</div>
                             </div>
                         </div>
                         @endif
@@ -399,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         alert(data.message);
                         location.reload();
                     } else {
-                        al.ert('Error: ' + data.message);
+                        alert('Error: ' + data.message);
                     }
                 })
                 .catch(error => {

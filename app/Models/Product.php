@@ -12,12 +12,14 @@ class Product extends Model
     
     protected $fillable = [
         'farmer_id',
-        'product_name',
+        'egg_type',
+        'jumbo',
         'description',
         'quantity',
         'unit',
         'price',
         'harvest_date',
+        'address',
         'status',
         'image'
     ];
@@ -25,6 +27,7 @@ class Product extends Model
     protected $casts = [
         'harvest_date' => 'date',
         'price' => 'decimal:2',
+        'jumbo' => 'boolean',
     ];
     
     // Boot the model
@@ -55,5 +58,10 @@ class Product extends Model
     public function matches()
     {
         return $this->hasMany(DemandMatch::class, 'product_id');
+    }
+    
+    public function sizes()
+    {
+        return $this->hasMany(Size::class);
     }
 }

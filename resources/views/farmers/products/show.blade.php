@@ -29,10 +29,32 @@
                 <!-- Main Image Display -->
                 <div class="relative mb-4">
                     @if($product->images->count() > 0)
-                        <img id="mainImage" src="{{ asset('storage/' . $product->images->first()->image_path) }}" alt="{{ $product->product_name }}" 
+                        <img id="mainImage" src="{{ asset('storage/' . $product->images->first()->image_path) }}" alt="
+                            @php
+                                $eggTypes = [
+                                    'chicken' => 'Chicken',
+                                    'duck' => 'Duck',
+                                    'quail' => 'Quail',
+                                    'native_chicken' => 'Native Chicken',
+                                    'brown' => 'Brown Egg',
+                                    'white' => 'White Egg'
+                                ];
+                            @endphp
+                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}" 
                              class="w-full h-64 object-contain rounded-lg border border-gray-200">
                     @elseif($product->image)
-                        <img id="mainImage" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}" 
+                        <img id="mainImage" src="{{ asset('storage/' . $product->image) }}" alt="
+                            @php
+                                $eggTypes = [
+                                    'chicken' => 'Chicken',
+                                    'duck' => 'Duck',
+                                    'quail' => 'Quail',
+                                    'native_chicken' => 'Native Chicken',
+                                    'brown' => 'Brown Egg',
+                                    'white' => 'White Egg'
+                                ];
+                            @endphp
+                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}" 
                              class="w-full h-64 object-contain rounded-lg border border-gray-200">
                     @else
                         <div class="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200">
@@ -47,7 +69,18 @@
                         @foreach($product->images as $image)
                             <div class="w-16 h-16 border-2 border-transparent hover:border-green-500 rounded cursor-pointer thumbnail" 
                                  onclick="changeMainImage('{{ asset('storage/' . $image->image_path) }}')">
-                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->product_name }}" 
+                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="
+                                @php
+                                    $eggTypes = [
+                                        'chicken' => 'Chicken',
+                                        'duck' => 'Duck',
+                                        'quail' => 'Quail',
+                                        'native_chicken' => 'Native Chicken',
+                                        'brown' => 'Brown Egg',
+                                        'white' => 'White Egg'
+                                    ];
+                                @endphp
+                                {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}" 
                                      class="w-full h-full object-cover rounded">
                             </div>
                         @endforeach
@@ -56,7 +89,18 @@
                     <!-- For backward compatibility with single image -->
                     <div class="flex flex-wrap gap-2">
                         <div class="w-16 h-16 border-2 border-green-500 rounded">
-                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}" 
+                            <img src="{{ asset('storage/' . $product->image) }}" alt="
+                            @php
+                                $eggTypes = [
+                                    'chicken' => 'Chicken',
+                                    'duck' => 'Duck',
+                                    'quail' => 'Quail',
+                                    'native_chicken' => 'Native Chicken',
+                                    'brown' => 'Brown Egg',
+                                    'white' => 'White Egg'
+                                ];
+                            @endphp
+                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}" 
                                  class="w-full h-full object-cover rounded">
                         </div>
                     </div>
@@ -65,7 +109,19 @@
 
             <div class="md:col-span-2">
                 <div class="mb-6">
-                    <h3 class="text-2xl font-bold text-gray-900">{{ $product->product_name }}</h3>
+                    <h3 class="text-2xl font-bold text-gray-900">
+                                            @php
+                                                $eggTypes = [
+                                                    'chicken' => 'Chicken',
+                                                    'duck' => 'Duck',
+                                                    'quail' => 'Quail',
+                                                    'native_chicken' => 'Native Chicken',
+                                                    'brown' => 'Brown Egg',
+                                                    'white' => 'White Egg'
+                                                ];
+                                            @endphp
+                                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                        </h3>
                     <div class="mt-2 flex items-center">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                             @if($product->status == 'available') bg-green-100 text-green-800
@@ -96,7 +152,73 @@
                         <p class="text-sm text-gray-500">Posted On</p>
                         <p class="text-lg font-semibold">{{ $product->created_at->format('F d, Y') }}</p>
                     </div>
+                    
+                    <!-- Display egg-specific attributes if this is an egg product -->
+                    @if($product->egg_type)
+                        <div>
+                            <p class="text-sm text-gray-500">Egg Type</p>
+                            <p class="text-lg font-semibold">
+                                @php
+                                    $eggTypes = [
+                                        'chicken' => 'Chicken',
+                                        'duck' => 'Duck',
+                                        'quail' => 'Quail',
+                                        'native_chicken' => 'Native Chicken',
+                                        'brown' => 'Brown Egg',
+                                        'white' => 'White Egg'
+                                    ];
+                                @endphp
+                                {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                            </p>
+                        </div>
+                    @endif
                 </div>
+
+                <!-- Egg Sizes Table -->
+                @if($product->sizes->count() > 0)
+                <div class="mt-6">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-3">Egg Sizes & Pricing</h4>
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="py-3 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Size</th>
+                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Trays</th>
+                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Price per Tray</th>
+                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200 bg-white">
+                                @foreach($product->sizes as $size)
+                                <tr>
+                                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                                        @php
+                                            $sizeLabels = [
+                                                'small' => 'Small',
+                                                'medium' => 'Medium',
+                                                'large' => 'Large',
+                                                'extra_large' => 'Extra Large',
+                                                'jumbo' => 'Jumbo'
+                                            ];
+                                        @endphp
+                                        {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $size->tray_count }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($size->price_per_tray, 2) }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($size->total_price, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="bg-gray-50">
+                                <tr>
+                                    <td colspan="3" class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">Total:</td>
+                                    <td class="px-3 py-3 text-sm font-semibold text-gray-900">₱{{ number_format($product->price, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                @endif
 
                 <div class="mt-6 pt-6 border-t border-gray-100">
                     <a href="{{ route('products.index') }}" 
@@ -107,6 +229,19 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Add Message Buyer button -->
+<div class="fixed bottom-6 right-6">
+    <a href="{{ route('farmer.messages') }}" 
+       class="flex items-center gap-2 rounded-full bg-green-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+        <i class="fas fa-comments"></i> Messages
+        @if($unreadMessageCount > 0)
+            <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full">
+                {{ $unreadMessageCount }}
+            </span>
+        @endif
+    </a>
 </div>
 
 <script>

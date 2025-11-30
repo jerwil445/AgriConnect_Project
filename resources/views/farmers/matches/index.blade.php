@@ -49,7 +49,19 @@
                     <div class="p-6">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h2 class="text-xl font-bold text-gray-800">{{ $product->product_name }}</h2>
+                                <h2 class="text-xl font-bold text-gray-800">
+                                                                @php
+                                                                    $eggTypes = [
+                                                                        'chicken' => 'Chicken',
+                                                                        'duck' => 'Duck',
+                                                                        'quail' => 'Quail',
+                                                                        'native_chicken' => 'Native Chicken',
+                                                                        'brown' => 'Brown Egg',
+                                                                        'white' => 'White Egg'
+                                                                    ];
+                                                                @endphp
+                                                                {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                            </h2>
                                 <div class="flex flex-wrap gap-2 mt-2">
                                     <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                                         {{ $product->quantity }} {{ $product->unit }} available
@@ -93,7 +105,19 @@
                                     @foreach($product->matches->take(3) as $match)
                                         <div class="border border-gray-200 rounded-lg p-3 hover:bg-gray-50">
                                             <div class="flex justify-between">
-                                                <span class="font-medium text-sm">{{ $match->demand->product_name }}</span>
+                                                <span class="font-medium text-sm">
+                                                                                                @php
+                                                                                                    $eggTypes = [
+                                                                                                        'chicken' => 'Chicken',
+                                                                                                        'duck' => 'Duck',
+                                                                                                        'quail' => 'Quail',
+                                                                                                        'native_chicken' => 'Native Chicken',
+                                                                                                        'brown' => 'Brown Egg',
+                                                                                                        'white' => 'White Egg'
+                                                                                                    ];
+                                                                                                @endphp
+                                                                                                {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                                                                            </span>
                                                 <span class="text-xs px-2 py-1 rounded 
                                                     @if($match->status == 'Pending') bg-yellow-100 text-yellow-800
                                                     @elseif($match->status == 'Matched') bg-green-100 text-green-800

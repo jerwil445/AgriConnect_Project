@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use App\Models\Farmer;
+use App\Models\Size;
 use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Redirect;
 
 class ProductController extends Controller
 {
@@ -70,20 +69,66 @@ class ProductController extends Controller
         }
         
         $request->validate([
-            'product_name' => 'required|string|max:255',
+            'egg_type' => 'required|string|max:50',
             'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
             'harvest_date' => 'required|date',
+            'address' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'sizes' => 'required|array|min:1',
+            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large,jumbo',
+            'sizes.*.tray_count' => 'required|integer|min:1',
+            'sizes.*.price_per_tray' => 'required|numeric|min:0',
         ]);
 
         $farmer = $user->farmer;
 
-        $product = new Product($request->except('images'));
+        // Set product name based on egg type
+        $eggTypeName = $request->input('egg_type');
+        $productNameMap = [
+            'chicken' => 'Chicken Eggs',
+            'duck' => 'Duck Eggs',
+            'quail' => 'Quail Eggs',
+            'native_chicken' => 'Native Chicken Eggs',
+            'brown' => 'Brown Eggs',
+            'white' => 'White Eggs'
+        ];
+        $productName = $productNameMap[$eggTypeName] ?? 'Eggs';
+        
+        $product = new Product($request->except(['images', 'sizes']));
         $product->farmer_id = $farmer->id;
         
+        $product->save();
+        
+        // Create size records
+        $sizesData = $request->input('sizes');
+        $totalQuantity = 0;
+        $totalPrice = 0;
+        
+        foreach ($sizesData as $sizeData) {
+            $trayCount = $sizeData['tray_count'];
+            $pricePerTray = $sizeData['price_per_tray'];
+            $totalSizePrice = $trayCount * $pricePerTray;
+            
+            Size::create([
+                'farmer_id' => $farmer->id,
+                'product_id' => $product->id,
+                'egg_type' => $request->input('egg_type'),
+                'size_name' => $sizeData['name'],
+                'tray_count' => $trayCount,
+                'price_per_tray' => $pricePerTray,
+                'total_price' => $totalSizePrice
+            ]);
+            
+            $totalQuantity += $trayCount;
+            $totalPrice += $totalSizePrice;
+        }
+        
+        // Update product with calculated totals
+        $product->quantity = $totalQuantity;
+        $product->price = $totalPrice;
         $product->save();
         
         // Handle multiple image uploads
@@ -133,10 +178,18 @@ class ProductController extends Controller
             abort(403);
         }
         
-        // Load product images
-        $product->load('images');
+        // Load product images and sizes
+        $product->load(['images', 'sizes']);
         
-        return view('farmers.products.show', compact('product'));
+        // Get unread message count for the farmer
+        $unreadMessageCount = 0;
+        if ($user->farmer) {
+            $unreadMessageCount = \App\Models\Message::where('receiver_id', $user->id)
+                ->where('is_read', false)
+                ->count();
+        }
+        
+        return view('farmers.products.show', compact('product', 'unreadMessageCount'));
     }
 
     /**
@@ -160,8 +213,8 @@ class ProductController extends Controller
             abort(403);
         }
         
-        // Load product images
-        $product->load('images');
+        // Load product images and sizes
+        $product->load(['images', 'sizes']);
         
         return view('farmers.products.edit', compact('product'));
     }
@@ -188,17 +241,66 @@ class ProductController extends Controller
         }
         
         $request->validate([
-            'product_name' => 'required|string|max:255',
+            'egg_type' => 'required|string|max:50',
             'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
             'harvest_date' => 'required|date',
+            'address' => 'nullable|string|max:255',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images' => 'nullable|array|max:10',
+            'sizes' => 'required|array|min:1',
+            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large,jumbo',
+            'sizes.*.tray_count' => 'required|integer|min:1',
+            'sizes.*.price_per_tray' => 'required|numeric|min:0',
         ]);
 
-        $product->fill($request->except('images'));
+        // Set product name based on egg type
+        $eggTypeName = $request->input('egg_type');
+        $productNameMap = [
+            'chicken' => 'Chicken Eggs',
+            'duck' => 'Duck Eggs',
+            'quail' => 'Quail Eggs',
+            'native_chicken' => 'Native Chicken Eggs',
+            'brown' => 'Brown Eggs',
+            'white' => 'White Eggs'
+        ];
+        $productName = $productNameMap[$eggTypeName] ?? 'Eggs';
+        
+        $product->fill($request->except(['images', 'sizes']));
+        
+        // Handle size updates
+        // Delete existing sizes
+        $product->sizes()->delete();
+        
+        // Create new size records
+        $sizesData = $request->input('sizes');
+        $totalQuantity = 0;
+        $totalPrice = 0;
+        
+        foreach ($sizesData as $sizeData) {
+            $trayCount = $sizeData['tray_count'];
+            $pricePerTray = $sizeData['price_per_tray'];
+            $totalSizePrice = $trayCount * $pricePerTray;
+            
+            Size::create([
+                'farmer_id' => $user->farmer->id,
+                'product_id' => $product->id,
+                'egg_type' => $request->input('egg_type'),
+                'size_name' => $sizeData['name'],
+                'tray_count' => $trayCount,
+                'price_per_tray' => $pricePerTray,
+                'total_price' => $totalSizePrice
+            ]);
+            
+            $totalQuantity += $trayCount;
+            $totalPrice += $totalSizePrice;
+        }
+        
+        // Update product with calculated totals
+        $product->quantity = $totalQuantity;
+        $product->price = $totalPrice;
         
         // Handle multiple image uploads
         if ($request->hasFile('images')) {
@@ -261,19 +363,16 @@ class ProductController extends Controller
             abort(403);
         }
         
-        // Delete all associated images
+        // Delete associated sizes
+        $product->sizes()->delete();
+        
+        // Delete associated images
         foreach ($product->images as $image) {
             Storage::disk('public')->delete($image->image_path);
+            $image->delete();
         }
         
-        // Delete image records
-        $product->images()->delete();
-        
-        // Delete primary image if exists and not in images table
-        if ($product->image && !$product->images()->where('image_path', $product->image)->exists()) {
-            Storage::disk('public')->delete($product->image);
-        }
-        
+        // Delete the product
         $product->delete();
 
         return redirect()->route('products.index')
@@ -281,35 +380,33 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the status of the specified product.
+     * Update product status (Available/Sold Out)
      */
     public function updateStatus(Request $request, Product $product)
     {
         // Check if user is authenticated
         if (!Auth::check()) {
-            return response()->json(['success' => false, 'message' => 'Authentication required.'], 401);
+            return redirect()->route('login');
         }
         
         // Check if user has farmer profile
         $user = Auth::user();
         if (!$user->farmer) {
-            return response()->json(['success' => false, 'message' => 'Access denied. Farmer profile required.'], 403);
+            abort(403, 'Access denied. Farmer profile required.');
         }
         
         // Ensure farmer can only update their own products
         if ($product->farmer_id != $user->farmer->id) {
-            return response()->json(['success' => false, 'message' => 'Access denied.'], 403);
+            abort(403);
         }
         
-        // Validate status
         $request->validate([
-            'status' => 'required|in:Available,Pending,Sold Out',
+            'status' => 'required|in:Available,Sold Out'
         ]);
         
-        // Update product status
-        $product->status = $request->status;
+        $product->status = $request->input('status');
         $product->save();
         
-        return response()->json(['success' => true, 'message' => 'Product status updated successfully.']);
+        return redirect()->back()->with('success', 'Product status updated successfully.');
     }
 }

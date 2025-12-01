@@ -142,6 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/transactions/{transaction}/reject', [DemandMatchingController::class, 'rejectOrder'])->name('transactions.reject');
     Route::post('/transactions/{transaction}/mark-prepared', [DemandMatchingController::class, 'markOrderAsPrepared'])->name('transactions.markPrepared');
     Route::post('/transactions/{transaction}/assign-logistics', [DemandMatchingController::class, 'assignLogistics'])->name('transactions.assignLogistics');
+    Route::post('/transactions/{transaction}/mark-delivered-by-buyer', [DemandMatchingController::class, 'markOrderAsDeliveredByBuyer'])->name('transactions.markDeliveredByBuyer');
     
     // List all transactions for a user
     Route::get('/transactions', [DemandMatchingController::class, 'listTransactions'])->name('transactions.index');

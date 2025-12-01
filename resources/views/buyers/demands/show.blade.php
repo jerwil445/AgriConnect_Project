@@ -154,6 +154,7 @@
                                     @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
                                     @elseif($match->status == 'New') bg-blue-100 text-blue-800
                                     @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
+                                    @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
                                     @else bg-red-100 text-red-800
                                     @endif">
                                     {{ $match->status }}
@@ -189,6 +190,28 @@
                                             {{ ucfirst(str_replace('_', ' ', $match->product->egg_size)) }}
                                         @endif
                                     </span>
+                                </div>
+                                @endif
+                                
+                                <!-- Egg Sizes -->
+                                @if($match->product->sizes && $match->product->sizes->count() > 0)
+                                <div class="mt-2">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach($match->product->sizes as $size)
+                                            @php
+                                                $sizeLabels = [
+                                                    'small' => 'Small',
+                                                    'medium' => 'Medium',
+                                                    'large' => 'Large',
+                                                    'extra_large' => 'Extra Large',
+                                                    'jumbo' => 'Jumbo'
+                                                ];
+                                            @endphp
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                            </span>
+                                        @endforeach
+                                    </div>
                                 </div>
                                 @endif
                                 

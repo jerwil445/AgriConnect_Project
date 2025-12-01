@@ -253,9 +253,15 @@
             row.id = rowId;
             row.className = 'size-row';
             
-            // Size select
+            // Size select - filter out already selected sizes
+            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select => select.value);
             let sizeSelectOptions = '';
             sizeOptions.forEach(option => {
+                // Skip if this size is already selected (unless it's the one we're editing)
+                if (existingSizes.includes(option.value) && !(sizeData && sizeData.name === option.value)) {
+                    return;
+                }
+                
                 const selected = sizeData && sizeData.name === option.value ? 'selected' : '';
                 sizeSelectOptions += `<option value="${option.value}" ${selected}>${option.label}</option>`;
             });
@@ -296,16 +302,61 @@
             // Update calculations when inputs change
             trayInput.addEventListener('input', updateCalculations);
             priceInput.addEventListener('input', updateCalculations);
-            sizeSelect.addEventListener('change', updateCalculations);
+            sizeSelect.addEventListener('change', function() {
+                updateCalculations();
+                
+                // Update options in other selects to prevent duplicates
+                updateSizeSelectOptions();
+            });
             
             // Remove button handler
             removeBtn.addEventListener('click', function() {
                 row.remove();
                 updateCalculations();
+                
+                // Update options in other selects
+                updateSizeSelectOptions();
             });
             
             sizeCounter++;
             updateCalculations();
+        }
+        
+        // Function to update size select options to prevent duplicates
+        function updateSizeSelectOptions() {
+            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select => select.value);
+            
+            document.querySelectorAll('select[name$="[name]"]').forEach(select => {
+                const currentValue = select.value;
+                
+                // Clear existing options
+                const selectedOption = select.options[select.selectedIndex];
+                const selectedText = selectedOption ? selectedOption.text : '';
+                
+                select.innerHTML = '';
+                
+                // Add options that are not already selected (or is the current selection)
+                sizeOptions.forEach(option => {
+                    if (!existingSizes.includes(option.value) || option.value === currentValue) {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option.value;
+                        optionElement.textContent = option.label;
+                        if (option.value === currentValue) {
+                            optionElement.selected = true;
+                        }
+                        select.appendChild(optionElement);
+                    }
+                });
+                
+                // If current value is not in sizeOptions, preserve it
+                if (currentValue && !sizeOptions.some(opt => opt.value === currentValue)) {
+                    const optionElement = document.createElement('option');
+                    optionElement.value = currentValue;
+                    optionElement.textContent = selectedText || currentValue;
+                    optionElement.selected = true;
+                    select.appendChild(optionElement);
+                }
+            });
         }
         
         // Function to update calculations
@@ -408,6 +459,22 @@
                         const wrapper = document.createElement('div');
                         wrapper.className = 'relative group';
                         wrapper.appendChild(img);
+                        
+                        // Add remove button
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity';
+                        removeBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+                        removeBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            wrapper.remove();
+                            
+                            // Hide preview container if no images left
+                            if (previewContainer.children.length === 0) {
+                                imagePreview.classList.add('hidden');
+                            }
+                        });
+                        wrapper.appendChild(removeBtn);
                         
                         const badge = document.createElement('span');
                         badge.className = 'absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br rounded-tl';

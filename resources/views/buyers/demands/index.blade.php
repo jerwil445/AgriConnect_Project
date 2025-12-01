@@ -91,11 +91,35 @@
                                         <div>
                                             <p class="text-sm font-medium">{{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}</p>
                                             <p class="text-xs text-gray-500">{{ $match->product->quantity }} {{ $match->product->unit }} available</p>
+                                            
+                                            <!-- Egg Sizes -->
+                                            @if($match->product->sizes && $match->product->sizes->count() > 0)
+                                            <div class="mt-1">
+                                                <div class="flex flex-wrap gap-1">
+                                                    @foreach($match->product->sizes as $size)
+                                                        @php
+                                                            $sizeLabels = [
+                                                                'small' => 'Small',
+                                                                'medium' => 'Medium',
+                                                                'large' => 'Large',
+                                                                'extra_large' => 'Extra Large',
+                                                                'jumbo' => 'Jumbo'
+                                                            ];
+                                                        @endphp
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                            {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            @endif
                                         </div>
                                         <span class="px-2 py-1 text-xs rounded 
                                             @if($match->status == 'Matched') bg-green-100 text-green-800
                                             @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
                                             @elseif($match->status == 'New') bg-blue-100 text-blue-800
+                                            @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
+                                            @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
                                             @else bg-red-100 text-red-800
                                             @endif">
                                             {{ $match->status }}
@@ -115,7 +139,7 @@
                             <form action="{{ route('demands.destroy', $demand) }}" method="POST" class="delete-form">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="delete-button p-2 border border-transparent rounded-md text-white bg-red-200 hover:bg-red-700" title="Delete Demand">
+                                <button type="button" class="delete-button p-2 border border-transparent rounded-md text-white bg-red-200 hover:bg-red-300" title="Delete Demand">
                                     <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                     </svg>

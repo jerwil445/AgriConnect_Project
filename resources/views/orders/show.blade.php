@@ -228,6 +228,14 @@
                     <i class="fas fa-truck mr-2"></i> Assign Logistics
                 </button>
             @endif
+            
+            @if(auth()->user()->buyer && ($order->delivery_status == 'In Transit' || $order->delivery_status == 'Prepared'))
+                <button type="button" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none mark-delivered-by-buyer-btn"
+                        data-transaction-id="{{ $order->id }}">
+                    <i class="fas fa-truck mr-2"></i> Mark as Delivered
+                </button>
+            @endif
         </div>
     </div>
 </div>
@@ -249,7 +257,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -272,12 +285,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const transactionId = this.getAttribute('data-transaction-id');
             if (confirm('Are you sure you want to reject this order? This action cannot be undone.')) {
                 fetch(`/transactions/${transactionId}/reject`, {
-                    method: 'POST',n                    headers: {
+                    method: 'POST',
+                    headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -306,7 +325,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -335,7 +359,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -364,7 +393,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -381,48 +415,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Mark Prepared button functionality
-    document.querySelectorAll('.mark-prepared-btn').forEach(button => {
+    // Mark Delivered by Buyer button functionality
+    document.querySelectorAll('.mark-delivered-by-buyer-btn').forEach(button => {
         button.addEventListener('click', function() {
             const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to mark this order as prepared?')) {
-                fetch(`/transactions/${transactionId}/mark-prepared`, {
+            if (confirm('Are you sure you want to mark this order as delivered?')) {
+                fetch(`/transactions/${transactionId}/mark-delivered-by-buyer`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        al.ert('Error: ' + data.message);
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
+                    return response.json();
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Assign Logistics button functionality
-    document.querySelectorAll('.assign-logistics-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to assign logistics for this order?')) {
-                fetch(`/transactions/${transactionId}/assign-logistics`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -438,6 +448,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
 </script>
 @endsection

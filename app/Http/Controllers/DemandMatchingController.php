@@ -371,6 +371,11 @@ public function startConversation(DemandMatch $demandMatch)
         'farmer_id' => max(Auth::id(), $farmerUser->id)
     ]);
     
+    // Update the match status to 'Transaction Started'
+    $demandMatch->update([
+        'status' => 'Transaction Started'
+    ]);
+    
     // Create a transaction record
     $transaction = Transaction::create([
         'buyer_id' => Auth::id(),
@@ -449,6 +454,11 @@ public function startTransaction(DemandMatch $demandMatch)
     $conversationThread = ConversationThread::firstOrCreate([
         'buyer_id' => min($buyerUser->id, Auth::id()),
         'farmer_id' => max($buyerUser->id, Auth::id())
+    ]);
+    
+    // Update the match status to 'Transaction Started'
+    $demandMatch->update([
+        'status' => 'Transaction Started'
     ]);
     
     // Create a transaction record
@@ -875,6 +885,19 @@ public function placeOrder(Request $request, Transaction $transaction)
     ]);
     
     \Log::info('New transaction created with ID: ' . $newTransaction->id);
+    
+    // Update the match status to 'Ordered' if there's a demand associated with this transaction
+    if ($transaction->demand_id) {
+        $demandMatch = DemandMatch::where('demand_id', $transaction->demand_id)
+            ->where('product_id', $transaction->product_id)
+            ->first();
+            
+        if ($demandMatch) {
+            $demandMatch->update([
+                'status' => 'Ordered'
+            ]);
+        }
+    }
 
     // Create size transaction records for each ordered size
     if (!empty($trayCounts)) {
@@ -1054,10 +1077,8 @@ public function placeOrder(Request $request, Transaction $transaction)
  */
 public function markOrderAsPaid(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to mark order as paid
-    if ($user->buyer && $transaction->buyer_id != $user->id) {
+    // Check if the authenticated user is the buyer
+    if (Auth::id() != $transaction->buyer_id) {
         abort(403);
     }
     
@@ -1073,7 +1094,10 @@ public function markOrderAsPaid(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Order marked as paid. The farmer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Order marked as paid. The farmer has been notified.'
+    ]);
 }
 
 /**
@@ -1081,10 +1105,8 @@ public function markOrderAsPaid(Transaction $transaction)
  */
 public function markOrderAsDelivered(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to mark order as delivered
-    if ($user->farmer && $transaction->farmer_id != $user->id) {
+    // Check if the authenticated user is the farmer
+    if (Auth::id() != $transaction->farmer_id) {
         abort(403);
     }
     
@@ -1100,7 +1122,10 @@ public function markOrderAsDelivered(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Order marked as delivered. The buyer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Order marked as delivered. The buyer has been notified.'
+    ]);
 }
 
 /**
@@ -1108,10 +1133,8 @@ public function markOrderAsDelivered(Transaction $transaction)
  */
 public function acceptOrder(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to accept order
-    if ($user->farmer && $transaction->farmer_id != $user->id) {
+    // Check if the authenticated user is the farmer
+    if (Auth::id() != $transaction->farmer_id) {
         abort(403);
     }
     
@@ -1127,7 +1150,10 @@ public function acceptOrder(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Order accepted. The buyer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Order accepted. The buyer has been notified.'
+    ]);
 }
 
 /**
@@ -1135,16 +1161,22 @@ public function acceptOrder(Transaction $transaction)
  */
 public function rejectOrder(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to reject order
-    if ($user->farmer && $transaction->farmer_id != $user->id) {
+    // Check if the authenticated user is the farmer
+    if (Auth::id() != $transaction->farmer_id) {
         abort(403);
     }
     
     $transaction->update([
         'status' => 'Rejected'
     ]);
+    
+    // Return the quantity to the product
+    $product = $transaction->product;
+    $product->quantity += $transaction->final_quantity;
+    if ($product->quantity > 0 && $product->status == 'Sold Out') {
+        $product->status = 'Available';
+    }
+    $product->save();
     
     // Notify buyer
     $buyerUser = $transaction->buyer;
@@ -1154,7 +1186,10 @@ public function rejectOrder(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Order rejected. The buyer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Order rejected. The buyer has been notified.'
+    ]);
 }
 
 /**
@@ -1162,10 +1197,8 @@ public function rejectOrder(Transaction $transaction)
  */
 public function markOrderAsPrepared(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to mark order as prepared
-    if ($user->farmer && $transaction->farmer_id != $user->id) {
+    // Check if the authenticated user is the farmer
+    if (Auth::id() != $transaction->farmer_id) {
         abort(403);
     }
     
@@ -1181,7 +1214,10 @@ public function markOrderAsPrepared(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Order marked as prepared. The buyer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Order marked as prepared. The buyer has been notified.'
+    ]);
 }
 
 /**
@@ -1189,10 +1225,8 @@ public function markOrderAsPrepared(Transaction $transaction)
  */
 public function assignLogistics(Transaction $transaction)
 {
-    $user = Auth::user();
-    
-    // Check if user is authorized to assign logistics
-    if ($user->farmer && $transaction->farmer_id != $user->id) {
+    // Check if the authenticated user is the farmer
+    if (Auth::id() != $transaction->farmer_id) {
         abort(403);
     }
     
@@ -1208,7 +1242,38 @@ public function assignLogistics(Transaction $transaction)
         'transaction_id' => $transaction->id
     ]));
     
-    return back()->with('success', 'Logistics assigned. The buyer has been notified.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Logistics assigned. The buyer has been notified.'
+    ]);
+}
+
+/**
+ * Mark order as delivered by buyer
+ */
+public function markOrderAsDeliveredByBuyer(Transaction $transaction)
+{
+    // Check if the authenticated user is the buyer
+    if (Auth::id() != $transaction->buyer_id) {
+        abort(403);
+    }
+    
+    $transaction->update([
+        'delivery_status' => 'Delivered'
+    ]);
+    
+    // Notify farmer
+    $farmerUser = $transaction->farmer;
+    $message = "Order #{$transaction->id} has been marked as delivered by the buyer.";
+    $farmerUser->notify(new OrderAcceptedNotification([
+        'message' => $message,
+        'transaction_id' => $transaction->id
+    ]));
+    
+    return response()->json([
+        'success' => true,
+        'message' => 'Order marked as delivered. The farmer has been notified.'
+    ]);
 }
 
 /**

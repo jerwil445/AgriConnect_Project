@@ -160,8 +160,8 @@
     @endphp
     
 
-    <!-- Confirm Order Button - Visible to buyers for active transactions or when product has remaining quantity -->
-    @if(Auth::id() == $transaction->buyer_id && ($transaction->status == 'Active' || ($transaction->status == 'Ordered' && $transaction->product->quantity > 0 && $transaction->product->status != 'Sold Out')))
+    <!-- Confirm Order Button - Visible to buyers when product is available and has quantity -->
+    @if(Auth::id() == $transaction->buyer_id && $transaction->product->quantity > 0 && $transaction->product->status != 'Sold Out')
     <div class="mb-4">
         <button id="confirmOrderBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
             Confirm Order

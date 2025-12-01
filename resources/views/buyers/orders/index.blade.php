@@ -1,7 +1,7 @@
 @extends('layouts.buyers_page')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
+<div class="px-4 py-8">
     <div class="bg-white rounded-lg shadow-md p-6">
         <h1 class="text-2xl font-bold text-gray-800 mb-6">My Orders</h1>
         
@@ -11,13 +11,12 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer Name</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Egg Type</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Status</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Status</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order Date</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -26,10 +25,22 @@
                         @foreach($orders as $order)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $order->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->farmer->first_name }} {{ $order->farmer->last_name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->product->egg_type }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->final_quantity }} {{ $order->product->unit }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->product->egg_type ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->final_quantity }} {{ $order->product->unit ?? '' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₱{{ number_format($order->total_amount, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        @if($order->status == 'Ordered') bg-yellow-100 text-yellow-800
+                                        @elseif($order->status == 'Accepted') bg-green-100 text-green-800
+                                        @elseif($order->status == 'Rejected') bg-red-100 text-red-800
+                                        @elseif($order->status == 'Prepared') bg-blue-100 text-blue-800
+                                        @elseif($order->status == 'In Transit') bg-purple-100 text-purple-800
+                                        @elseif($order->status == 'Delivered') bg-green-100 text-green-800
+                                        @else bg-gray-100 text-gray-800
+                                        @endif">
+                                        {{ $order->status }}
+                                    </span>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         @if($order->payment_status == 'Paid') bg-green-100 text-green-800
@@ -43,20 +54,11 @@
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         @if($order->delivery_status == 'Delivered') bg-green-100 text-green-800
                                         @elseif($order->delivery_status == 'Scheduled') bg-blue-100 text-blue-800
+                                        @elseif($order->delivery_status == 'In Transit') bg-purple-100 text-purple-800
+                                        @elseif($order->delivery_status == 'Prepared') bg-yellow-100 text-yellow-800
                                         @else bg-gray-100 text-gray-800
                                         @endif">
                                         {{ $order->delivery_status }}
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        @if($order->status == 'Ordered') bg-yellow-100 text-yellow-800
-                                        @elseif($order->status == 'Accepted') bg-green-100 text-green-800
-                                        @elseif($order->status == 'Rejected') bg-red-100 text-red-800
-                                        @elseif($order->status == 'Active') bg-blue-100 text-blue-800
-                                        @else bg-gray-100 text-gray-800
-                                        @endif">
-                                        {{ $order->status }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->created_at->format('M d, Y') }}</td>
@@ -92,24 +94,24 @@
                                                 <a href="{{ route('buyer.messages') }}?transaction_id={{ $order->id }}" 
                                                    class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
                                                    role="menuitem">
-                                                    <i class="fas fa-comment mr-2 text-blue-500"></i>Chat
+                                                    <i class="fas fa-comment mr-2 text-blue-500"></i>Chat with Farmer
                                                 </a>
                                                 
-                                                @if($order->payment_status != 'Paid')
+                                                @if($order->status == 'Ordered' && $order->payment_status == 'Pending')
                                                 <button type="button" 
                                                         class="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 mark-paid-btn" 
                                                         role="menuitem"
                                                         data-transaction-id="{{ $order->id }}">
-                                                    <i class="fas fa-money-bill mr-2 text-green-500"></i>Mark Paid
+                                                    <i class="fas fa-money-bill-wave mr-2 text-green-500"></i>Mark as Paid
                                                 </button>
                                                 @endif
                                                 
-                                                @if($order->delivery_status != 'Delivered')
+                                                @if($order->delivery_status == 'In Transit' || $order->delivery_status == 'Prepared')
                                                 <button type="button" 
-                                                        class="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 confirm-received-btn" 
+                                                        class="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 mark-delivered-btn" 
                                                         role="menuitem"
                                                         data-transaction-id="{{ $order->id }}">
-                                                    <i class="fas fa-check-circle mr-2 text-blue-500"></i>Confirm Received
+                                                    <i class="fas fa-truck mr-2 text-blue-500"></i>Mark as Delivered
                                                 </button>
                                                 @endif
                                             </div>
@@ -123,9 +125,12 @@
             </div>
         @else
             <div class="text-center py-12">
-                <i class="fas fa-shopping-cart text-gray-300 text-5xl mb-4"></i>
+                <i class="fas fa-box-open text-gray-300 text-5xl mb-4"></i>
                 <h3 class="text-lg font-medium text-gray-900 mb-1">No orders yet</h3>
                 <p class="text-gray-500">You haven't placed any orders yet.</p>
+                <a href="{{ route('demands.index') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Browse Products
+                </a>
             </div>
         @endif
     </div>
@@ -148,7 +153,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);
@@ -164,20 +174,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Confirm Received button functionality
-    document.querySelectorAll('.confirm-received-btn').forEach(button => {
+    
+    // Mark Delivered button functionality
+    document.querySelectorAll('.mark-delivered-btn').forEach(button => {
         button.addEventListener('click', function() {
             const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to confirm receipt of this order?')) {
-                fetch(`/transactions/${transactionId}/mark-delivered`, {
+            if (confirm('Are you sure you want to mark this order as delivered?')) {
+                fetch(`/transactions/${transactionId}/mark-delivered-by-buyer`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         alert(data.message);

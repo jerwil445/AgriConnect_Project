@@ -87,6 +87,28 @@
                                 <span class="text-gray-700">Price: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
                             </div>
                             
+                            <!-- Egg Sizes -->
+                            @if($product->sizes && $product->sizes->count() > 0)
+                            <div class="mt-2">
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach($product->sizes as $size)
+                                        @php
+                                            $sizeLabels = [
+                                                'small' => 'Small',
+                                                'medium' => 'Medium',
+                                                'large' => 'Large',
+                                                'extra_large' => 'Extra Large',
+                                                'jumbo' => 'Jumbo'
+                                            ];
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
+                            
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -180,6 +202,7 @@
                                     @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
                                     @elseif($match->status == 'New') bg-blue-100 text-blue-800
                                     @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
+                                    @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
                                     @else bg-red-100 text-red-800
                                     @endif">
                                     {{ $match->status }}

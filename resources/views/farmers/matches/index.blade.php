@@ -121,6 +121,8 @@
                                                 <span class="text-xs px-2 py-1 rounded 
                                                     @if($match->status == 'Pending') bg-yellow-100 text-yellow-800
                                                     @elseif($match->status == 'Matched') bg-green-100 text-green-800
+                                                    @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
+                                                    @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
                                                     @else bg-red-100 text-red-800 @endif">
                                                     {{ $match->status }}
                                                 </span>

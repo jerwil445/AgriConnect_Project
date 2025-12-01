@@ -907,13 +907,25 @@ public function placeOrder(Request $request, Transaction $transaction)
     
     // Handle size-based deductions if tray counts are provided
     if (!empty($trayCounts)) {
+        // Check if there's enough quantity available BEFORE making deductions
+        $totalAvailableQuantity = $product->sizes->sum('tray_count');
+        if ($totalAvailableQuantity < $orderedQuantity) {
+            // Rollback the newly created transaction
+            $newTransaction->delete();
+            return back()->with('error', 'Not enough quantity available for this product. Only ' . $totalAvailableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
+        }
+        
         // Deduct quantities from each size
         foreach ($trayCounts as $sizeId => $trayCount) {
             if ($trayCount > 0) {
                 $size = $product->sizes->find($sizeId);
                 if ($size) {
                     $newTrayCount = max(0, $size->tray_count - $trayCount);
-                    $size->update(['tray_count' => $newTrayCount]);
+                    $newTotalPrice = $newTrayCount * $size->price_per_tray;
+                    $size->update([
+                        'tray_count' => $newTrayCount,
+                        'total_price' => $newTotalPrice
+                    ]);
                 }
             }
         }
@@ -921,23 +933,36 @@ public function placeOrder(Request $request, Transaction $transaction)
         // Recalculate product total quantity
         $newProductQuantity = $product->sizes->sum('tray_count');
         $product->update(['quantity' => $newProductQuantity]);
+        
+        // Recalculate product total price based on remaining inventory value
+        $newProductPrice = 0;
+        foreach ($product->sizes as $size) {
+            $newProductPrice += $size->tray_count * $size->price_per_tray;
+        }
+        $product->update(['price' => $newProductPrice]);
     }
     
-    // Check if ordered quantity exceeds available quantity
-    if ($orderedQuantity > $product->quantity) {
+    // Check if there's enough quantity available for non-size-based orders
+    if (empty($trayCounts) && $product->quantity < $orderedQuantity) {
         // Rollback the newly created transaction
         $newTransaction->delete();
-        return back()->with('error', 'You cannot order more than the available quantity of ' . $product->quantity . ' ' . $product->unit . '.');
+        return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
     }
     
-    // Check if there's enough quantity available
-    if ($product->quantity >= $orderedQuantity) {
+    // Process the order since there's enough quantity available
+    if (true) {
         // For size-based orders, we've already deducted quantities from sizes above
         // For non-size-based orders, deduct the quantity
         if (empty($trayCounts)) {
             $newQuantity = $product->quantity - $orderedQuantity;
+            // Calculate unit price based on current total value and quantity
+            $unitPrice = $product->quantity > 0 ? $product->price / $product->quantity : 0;
+            // Calculate new total price based on remaining quantity and unit price
+            $newTotalPrice = $newQuantity * $unitPrice;
+            
             $product->update([
-                'quantity' => $newQuantity
+                'quantity' => $newQuantity,
+                'price' => $newTotalPrice
             ]);
             
             // If the product quantity reaches 0, mark it as sold out
@@ -954,10 +979,6 @@ public function placeOrder(Request $request, Transaction $transaction)
                 ]);
             }
         }
-    } else {
-        // Not enough quantity available, rollback the order
-        $newTransaction->delete();
-        return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
     }
 
     // Send notification to farmer about the order

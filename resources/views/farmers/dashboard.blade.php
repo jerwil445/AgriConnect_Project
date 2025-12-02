@@ -29,7 +29,7 @@
         @endforeach
     </div>
 
-    <div class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr] ml-64">
+    <div class="mt-8 grid gap-6 xl:grid-cols-[1.2fr_1fr] ml-64" >
         <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div class="flex items-center justify-between mb-6">
                 <div>
@@ -63,7 +63,7 @@
             </div>
         </section>
 
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ">
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 ml-64">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
             <div class="space-y-4">
                 @foreach($activities as $activity)

@@ -1,0 +1,368 @@
+@extends('layouts.admin_page')
+
+@section('content')
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
+    <main class="flex-1 p-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-lg shadow p-6" style="overflow: visible;">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Product Management</h2>
+                    <!-- Add Product button could go here if needed -->
+                </div>
+
+                <!-- Search and Entries Section -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                    <!-- Show Entries -->
+                    <div class="relative inline-block text-left">
+                        <div>
+                            <button type="button" 
+                                    class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                                    id="per-page-menu-button"
+                                    aria-expanded="false" 
+                                    aria-haspopup="true"
+                                    onclick="togglePerPageDropdown()">
+                                Show: {{ request('per_page', 10) }} entries
+                                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div id="per-page-dropdown" 
+                             class="hidden origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                             style="position: absolute; z-index: 9999;">
+                            <div class="py-1" role="none">
+                                <a href="{{ request()->fullUrlWithQuery(['per_page' => 10, 'page' => 1]) }}" 
+                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('per_page') == 10 ? 'bg-blue-50 font-semibold' : '' }}" 
+                                   role="menuitem">
+                                    10 entries
+                                </a>
+                                <a href="{{ request()->fullUrlWithQuery(['per_page' => 25, 'page' => 1]) }}" 
+                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('per_page') == 25 ? 'bg-blue-50 font-semibold' : '' }}" 
+                                   role="menuitem">
+                                    25 entries
+                                </a>
+                                <a href="{{ request()->fullUrlWithQuery(['per_page' => 50, 'page' => 1]) }}" 
+                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('per_page') == 50 ? 'bg-blue-50 font-semibold' : '' }}" 
+                                   role="menuitem">
+                                    50 entries
+                                </a>
+                                <a href="{{ request()->fullUrlWithQuery(['per_page' => 100, 'page' => 1]) }}" 
+                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('per_page') == 100 ? 'bg-blue-50 font-semibold' : '' }}" 
+                                   role="menuitem">
+                                    100 entries
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Dropdowns -->
+                    <div class="flex items-center space-x-4">
+                        <!-- Farmer Filter -->
+                        <div class="relative inline-block text-left">
+                            <div>
+                                <button type="button" 
+                                        class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                                        id="farmer-filter-menu-button"
+                                        aria-expanded="false" 
+                                        aria-haspopup="true"
+                                        onclick="toggleFarmerFilterDropdown()">
+                                    Farmer: {{ request('farmer') ? 'Selected' : 'All Farmers' }}
+                                    <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div id="farmer-filter-dropdown" 
+                                 class="hidden origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                 style="position: absolute; z-index: 9999;">
+                                <div class="py-1" role="none">
+                                    <a href="{{ request()->fullUrlWithoutQuery(['farmer', 'page']) }}" 
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ !request('farmer') ? 'bg-blue-50 font-semibold' : '' }}" 
+                                       role="menuitem">
+                                        All Farmers
+                                    </a>
+                                    @foreach($farmers as $farmer)
+                                    <a href="{{ request()->fullUrlWithQuery(['farmer' => $farmer->id, 'page' => 1]) }}" 
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('farmer') == $farmer->id ? 'bg-blue-50 font-semibold' : '' }}" 
+                                       role="menuitem">
+                                        {{ $farmer->first_name }} {{ $farmer->last_name }}
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status Filter -->
+                        <div class="relative inline-block text-left">
+                            <div>
+                                <button type="button" 
+                                        class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                                        id="status-filter-menu-button"
+                                        aria-expanded="false" 
+                                        aria-haspopup="true"
+                                        onclick="toggleStatusFilterDropdown()">
+                                    Status: {{ request('status') ? ucfirst(request('status')) : 'All Statuses' }}
+                                    <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div id="status-filter-dropdown" 
+                                 class="hidden origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                 style="position: absolute; z-index: 9999;">
+                                <div class="py-1" role="none">
+                                    <a href="{{ request()->fullUrlWithoutQuery(['status', 'page']) }}" 
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ !request('status') ? 'bg-blue-50 font-semibold' : '' }}" 
+                                       role="menuitem">
+                                        All Statuses
+                                    </a>
+                                    @foreach($statuses as $status)
+                                    <a href="{{ request()->fullUrlWithQuery(['status' => $status, 'page' => 1]) }}" 
+                                       class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100 {{ request('status') == $status ? 'bg-blue-50 font-semibold' : '' }}" 
+                                       role="menuitem">
+                                        {{ ucfirst($status) }}
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <form method="GET" action="{{ route('admin.products.index') }}" class="flex items-center" id="search-form">
+                        <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+                        <input type="hidden" name="farmer" value="{{ request('farmer') }}">
+                        <input type="hidden" name="status" value="{{ request('status') }}">
+                        <div class="relative">
+                            <input type="text" name="search" 
+                                   value="{{ request('search') }}" 
+                                   placeholder="Search products..."
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <button type="submit"
+                                class="ml-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">
+                            Search
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Products Table -->
+                <div class="overflow-x-auto" style="overflow: visible;">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Egg Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer Name</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harvest Date</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posted On</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($products as $product)
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->egg_type }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $product->farmer->user->first_name }} {{ $product->farmer->user->last_name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->quantity }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->unit }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ number_format($product->price, 2) }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        @if($product->status == 'available') bg-green-100 text-green-800
+                                        @elseif($product->status == 'sold') bg-red-100 text-red-800
+                                        @else bg-yellow-100 text-yellow-800 @endif">
+                                        {{ ucfirst($product->status) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->harvest_date ? $product->harvest_date->format('M d, Y') : 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->created_at->format('M d, Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <!-- Dropdown Actions -->
+                                    <div class="relative inline-block text-left">
+                                        <div>
+                                            <button type="button" 
+                                                    class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-2 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                                                    id="actions-menu-button-{{ $product->id }}"
+                                                    aria-expanded="false" 
+                                                    aria-haspopup="true"
+                                                    onclick="toggleDropdown({{ $product->id }})">
+                                                Actions
+                                                <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <div id="dropdown-menu-{{ $product->id }}" 
+                                             class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
+                                             role="menu" 
+                                             aria-orientation="vertical" 
+                                             aria-labelledby="actions-menu-button-{{ $product->id }}"
+                                             style="position: absolute; z-index: 9999;">
+                                            <div class="py-1" role="none">
+                                                <a href="{{ route('admin.products.view', $product) }}" 
+                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
+                                                   role="menuitem">
+                                                    <i class="fas fa-eye mr-2 text-blue-500"></i>View Details
+                                                </a>
+                                                <a href="{{ route('admin.products.edit', $product) }}" 
+                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
+                                                   role="menuitem">
+                                                    <i class="fas fa-edit mr-2 text-green-500"></i>Edit
+                                                </a>
+                                                
+                                                <!-- Approve/Reject Options -->
+                                                <div class="border-t border-gray-200 my-1"></div>
+                                                <span class="block px-4 py-2 text-xs font-semibold text-gray-500">Validation</span>
+                                                
+                                                <a href="{{ route('admin.products.approve', $product) }}" 
+                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
+                                                   role="menuitem">
+                                                    <i class="fas fa-check-circle mr-2 text-green-500"></i>Approve
+                                                </a>
+                                                
+                                                <a href="{{ route('admin.products.reject', $product) }}" 
+                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
+                                                   role="menuitem">
+                                                    <i class="fas fa-times-circle mr-2 text-red-500"></i>Reject
+                                                </a>
+                                                
+                                                <!-- Delete Action -->
+                                                <div class="border-t border-gray-200 my-1"></div>
+                                                <form action="{{ route('admin.products.delete', $product) }}" method="POST" 
+                                                      class="inline delete-form" data-product-name="{{ $product->egg_type }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" 
+                                                            class="text-red-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100" 
+                                                            role="menuitem">
+                                                        <i class="fas fa-trash mr-2"></i>Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    No products found.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="mt-6">
+                    {{ $products->links() }}
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Confirm before deleting
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const productName = this.getAttribute('data-product-name');
+            if (confirm(`Are you sure you want to delete product ${productName}?`)) {
+                this.submit();
+            }
+        });
+    });
+    
+    // Toggle dropdown visibility
+    function toggleDropdown(productId) {
+        const dropdown = document.getElementById('dropdown-menu-' + productId);
+        const isVisible = !dropdown.classList.contains('hidden');
+        
+        // Hide all dropdowns first
+        document.querySelectorAll('[id^="dropdown-menu-"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Toggle the clicked dropdown
+        if (!isVisible) {
+            dropdown.classList.remove('hidden');
+        }
+    }
+    
+    // Toggle per page dropdown
+    function togglePerPageDropdown() {
+        const dropdown = document.getElementById('per-page-dropdown');
+        const isVisible = !dropdown.classList.contains('hidden');
+        
+        // Hide all dropdowns first
+        document.querySelectorAll('[id$="-dropdown"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Toggle the clicked dropdown
+        if (!isVisible) {
+            dropdown.classList.remove('hidden');
+        }
+    }
+    
+    // Toggle farmer filter dropdown
+    function toggleFarmerFilterDropdown() {
+        const dropdown = document.getElementById('farmer-filter-dropdown');
+        const isVisible = !dropdown.classList.contains('hidden');
+        
+        // Hide all dropdowns first
+        document.querySelectorAll('[id$="-dropdown"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Toggle the clicked dropdown
+        if (!isVisible) {
+            dropdown.classList.remove('hidden');
+        }
+    }
+    
+    // Toggle status filter dropdown
+    function toggleStatusFilterDropdown() {
+        const dropdown = document.getElementById('status-filter-dropdown');
+        const isVisible = !dropdown.classList.contains('hidden');
+        
+        // Hide all dropdowns first
+        document.querySelectorAll('[id$="-dropdown"]').forEach(el => {
+            el.classList.add('hidden');
+        });
+        
+        // Toggle the clicked dropdown
+        if (!isVisible) {
+            dropdown.classList.remove('hidden');
+        }
+    }
+    
+    // Close dropdown when clicking outside
+    window.addEventListener('click', function(e) {
+        if (!e.target.closest('[id$="-menu-button"]') && !e.target.closest('[id$="-dropdown"]')) {
+            document.querySelectorAll('[id$="-dropdown"]').forEach(el => {
+                el.classList.add('hidden');
+            });
+        }
+    });
+</script>
+@endsection

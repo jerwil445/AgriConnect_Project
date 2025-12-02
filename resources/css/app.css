@@ -1,0 +1,85 @@
+/* resources/css/app.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+}
+
+.business_type {
+    position: relative;
+    width: 100%;
+}
+
+.business_type select {
+    width: 100%;
+    padding: 7px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    outline: none;
+    font-size: 14px;
+    background: #fff;
+    appearance: none;
+}
+
+.business_type label {
+    position: absolute;
+    left: 10px;
+    top: 7px;
+    color: #999;
+    font-size: 14px;
+    transition: 0.3s ease;
+    pointer-events: none;
+    background: white;
+    padding: 0 4px;
+}
+
+.business_type select:focus ~ label,
+.business_type select:valid ~ label {
+    top: -8px;
+    left: 8px;
+    font-size: 13px;
+    color: #16a34a; /* green shade */
+    border-radius: 3px;
+}
+
+.farm-h4 {
+    display: flex;
+    justify-content: center; /* centers horizontally */
+    align-items: center;
+}
+.buyer-h4 {
+    display: none;
+    justify-content: center; /* centers horizontally */
+    align-items: center;
+}
+
+/* Ensure buyer header stays at top */
+.buyer-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* Additional styles to ensure proper header positioning */
+.buyer-page-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+/* Ensure buyer header is always on top */
+.buyer-page-header {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Ensure proper spacing for buyer pages */
+.buyer-content {
+    margin-top: 1rem;
+}

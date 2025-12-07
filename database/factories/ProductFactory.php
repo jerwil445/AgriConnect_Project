@@ -17,26 +17,25 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        // Extended list of egg or product types for more variety
-        $productNames = [
-            'Tomatoes', 'Potatoes', 'Carrots', 'Lettuce', 'Cucumbers',
-            'Bell Peppers', 'Onions', 'Garlic', 'Spinach', 'Cabbage',
-            'Apples', 'Bananas', 'Oranges', 'Grapes', 'Strawberries',
-            'Corn', 'Rice', 'Wheat', 'Soybeans', 'Barley',
-            'Milk', 'Cheese', 'Yogurt', 'Butter', 'Cream',
-            'Broccoli', 'Cauliflower', 'Celery', 'Mushrooms', 'Avocados',
-            'Pineapples', 'Mangoes', 'Watermelons', 'Peaches', 'Cherries',
-            'Beef', 'Pork', 'Chicken', 'Lamb', 'Fish',
-            'Eggs', 'Honey', 'Flour', 'Sugar', 'Salt',
-            'Coffee Beans', 'Tea Leaves', 'Herbs', 'Spices', 'Nuts',
-            'Olives', 'Pumpkins', 'Sweet Potatoes', 'Radishes', 'Peas'
+        // Egg-specific types for egg farming business
+        $eggTypes = [
+            'Chicken Eggs',
+            'Duck Eggs', 
+            'Quail Eggs',
+            'Native Chicken Eggs',
+            'Brown Eggs',
+            'White Eggs',
+            'Free Range Chicken Eggs',
+            'Organic Chicken Eggs',
+            'Pasture Raised Eggs',
+            'Omega-3 Enriched Eggs'
         ];
 
         return [
             'farmer_id' => Farmer::factory(), // Add farmer_id
-            'egg_type' => $this->faker->randomElement($productNames),
-            'quantity' => $this->faker->numberBetween(10, 2000),
-            'unit' => $this->faker->randomElement(['kilos', 'pieces', 'bunches', 'boxes', 'tons', 'liters', 'grams']),
+            'egg_type' => $this->faker->randomElement($eggTypes),
+            'quantity' => $this->faker->numberBetween(50, 5000),
+            'unit' => $this->faker->randomElement(['pieces', 'dozens', 'trays', 'crates']),
             'price' => $this->faker->randomFloat(2, 10, 2000),
             'harvest_date' => $this->faker->dateTimeBetween('-2 weeks', '+2 weeks'),
             'status' => $this->faker->randomElement(['Available', 'Available', 'Available', 'Sold Out', 'Pending']), // More available products

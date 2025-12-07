@@ -17,7 +17,7 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        // Extended list of product names for more variety
+        // Extended list of egg or product types for more variety
         $productNames = [
             'Tomatoes', 'Potatoes', 'Carrots', 'Lettuce', 'Cucumbers',
             'Bell Peppers', 'Onions', 'Garlic', 'Spinach', 'Cabbage',
@@ -34,7 +34,7 @@ class ProductFactory extends Factory
 
         return [
             'farmer_id' => Farmer::factory(), // Add farmer_id
-            'product_name' => $this->faker->randomElement($productNames),
+            'egg_type' => $this->faker->randomElement($productNames),
             'quantity' => $this->faker->numberBetween(10, 2000),
             'unit' => $this->faker->randomElement(['kilos', 'pieces', 'bunches', 'boxes', 'tons', 'liters', 'grams']),
             'price' => $this->faker->randomFloat(2, 10, 2000),

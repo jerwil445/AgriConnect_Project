@@ -7,7 +7,7 @@
     <div class="bg-white  rounded-md md:w-2/4 p-6 relative shadow-lg transform transition-transform duration-300 flex">
 
         <div class="bg-white rounded-xl  flex justify-center items-center h-full transition w-full p-4">
-            <img src="{{ asset('images/farmer.jpg') }} " class = " rounded-lg" alt="Alumni Talk"
+            <img src="{{ asset('images/farmer.png') }} " class = " rounded-lg" alt="Alumni Talk"
                 class="w-full  h-48 object-cover">
         </div>
         <div class = "w-full   flex flex-col justify-center items-center bg-gray-100s">

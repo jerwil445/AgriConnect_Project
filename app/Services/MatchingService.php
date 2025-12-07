@@ -16,7 +16,6 @@ class MatchingService
         // Find demands that match the product criteria and have zero matches
         $matchingDemands = Demand::where('egg_type', $product->egg_type)
             ->where('quantity', '<=', $product->quantity)
-            ->where('status', 'Available')
             ->whereDoesntHave('matches') // Only demands with zero matches
             ->get();
 

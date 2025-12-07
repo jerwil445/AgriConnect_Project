@@ -52,7 +52,7 @@ class DemandMatchSeeder extends Seeder
         
         $demand = Demand::create([
             'buyer_id' => $buyer->id,
-            'product_name' => 'Corn',
+            'egg_type' => 'Corn',
             'quantity' => 50,
             'location' => 'Town A',
             'delivery_date' => '2025-11-25',

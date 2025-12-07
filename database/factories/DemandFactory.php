@@ -17,7 +17,7 @@ class DemandFactory extends Factory
      */
     public function definition(): array
     {
-        // Extended list of product names for demands
+        // Extended list of egg or product types for demands
         $productNames = [
             'Tomatoes', 'Potatoes', 'Carrots', 'Lettuce', 'Cucumbers',
             'Bell Peppers', 'Onions', 'Garlic', 'Spinach', 'Cabbage',
@@ -34,7 +34,7 @@ class DemandFactory extends Factory
 
         return [
             'buyer_id' => Buyer::factory(),
-            'product_name' => $this->faker->randomElement($productNames),
+            'egg_type' => $this->faker->randomElement($productNames),
             'quantity' => $this->faker->numberBetween(10, 1000),
             'location' => $this->faker->city(),
             'delivery_date' => $this->faker->dateTimeBetween('+1 week', '+2 months'),

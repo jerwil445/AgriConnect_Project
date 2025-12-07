@@ -21,7 +21,6 @@
                                 <option value="">Select Egg Type</option>
                                 <option value="chicken" {{ old('egg_type') == 'chicken' ? 'selected' : '' }}>Chicken</option>
                                 <option value="duck" {{ old('egg_type') == 'duck' ? 'selected' : '' }}>Duck</option>
-                                <option value="quail" {{ old('egg_type') == 'quail' ? 'selected' : '' }}>Quail</option>
                                 <option value="native_chicken" {{ old('egg_type') == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option>
                                 
                             </select>
@@ -51,7 +50,7 @@
                             <input type="number" name="quantity" id="quantity" 
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                    value="{{ old('quantity') }}" min="1" required>
-                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter number of dozens/packs. For other eggs: Automatically calculated based on tray counts</p>
+                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on tray counts</p>
                             @error('quantity')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -68,19 +67,19 @@
                                 <!-- <option value="kilos" {{ old('unit') == 'kilos' ? 'selected' : '' }}>Kilograms (kg)</option>
                                 <option value="bunches" {{ old('unit') == 'bunches' ? 'selected' : '' }}>Bunches</option>
                                 <option value="boxes" {{ old('unit') == 'boxes' ? 'selected' : '' }}>Boxes</option>
-                                <option value="sacks" {{ old('unit') == 'sacks' ? 'selected' : '' }}>Sacks</option>
-                            </select> -->
+                                <option value="sacks" {{ old('unit') == 'sacks' ? 'selected' : '' }}>Sacks</option>-->
+                            </select> 
                             @error('unit')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Total Price (₱)</label>
+                        <div class=""  >
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-1 ">Total Price (₱)</label>
                             <input type="number" name="price" id="price" step="0.01" min="0"
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                    value="{{ old('price') }}" required>
-                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter total price. For other eggs: Automatically calculated based on size prices</p>
+                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on size prices</p>
                             <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
                                 <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
                             </div>
@@ -615,67 +614,32 @@
         const quantityInput = document.getElementById('quantity');
         const eggCategoryField = document.getElementById('egg-category-field');
         const unitSelectDiv = document.querySelector('label[for="unit"]').closest('div');
-        const quailUnitOptions = document.getElementById('quail-unit-options');
         
-        if (eggType === 'quail') {
-            // Show quail-specific unit options
-            quailUnitOptions.classList.remove('hidden');
-            
-            // Show main quantity and price fields for quail eggs (don't hide them)
-            quantityInput.closest('div').style.display = 'block';
-            priceInput.closest('div').style.display = 'block';
-            
-            // Hide unit of measure field for quail eggs
-            if (unitSelectDiv) {
-                unitSelectDiv.style.display = 'none';
-            }
-            
-            // Show egg-specific details section for quail eggs
-            eggFieldsContainer.style.display = 'block';
-            
-            // Show egg sizes table for quail eggs but hide add size button
-            const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
-            if (eggSizesTable) {
-                eggSizesTable.style.display = 'block';
-                // Hide the add size button for quail eggs
-                const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
-                if (addSizeButton) {
-                    addSizeButton.style.display = 'none';
-                }
-            }
-            
-            // Hide egg category field for quail eggs
-            eggCategoryField.style.display = 'none';
-        } else {
-            // Hide quail-specific unit options
-            quailUnitOptions.classList.add('hidden');
-            
-            // Show main quantity and price fields for non-quail eggs
-            quantityInput.closest('div').style.display = 'block';
-            priceInput.closest('div').style.display = 'block';
-            
-            // Show unit of measure field for non-quail eggs
-            if (unitSelectDiv) {
-                unitSelectDiv.style.display = 'block';
-            }
-            
-            // Show egg-specific details section and egg sizes table for non-quail eggs
-            eggFieldsContainer.style.display = 'block';
-            
-            // Show egg sizes table for non-quail eggs
-            const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
-            if (eggSizesTable) {
-                eggSizesTable.style.display = 'block';
-                // Show the add size button for non-quail eggs
-                const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
-                if (addSizeButton) {
-                    addSizeButton.style.display = 'inline-flex';
-                }
-            }
-            
-            // Show egg category field for non-quail eggs
-            eggCategoryField.style.display = 'block';
+        // Show main quantity and price fields
+        quantityInput.closest('div').style.display = 'block';
+        priceInput.closest('div').style.display = 'block';
+        
+        // Show unit of measure field
+        if (unitSelectDiv) {
+            unitSelectDiv.style.display = 'block';
         }
+        
+        // Show egg-specific details section and egg sizes table
+        eggFieldsContainer.style.display = 'block';
+        
+        // Show egg sizes table
+        const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
+        if (eggSizesTable) {
+            eggSizesTable.style.display = 'block';
+            // Show the add size button
+            const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
+            if (addSizeButton) {
+                addSizeButton.style.display = 'inline-flex';
+            }
+        }
+        
+        // Show egg category field
+        eggCategoryField.style.display = 'block';
     }
     
     // Preview newly uploaded images

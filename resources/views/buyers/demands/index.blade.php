@@ -47,16 +47,32 @@
                         </div>
                         
                         <div class="mt-4 space-y-2">
+                            <!-- Address Information -->
+                            @if($demand->purok_street || $demand->barangay || $demand->municipality_city || $demand->province)
                             <div class="flex items-center text-gray-600">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
-                                {{ $demand->location }}
+                                <span>
+                                    @if($demand->purok_street)
+                                        {{ $demand->purok_street }}
+                                    @endif
+                                    @if($demand->barangay)
+                                        {{ $demand->barangay }}
+                                    @endif
+                                    @if($demand->municipality_city)
+                                        {{ $demand->municipality_city }}
+                                    @endif
+                                    @if($demand->province)
+                                        {{ $demand->province }}
+                                    @endif
+                                </span>
                             </div>
+                            @endif
                             
                             <!-- Egg-specific information -->
-                            @if($demand->egg_type || $demand->egg_size)
+                            @if($demand->egg_type || $demand->egg_category || $demand->egg_size)
                             <div class="flex items-center text-gray-600">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
@@ -64,6 +80,12 @@
                                 <span>
                                     @if($demand->egg_type)
                                         {{ ucfirst(str_replace('_', ' ', $demand->egg_type)) }}
+                                        @if($demand->egg_category || $demand->egg_size)
+                                            <span class="mx-1">•</span>
+                                        @endif
+                                    @endif
+                                    @if($demand->egg_category)
+                                        {{ ucfirst(str_replace('_', ' ', $demand->egg_category)) }}
                                         @if($demand->egg_size)
                                             <span class="mx-1">•</span>
                                         @endif
@@ -181,7 +203,7 @@
                     <!-- Left Column -->
                     <div>
                         <div class="mb-4">
-                            <label for="modal_egg_type" class="block text-gray-700 font-medium mb-2">Egg Type / Category</label>
+                            <label for="modal_egg_type" class="block text-gray-700 font-medium mb-2">Egg Type</label>
                             <select name="egg_type" id="modal_egg_type" 
                                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
                                 <option value="">Select Egg Type</option>
@@ -194,25 +216,54 @@
                             </select>
                         </div>
                         
-                        <!-- <div class="mb-4">
-                            <label for="modal_address" class="block text-gray-700 font-medium mb-2">Address</label>
-                            <input type="text" name="address" id="modal_address" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                   placeholder="Enter delivery address">
-                        </div> -->
+                        <div class="mb-4">
+                            <label for="modal_egg_category" class="block text-gray-700 font-medium mb-2">Egg Category</label>
+                            <select name="egg_category" id="modal_egg_category" 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required>
+                                <option value="">Select Egg Category</option>
+                                <option value="white_egg">White Egg</option>
+                                <option value="brown_egg">Brown Egg</option>
+                                <option value="free_range">Free-Range</option>
+                                <option value="organic">Organic</option>
+                                <option value="salted_duck_egg">Salted Duck Egg</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="block text-gray-700 font-medium mb-2">Delivery Address</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="modal_purok_street" class="block text-xs text-gray-500 mb-1">Purok/Street</label>
+                                    <input type="text" name="purok_street" id="modal_purok_street" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                           placeholder="Enter purok or street">
+                                </div>
+                                <div>
+                                    <label for="modal_barangay" class="block text-xs text-gray-500 mb-1">Barangay</label>
+                                    <input type="text" name="barangay" id="modal_barangay" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                           placeholder="Enter barangay">
+                                </div>
+                                <div>
+                                    <label for="modal_municipality_city" class="block text-xs text-gray-500 mb-1">Municipality/City</label>
+                                    <input type="text" name="municipality_city" id="modal_municipality_city" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                           placeholder="Enter municipality or city">
+                                </div>
+                                <div>
+                                    <label for="modal_province" class="block text-xs text-gray-500 mb-1">Province</label>
+                                    <input type="text" name="province" id="modal_province" 
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
+                                           placeholder="Enter province">
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="mb-4">
                             <label for="modal_quantity" class="block text-gray-700 font-medium mb-2">Quantity</label>
                             <input type="number" name="quantity" id="modal_quantity" 
                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
                                    min="1" required>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <label for="modal_location" class="block text-gray-700 font-medium mb-2">Delivery Location</label>
-                            <input type="text" name="location" id="modal_location" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" 
-                                   required>
                         </div>
                         
                         <div class="mb-6">

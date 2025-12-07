@@ -16,9 +16,9 @@ class BuyerController extends Controller
      */
     public function dashboard()
     {
-        // Fetch all products with their farmer information
+        // Fetch all products with their farmer information, sizes, and remaining inventory
         // Show both available and sold out products
-        $products = Product::with('farmer.user')
+        $products = Product::with('farmer.user', 'sizes', 'remainingInventory')
             ->whereIn('status', ['Available', 'Sold Out'])
             ->paginate(12);
         
@@ -42,8 +42,8 @@ class BuyerController extends Controller
      */
     public function showProduct(Product $product)
     {
-        // Load the farmer, user information, and product images
-        $product->load('farmer.user', 'images');
+        // Load the farmer, user information, product images, sizes, and remaining inventory
+        $product->load('farmer.user', 'images', 'sizes', 'remainingInventory');
         
         return view('buyers.products.show', compact('product'));
     }

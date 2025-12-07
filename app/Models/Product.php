@@ -13,13 +13,17 @@ class Product extends Model
     protected $fillable = [
         'farmer_id',
         'egg_type',
+        'egg_category',
         'jumbo',
         'description',
         'quantity',
         'unit',
         'price',
         'harvest_date',
-        'address',
+        'purok_street',
+        'barangay',
+        'municipality_city',
+        'province',
         'status',
         'image'
     ];
@@ -63,5 +67,10 @@ class Product extends Model
     public function sizes()
     {
         return $this->hasMany(Size::class);
+    }
+    
+    public function remainingInventory()
+    {
+        return $this->hasOne(RemainingInventory::class);
     }
 }

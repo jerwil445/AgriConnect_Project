@@ -67,9 +67,39 @@ class RunMatchingEngine extends Command
     private function matchDemand(Demand $demand)
     {
         // Find products that match the demand criteria
-        $matchingProducts = Product::where('product_name', 'LIKE', '%' . $demand->product_name . '%')
-            ->where('quantity', '>=', $demand->quantity)
+        // Match based on egg type, location (partial match), and sufficient remaining quantity
+        $matchingProducts = Product::where('egg_type', $demand->egg_type)
             ->where('status', 'Available')
+            ->where(function($query) use ($demand) {
+                // Check if product has remaining inventory and sufficient quantity
+                $query->whereHas('remainingInventory', function($subQuery) use ($demand) {
+                    $subQuery->where('remaining_quantity', '>=', $demand->quantity);
+                })
+                // Or fallback to original quantity if no remaining inventory exists
+                ->orWhere('quantity', '>=', $demand->quantity);
+            })
+            ->where(function($query) use ($demand) {
+                // Match based on location/address (more flexible matching)
+                $locationTerms = explode(' ', strtolower($demand->location));
+                $query->where(function($subQuery) use ($locationTerms) {
+                    foreach ($locationTerms as $term) {
+                        if (strlen($term) > 2) { // Only match terms with more than 2 characters
+                            $subQuery->where('purok_street', 'LIKE', '%' . $term . '%')
+                                ->orWhere('barangay', 'LIKE', '%' . $term . '%')
+                                ->orWhere('municipality_city', 'LIKE', '%' . $term . '%')
+                                ->orWhere('province', 'LIKE', '%' . $term . '%');
+                        }
+                    }
+                })->orWhereHas('farmer', function($subQuery) use ($locationTerms) {
+                    $subQuery->where(function($farmerSubQuery) use ($locationTerms) {
+                        foreach ($locationTerms as $term) {
+                            if (strlen($term) > 2) { // Only match terms with more than 2 characters
+                                $farmerSubQuery->where('farm_address', 'LIKE', '%' . $term . '%');
+                            }
+                        }
+                    });
+                });
+            })
             ->get();
 
         // For each matching product, create a match record
@@ -97,9 +127,39 @@ class RunMatchingEngine extends Command
     {
         // Find demands that match the product criteria
         // Only match with products that are available
-        $matchingDemands = Demand::where('product_name', 'LIKE', '%' . $product->product_name . '%')
-            ->where('quantity', '<=', $product->quantity)
+        // Match based on egg type, location (partial match), and sufficient remaining quantity
+        $matchingDemands = Demand::where('egg_type', $product->egg_type)
             ->where('status', 'Available')
+            ->where(function($query) use ($product) {
+                // Check if product has remaining inventory and sufficient quantity
+                if ($product->remainingInventory) {
+                    $query->where('quantity', '<=', $product->remainingInventory->remaining_quantity);
+                } else {
+                    // Fallback to original quantity if no remaining inventory exists
+                    $query->where('quantity', '<=', $product->quantity);
+                }
+            })
+            ->where(function($query) use ($product) {
+                // Match based on location/address (more flexible matching)
+                // Combine all address fields for matching
+                $fullAddress = trim(($product->purok_street ?? '') . ' ' . ($product->barangay ?? '') . ' ' . ($product->municipality_city ?? '') . ' ' . ($product->province ?? ''));
+                $addressTerms = explode(' ', strtolower($fullAddress));
+                $query->where(function($subQuery) use ($addressTerms) {
+                    foreach ($addressTerms as $term) {
+                        if (strlen($term) > 2) { // Only match terms with more than 2 characters
+                            $subQuery->where('location', 'LIKE', '%' . $term . '%');
+                        }
+                    }
+                })->orWhereHas('buyer', function($subQuery) use ($addressTerms) {
+                    $subQuery->where(function($buyerSubQuery) use ($addressTerms) {
+                        foreach ($addressTerms as $term) {
+                            if (strlen($term) > 2) { // Only match terms with more than 2 characters
+                                $buyerSubQuery->where('buyer_address', 'LIKE', '%' . $term . '%');
+                            }
+                        }
+                    });
+                });
+            })
             ->get();
 
         // For each matching demand, create a match record

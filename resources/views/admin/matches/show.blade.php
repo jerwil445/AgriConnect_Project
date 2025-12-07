@@ -155,8 +155,26 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Product</label>
-                            <p class="text-sm text-gray-900">{{ $match->demand->egg_type }}</p>
+                            <p class="text-sm text-gray-900">
+                                @php
+                                    $eggTypes = [
+                                        'chicken' => 'Chicken',
+                                        'duck' => 'Duck',
+                                        'quail' => 'Quail',
+                                        'native_chicken' => 'Native Chicken',
+                                        'brown' => 'Brown Egg',
+                                        'white' => 'White Egg'
+                                    ];
+                                @endphp
+                                {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                            </p>
                         </div>
+                        @if($match->demand->egg_size)
+                        <div class="bg-gray-50 p-3 rounded">
+                            <label class="block text-sm font-medium text-gray-600">Egg Size</label>
+                            <p class="text-sm text-gray-900">{{ $match->demand->egg_size }}</p>
+                        </div>
+                        @endif
                         <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Quantity</label>
                             <p class="text-sm text-gray-900">{{ $match->demand->quantity }}</p>
@@ -165,10 +183,31 @@
                             <label class="block text-sm font-medium text-gray-600">Target Price</label>
                             <p class="text-sm text-gray-900">₱{{ number_format($match->demand->target_price ?? 0, 2) }}</p>
                         </div>
+                        <!-- Address Information -->
+                        @if($match->demand->purok_street || $match->demand->barangay || $match->demand->municipality_city || $match->demand->province)
+                        <div class="bg-gray-50 p-3 rounded">
+                            <label class="block text-sm font-medium text-gray-600">Address</label>
+                            <p class="text-sm text-gray-900">
+                                @if($match->demand->purok_street)
+                                    {{ $match->demand->purok_street }}
+                                @endif
+                                @if($match->demand->barangay)
+                                    {{ $match->demand->barangay }}
+                                @endif
+                                @if($match->demand->municipality_city)
+                                    {{ $match->demand->municipality_city }}
+                                @endif
+                                @if($match->demand->province)
+                                    {{ $match->demand->province }}
+                                @endif
+                            </p>
+                        </div>
+                        @else
                         <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Location</label>
                             <p class="text-sm text-gray-900">{{ $match->demand->location }}</p>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>

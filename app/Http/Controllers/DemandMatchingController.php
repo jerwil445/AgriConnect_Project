@@ -93,8 +93,10 @@ class DemandMatchingController extends Controller
             'egg_type' => 'required|string|max:50',
             'egg_size' => 'nullable|string|max:255', // Increased max length for comma-separated values
             'quantity' => 'required|integer|min:1',
-            'location' => 'required|string|max:255',
-            'address' => 'nullable|string|max:255',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
             'delivery_date' => 'required|date|after_or_equal:today',
             'small_trays' => 'nullable|integer|min:1', // Tray count for small eggs
             'medium_trays' => 'nullable|integer|min:1', // Tray count for medium eggs
@@ -209,9 +211,59 @@ class DemandMatchingController extends Controller
     public function runMatchingEngine(Demand $demand)
     {
         // Find products that match the demand criteria
+        // Match based on egg type and sufficient remaining quantity
+        // Location matching is now based on address fields (Province, City/Municipality, Barangay)
         $matchingProducts = Product::where('egg_type', $demand->egg_type)
-            ->where('quantity', '>=', $demand->quantity)
             ->where('status', 'Available')
+            ->where(function($query) use ($demand) {
+                // Check if product has remaining inventory and sufficient quantity
+                $query->whereHas('remainingInventory', function($subQuery) use ($demand) {
+                    $subQuery->where('remaining_quantity', '>=', $demand->quantity);
+                })
+                // Or fallback to original quantity if no remaining inventory exists
+                ->orWhere('quantity', '>=', $demand->quantity);
+            })
+            ->where(function($query) use ($demand) {
+                // Match based on address fields (Province, City/Municipality, Barangay)
+                // Skip location matching if no address fields are provided
+                if (empty($demand->province) && empty($demand->municipality_city) && empty($demand->barangay)) {
+                    return $query; // No location filtering
+                }
+                
+                $query->where(function($subQuery) use ($demand) {
+                    // Match province if provided
+                    if (!empty($demand->province)) {
+                        $subQuery->where('province', 'LIKE', '%' . $demand->province . '%');
+                    }
+                    
+                    // Match municipality/city if provided
+                    if (!empty($demand->municipality_city)) {
+                        $subQuery->orWhere('municipality_city', 'LIKE', '%' . $demand->municipality_city . '%');
+                    }
+                    
+                    // Match barangay if provided
+                    if (!empty($demand->barangay)) {
+                        $subQuery->orWhere('barangay', 'LIKE', '%' . $demand->barangay . '%');
+                    }
+                })->orWhereHas('farmer', function($subQuery) use ($demand) {
+                    $subQuery->where(function($farmerSubQuery) use ($demand) {
+                        // Match province if provided
+                        if (!empty($demand->province)) {
+                            $farmerSubQuery->where('farm_address', 'LIKE', '%' . $demand->province . '%');
+                        }
+                        
+                        // Match municipality/city if provided
+                        if (!empty($demand->municipality_city)) {
+                            $farmerSubQuery->orWhere('farm_address', 'LIKE', '%' . $demand->municipality_city . '%');
+                        }
+                        
+                        // Match barangay if provided
+                        if (!empty($demand->barangay)) {
+                            $farmerSubQuery->orWhere('farm_address', 'LIKE', '%' . $demand->barangay . '%');
+                        }
+                    });
+                });
+            })
             ->get();
 
         // For each matching product, create a match record
@@ -931,77 +983,39 @@ public function placeOrder(Request $request, Transaction $transaction)
     // Handle size-based deductions if tray counts are provided
     if (!empty($trayCounts)) {
         // Check if there's enough quantity available BEFORE making deductions
-        $totalAvailableQuantity = $product->sizes->sum('tray_count');
-        if ($totalAvailableQuantity < $orderedQuantity) {
+        // Load remaining inventory to check actual available quantity
+        $product->load('remainingInventory');
+        $availableQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
+        
+        if ($availableQuantity < $orderedQuantity) {
             // Rollback the newly created transaction
             $newTransaction->delete();
-            return back()->with('error', 'Not enough quantity available for this product. Only ' . $totalAvailableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
+            return back()->with('error', 'Not enough quantity available for this product. Only ' . $availableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
         }
-        
-        // Deduct quantities from each size
-        foreach ($trayCounts as $sizeId => $trayCount) {
-            if ($trayCount > 0) {
-                $size = $product->sizes->find($sizeId);
-                if ($size) {
-                    $newTrayCount = max(0, $size->tray_count - $trayCount);
-                    $newTotalPrice = $newTrayCount * $size->price_per_tray;
-                    $size->update([
-                        'tray_count' => $newTrayCount,
-                        'total_price' => $newTotalPrice
-                    ]);
-                }
-            }
-        }
-        
-        // Recalculate product total quantity
-        $newProductQuantity = $product->sizes->sum('tray_count');
-        $product->update(['quantity' => $newProductQuantity]);
-        
-        // Recalculate product total price based on remaining inventory value
-        $newProductPrice = 0;
-        foreach ($product->sizes as $size) {
-            $newProductPrice += $size->tray_count * $size->price_per_tray;
-        }
-        $product->update(['price' => $newProductPrice]);
     }
     
     // Check if there's enough quantity available for non-size-based orders
-    if (empty($trayCounts) && $product->quantity < $orderedQuantity) {
+    // Load remaining inventory to check actual available quantity
+    $product->load('remainingInventory');
+    $availableQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
+    
+    if (empty($trayCounts) && $availableQuantity < $orderedQuantity) {
         // Rollback the newly created transaction
         $newTransaction->delete();
-        return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
+        return back()->with('error', 'Not enough quantity available for this product. Only ' . $availableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
     }
     
-    // Process the order since there's enough quantity available
-    if (true) {
-        // For size-based orders, we've already deducted quantities from sizes above
-        // For non-size-based orders, deduct the quantity
-        if (empty($trayCounts)) {
-            $newQuantity = $product->quantity - $orderedQuantity;
-            // Calculate unit price based on current total value and quantity
-            $unitPrice = $product->quantity > 0 ? $product->price / $product->quantity : 0;
-            // Calculate new total price based on remaining quantity and unit price
-            $newTotalPrice = $newQuantity * $unitPrice;
-            
-            $product->update([
-                'quantity' => $newQuantity,
-                'price' => $newTotalPrice
-            ]);
-            
-            // If the product quantity reaches 0, mark it as sold out
-            if ($newQuantity <= 0) {
-                $product->update([
-                    'status' => 'Sold Out'
-                ]);
-            }
-        } else {
-            // For size-based orders, check if product is sold out
-            if ($product->quantity <= 0) {
-                $product->update([
-                    'status' => 'Sold Out'
-                ]);
-            }
-        }
+    // Update remaining inventory tracking only (don't modify product table)
+    if (!empty($trayCounts)) {
+        $this->updateRemainingInventoryForOrder($product, $trayCounts, 0);
+    } else {
+        $this->updateRemainingInventoryForOrder($product, [], $orderedQuantity);
+    }
+    
+    // Check if product should be marked as sold out based on remaining inventory
+    $product->load('remainingInventory');
+    if ($product->remainingInventory && $product->remainingInventory->remaining_quantity <= 0) {
+        // Don't update the product status, just handle it in the UI
     }
 
     // Send notification to farmer about the order
@@ -1068,8 +1082,181 @@ public function placeOrder(Request $request, Transaction $transaction)
         $buyerUser->notify(new OrderAcceptedNotification($data));
     }
 
-    $remainingQuantity = $product->quantity;
+    // Get remaining quantity from remaining inventory tracking
+    $product->load('remainingInventory');
+    $remainingQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
     return back()->with('success', 'Order placed successfully! You can place another order for this product as long as there is quantity available. ' . $remainingQuantity . ' ' . $product->unit . ' remaining.');
+}
+
+
+
+/**
+ * Update remaining inventory tracking for an order without modifying the product table
+ */
+protected function updateRemainingInventoryForOrder(Product $product, array $trayCounts = [], int $orderedQuantity = 0)
+{
+    // Load the remaining inventory record
+    $product->load('remainingInventory', 'sizes');
+    
+    // If no remaining inventory record exists, create one with original values
+    if (!$product->remainingInventory) {
+        $perSizeRemaining = [];
+        foreach ($product->sizes as $size) {
+            $perSizeRemaining[] = [
+                'size_id' => $size->id,
+                'size_name' => $size->size_name,
+                'original_tray_count' => $size->tray_count,
+                'remaining_tray_count' => $size->tray_count,
+                'original_price_per_tray' => $size->price_per_tray,
+                'remaining_price_per_tray' => $size->price_per_tray,
+                'original_total_price' => $size->total_price,
+                'remaining_total_price' => $size->total_price
+            ];
+        }
+        
+        $remainingInventory = \App\Models\RemainingInventory::create([
+            'product_id' => $product->id,
+            'original_quantity' => $product->quantity,
+            'original_price' => $product->price,
+            'original_total_trays' => $product->sizes->sum('tray_count'),
+            'remaining_quantity' => $product->quantity,
+            'remaining_price' => $product->price,
+            'remaining_total_trays' => $product->sizes->sum('tray_count'),
+            'per_size_remaining' => $perSizeRemaining,
+            'last_updated' => now()
+        ]);
+        
+        $product->setRelation('remainingInventory', $remainingInventory);
+    }
+    
+    // Update remaining inventory based on the order
+    $perSizeRemaining = [];
+    $totalQuantityToDeduct = 0; // Will calculate total quantity to deduct
+    $newRemainingPrice = 0; // Will be calculated from size-specific values
+    $newRemainingTotalTrays = 0; // Will be calculated from size-specific values
+    
+    // Handle size-based orders
+    if (!empty($trayCounts)) {
+        foreach ($product->sizes as $size) {
+            // Find the original values for this size
+            $originalTrayCount = $size->tray_count;
+            $originalPricePerTray = $size->price_per_tray;
+            $originalTotalPrice = $size->total_price;
+            
+            // Get current remaining values from the existing record
+            $remainingTrayCount = $originalTrayCount; // Default to original
+            $remainingTotalPrice = $originalTotalPrice; // Default to original
+            
+            // Find existing remaining values
+            foreach ($product->remainingInventory->per_size_remaining ?? [] as $existingSize) {
+                if ($existingSize['size_id'] == $size->id) {
+                    $originalTrayCount = $existingSize['original_tray_count'];
+                    $originalPricePerTray = $existingSize['original_price_per_tray'];
+                    $originalTotalPrice = $existingSize['original_total_price'];
+                    $remainingTrayCount = $existingSize['remaining_tray_count'];
+                    $remainingTotalPrice = $existingSize['remaining_total_price'];
+                    break;
+                }
+            }
+            
+            // Deduct ordered quantity for this size
+            $orderedTrayCount = $trayCounts[$size->id] ?? 0;
+            $newRemainingTrayCount = max(0, $remainingTrayCount - $orderedTrayCount);
+            $newRemainingTotalPrice = $newRemainingTrayCount * $originalPricePerTray;
+            
+            // Update totals
+            $newRemainingTotalTrays += $newRemainingTrayCount;
+            $newRemainingPrice += $newRemainingTotalPrice;
+            $totalQuantityToDeduct += $orderedTrayCount;
+            
+            $perSizeRemaining[] = [
+                'size_id' => $size->id,
+                'size_name' => $size->size_name,
+                'original_tray_count' => $originalTrayCount,
+                'remaining_tray_count' => $newRemainingTrayCount,
+                'original_price_per_tray' => $originalPricePerTray,
+                'remaining_price_per_tray' => $originalPricePerTray,
+                'original_total_price' => $originalTotalPrice,
+                'remaining_total_price' => $newRemainingTotalPrice
+            ];
+        }
+    } else {
+        // Handle non-size-based orders
+        // Distribute the ordered quantity proportionally across sizes
+        $totalOriginalTrays = $product->remainingInventory->original_total_trays;
+        
+        foreach ($product->sizes as $size) {
+            // Find the original values for this size
+            $originalTrayCount = $size->tray_count;
+            $originalPricePerTray = $size->price_per_tray;
+            $originalTotalPrice = $size->total_price;
+            
+            // Get current remaining values from the existing record
+            $remainingTrayCount = $originalTrayCount; // Default to original
+            $remainingTotalPrice = $originalTotalPrice; // Default to original
+            
+            // Find existing remaining values
+            foreach ($product->remainingInventory->per_size_remaining ?? [] as $existingSize) {
+                if ($existingSize['size_id'] == $size->id) {
+                    $originalTrayCount = $existingSize['original_tray_count'];
+                    $originalPricePerTray = $existingSize['original_price_per_tray'];
+                    $originalTotalPrice = $existingSize['original_total_price'];
+                    $remainingTrayCount = $existingSize['remaining_tray_count'];
+                    $remainingTotalPrice = $existingSize['remaining_total_price'];
+                    break;
+                }
+            }
+            
+            // Calculate proportional deduction
+            if ($totalOriginalTrays > 0) {
+                $proportionalOrder = ($originalTrayCount / $totalOriginalTrays) * $orderedQuantity;
+                $orderedTrayCount = round($proportionalOrder);
+            } else {
+                $orderedTrayCount = 0;
+            }
+            
+            $newRemainingTrayCount = max(0, $remainingTrayCount - $orderedTrayCount);
+            $newRemainingTotalPrice = $newRemainingTrayCount * $originalPricePerTray;
+            
+            // Update totals
+            $newRemainingTotalTrays += $newRemainingTrayCount;
+            $newRemainingPrice += $newRemainingTotalPrice;
+            $totalQuantityToDeduct += $orderedTrayCount;
+            
+            $perSizeRemaining[] = [
+                'size_id' => $size->id,
+                'size_name' => $size->size_name,
+                'original_tray_count' => $originalTrayCount,
+                'remaining_tray_count' => $newRemainingTrayCount,
+                'original_price_per_tray' => $originalPricePerTray,
+                'remaining_price_per_tray' => $originalPricePerTray,
+                'original_total_price' => $originalTotalPrice,
+                'remaining_total_price' => $newRemainingTotalPrice
+            ];
+        }
+    }
+    
+    // Calculate new remaining quantity
+    $newRemainingQuantity = max(0, $product->remainingInventory->remaining_quantity - $totalQuantityToDeduct);
+    
+    // Ensure we don't go below zero
+    $newRemainingPrice = max(0, $newRemainingPrice);
+    $newRemainingTotalTrays = max(0, $newRemainingTotalTrays);
+    
+    $product->remainingInventory->update([
+        'remaining_quantity' => $newRemainingQuantity,
+        'remaining_price' => $newRemainingPrice,
+        'remaining_total_trays' => $newRemainingTotalTrays,
+        'per_size_remaining' => $perSizeRemaining,
+        'last_updated' => now()
+    ]);
+    
+    // If remaining quantity is zero, mark product as sold out
+    if ($newRemainingQuantity <= 0) {
+        $product->update([
+            'status' => 'Sold Out'
+        ]);
+    }
 }
 
 /**

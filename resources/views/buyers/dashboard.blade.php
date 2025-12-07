@@ -235,13 +235,43 @@
                             <p class="text-gray-600 text-sm flex items-center mt-1">
                                 <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> {{ $product->farmer->user->address ?? 'Farm Location' }}, {{ $product->farmer->user->state ?? 'State' }}
                             </p>
+                            @if($product->farmer->farm_address)
+                            <p class="text-gray-600 text-sm flex items-center mt-1">
+                                <i class="fas fa-warehouse text-gray-400 mr-1"></i> Farm: {{ $product->farmer->farm_address }}
+                            </p>
+                            @endif
+                            
+                            <!-- Product Address -->
+                            @if($product->purok_street || $product->barangay || $product->municipality_city || $product->province)
+                            <p class="text-gray-600 text-sm flex items-center mt-1">
+                                <i class="fas fa-box text-gray-400 mr-1"></i> 
+                                @if($product->purok_street)
+                                    {{ $product->purok_street }}
+                                @endif
+                                @if($product->barangay)
+                                    {{ $product->barangay }}
+                                @endif
+                                @if($product->municipality_city)
+                                    {{ $product->municipality_city }}
+                                @endif
+                                @if($product->province)
+                                    {{ $product->province }}
+                                @endif
+                            </p>
+                            @endif
                         </div>
                     </div>
                     <div class="flex justify-between items-center mb-4">
                         <div>
-                            <p class="text-primary-700 font-bold text-xl">${{ number_format($product->price, 2) }} <span
-                                    class="text-gray-500 text-sm font-normal">/ {{ $product->unit }}</span></p>
+                            <p class="text-primary-700 font-bold text-xl">₱{{ number_format($product->price, 2) }}</p>
+                            @if($product->remainingInventory)
+                            <p class="text-gray-600 text-sm">Original: {{ $product->quantity }} {{ $product->unit }} available</p>
+                            <p class="text-gray-600 text-sm"><span class="text-green-600 font-semibold">{{ $product->remainingInventory->remaining_quantity }}</span> {{ $product->unit }} remaining</p>
+                            <p class="text-gray-600 text-sm">Total Price: <span class="line-through text-gray-500">₱{{ number_format($product->price, 2) }}</span> <span class="text-green-600 font-semibold">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</span></p>
+                            @else
                             <p class="text-gray-600 text-sm">{{ $product->quantity }} {{ $product->unit }} available</p>
+                            <p class="text-gray-600 text-sm">Total Price: ₱{{ number_format($product->price, 2) }}</p>
+                            @endif
                             
                             <!-- Egg Sizes -->
                             @if($product->sizes && $product->sizes->count() > 0)
@@ -256,9 +286,22 @@
                                                 'extra_large' => 'Extra Large',
                                                 'jumbo' => 'Jumbo'
                                             ];
+                                            // Get remaining trays for this size
+                                            $remainingTrays = $size->tray_count; // Default to original count
+                                            if($product->remainingInventory && $product->remainingInventory->per_size_remaining) {
+                                                foreach($product->remainingInventory->per_size_remaining as $remainingSize) {
+                                                    if(isset($remainingSize['size_id']) && $remainingSize['size_id'] == $size->id) {
+                                                        $remainingTrays = $remainingSize['remaining_tray_count'] ?? $size->tray_count;
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                         @endphp
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                            @if($remainingTrays != $size->tray_count)
+                                            <span class="ml-1 text-green-600 font-semibold">({{ $remainingTrays }} left)</span>
+                                            @endif
                                         </span>
                                     @endforeach
                                 </div>

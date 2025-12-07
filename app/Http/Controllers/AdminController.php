@@ -47,8 +47,10 @@ class AdminController extends Controller
             ->get();
         
         // Regional Demand (top 5 locations by demand count)
-        $regionalDemand = Demand::selectRaw('location, COUNT(*) as demand_count')
-            ->groupBy('location')
+        // Use province field instead of the old location field
+        $regionalDemand = Demand::selectRaw('province, COUNT(*) as demand_count')
+            ->whereNotNull('province')
+            ->groupBy('province')
             ->orderBy('demand_count', 'desc')
             ->limit(5)
             ->get();

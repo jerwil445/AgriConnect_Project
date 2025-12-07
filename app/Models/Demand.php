@@ -12,10 +12,14 @@ class Demand extends Model
     protected $fillable = [
         'buyer_id',
         'egg_type',
+        'egg_category',
         'egg_size',
         'quantity',
-        'location',
-        'address',
+        // Removed 'location' as it's no longer used for matching
+        'purok_street',
+        'barangay',
+        'municipality_city',
+        'province',
         'delivery_date'
     ];
     

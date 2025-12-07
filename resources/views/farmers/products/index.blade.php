@@ -77,6 +77,21 @@
                         <!-- Display egg-specific details -->
                         @if($product->egg_type)
                             <div class="text-xs text-gray-400 mt-1">
+                                @if($product->egg_category)
+                                    @php
+                                        $eggCategories = [
+                                            'white_egg' => 'White Egg',
+                                            'brown_egg' => 'Brown Egg',
+                                            'free_range' => 'Free-Range',
+                                            'organic' => 'Organic',
+                                            'salted_duck_egg' => 'Salted Duck Egg'
+                                        ];
+                                    @endphp
+                                    {{ $eggCategories[$product->egg_category] ?? ucfirst(str_replace('_', ' ', $product->egg_category)) }}
+                                    @if($product->egg_size)
+                                        <span class="mx-1">•</span>
+                                    @endif
+                                @endif
                                 @if($product->egg_size)
                                     @php
                                         $eggSizes = [

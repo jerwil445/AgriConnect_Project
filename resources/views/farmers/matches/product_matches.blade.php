@@ -77,19 +77,36 @@
                                 <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                 </svg>
-                                <span class="text-gray-700">Available Quantity: <span class="font-medium">{{ $product->quantity }} {{ $product->unit }}</span></span>
+                                <span class="text-gray-700">Original Quantity: <span class="font-medium">{{ $product->quantity }} {{ $product->unit }}</span></span>
                             </div>
+                            @if($product->remainingInventory)
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span class="text-gray-700">Remaining Quantity: <span class="font-medium text-green-600">{{ $product->remainingInventory->remaining_quantity }} {{ $product->unit }}</span></span>
+                            </div>
+                            @endif
                             
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-gray-700">Price: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
+                                <span class="text-gray-700">Original Price: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
                             </div>
+                            @if($product->remainingInventory)
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-gray-700">Remaining Price: <span class="font-medium text-green-600">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}/{{ $product->unit }}</span></span>
+                            </div>
+                            @endif
                             
                             <!-- Egg Sizes -->
                             @if($product->sizes && $product->sizes->count() > 0)
                             <div class="mt-2">
+                                <p class="text-gray-500 text-sm mb-1">Egg Sizes:</p>
                                 <div class="flex flex-wrap gap-1">
                                     @foreach($product->sizes as $size)
                                         @php
@@ -100,9 +117,24 @@
                                                 'extra_large' => 'Extra Large',
                                                 'jumbo' => 'Jumbo'
                                             ];
+                                            
+                                            // Get remaining tray count for this size
+                                            $remainingTrays = $size->tray_count;
+                                            if($product->remainingInventory) {
+                                                foreach($product->remainingInventory->per_size_remaining ?? [] as $remainingSize) {
+                                                    if(isset($remainingSize['size_id']) && $remainingSize['size_id'] == $size->id) {
+                                                        $remainingTrays = $remainingSize['remaining_tray_count'];
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                         @endphp
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                            {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: 
+                                            <span class="font-medium">{{ $size->tray_count }}</span>
+                                            @if($remainingTrays != $size->tray_count)
+                                            <span class="ml-1 text-green-600 font-semibold">({{ $remainingTrays }} left)</span>
+                                            @endif
                                         </span>
                                     @endforeach
                                 </div>
@@ -127,18 +159,22 @@
                     
                     <div class="bg-gray-50 p-4 rounded-lg mt-6">
                         <h3 class="font-bold text-lg text-gray-800 mb-3">Match Summary</h3>
-                        <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="grid grid-cols-4 gap-4 text-center">
                             <div class="bg-white p-3 rounded shadow">
                                 <div class="text-2xl font-bold text-indigo-600">{{ $product->matches->count() }}</div>
                                 <div class="text-sm text-gray-600">Total Matches</div>
                             </div>
                             <div class="bg-white p-3 rounded shadow">
                                 <div class="text-2xl font-bold text-green-600">{{ $product->matches->where('status', 'Matched')->count() }}</div>
-                                <div class="text-sm text-gray-600">Accepted</div>
+                                <div class="text-sm text-gray-600">Ordered</div>
                             </div>
                             <div class="bg-white p-3 rounded shadow">
-                                <div class="text-2xl font-bold text-yellow-600">{{ $product->matches->where('status', 'Pending')->count() }}</div>
-                                <div class="text-sm text-gray-600">Pending</div>
+                                <div class="text-2xl font-bold text-blue-600">{{ $product->matches->where('status', 'Transaction Started')->count() }}</div>
+                                <div class="text-sm text-gray-600">Transaction Started</div>
+                            </div>
+                            <div class="bg-white p-3 rounded shadow">
+                                <div class="text-2xl font-bold text-red-600">{{ $product->matches->where('status', 'Sold Out')->count() }}</div>
+                                <div class="text-sm text-gray-600">Sold Out</div>
                             </div>
                         </div>
                     </div>
@@ -211,6 +247,28 @@
                             
                             <div class="space-y-3 mb-5">
                                 <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Egg Type:</span>
+                                    <span class="font-medium">
+                                        @php
+                                            $eggTypes = [
+                                                'chicken' => 'Chicken',
+                                                'duck' => 'Duck',
+                                                'quail' => 'Quail',
+                                                'native_chicken' => 'Native Chicken',
+                                                'brown' => 'Brown Egg',
+                                                'white' => 'White Egg'
+                                            ];
+                                        @endphp
+                                        {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                    </span>
+                                </div>
+                                @if($match->demand->egg_size)
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Egg Size:</span>
+                                    <span class="font-medium">{{ $match->demand->egg_size }}</span>
+                                </div>
+                                @endif
+                                <div class="flex justify-between">
                                     <span class="text-gray-500 text-sm">Required Quantity:</span>
                                     <span class="font-medium">{{ $match->demand->quantity }} {{ $match->demand->unit ?? 'units' }}</span>
                                 </div>
@@ -218,10 +276,31 @@
                                     <span class="text-gray-500 text-sm">Delivery Date:</span>
                                     <span class="font-medium">{{ $match->demand->delivery_date->format('M d, Y') }}</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Delivery Location:</span>
-                                    <span class="font-medium">{{ $match->demand->location }}</span>
+                                <!-- Address Information -->
+                                @if($match->demand->purok_street || $match->demand->barangay || $match->demand->municipality_city || $match->demand->province)
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                    <span class="text-gray-700">
+                                        Address: 
+                                        <span class="font-medium">
+                                            @if($match->demand->purok_street)
+                                                {{ $match->demand->purok_street }}
+                                            @endif
+                                            @if($match->demand->barangay)
+                                                {{ $match->demand->barangay }}
+                                            @endif
+                                            @if($match->demand->municipality_city)
+                                                {{ $match->demand->municipality_city }}
+                                            @endif
+                                            @if($match->demand->province)
+                                                {{ $match->demand->province }}
+                                            @endif
+                                        </span>
+                                    </span>
                                 </div>
+                                @endif
                             </div>
                             
                             <div class="flex space-x-2 mb-3">

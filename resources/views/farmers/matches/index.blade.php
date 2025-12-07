@@ -128,8 +128,34 @@
                                                 </span>
                                             </div>
                                             <div class="flex justify-between text-xs text-gray-600 mt-1">
-                                                <span>{{ $match->demand->quantity }} {{ $match->demand->unit }}</span>
-                                                <span>{{ $match->demand->location }}</span>
+                                                <div>
+                                                    <div>{{ $match->demand->quantity }} {{ $match->demand->unit }}</div>
+                                                    <!-- Egg Size Information -->
+                                                    @if($match->demand->egg_size)
+                                                        <div class="text-xs">
+                                                            Size: {{ $match->demand->egg_size }}
+                                                        </div>
+                                                    @endif
+                                                    <!-- Address Information -->
+                                                    @if($match->demand->purok_street || $match->demand->barangay || $match->demand->municipality_city || $match->demand->province)
+                                                        <div class="truncate max-w-[100px] text-xs">
+                                                            @if($match->demand->purok_street)
+                                                                {{ $match->demand->purok_street }}
+                                                            @endif
+                                                            @if($match->demand->barangay)
+                                                                {{ $match->demand->barangay }}
+                                                            @endif
+                                                            @if($match->demand->municipality_city)
+                                                                {{ $match->demand->municipality_city }}
+                                                            @endif
+                                                            @if($match->demand->province)
+                                                                {{ $match->demand->province }}
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <div>{{ $match->demand->location }}</div>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach

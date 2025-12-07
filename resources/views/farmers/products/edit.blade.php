@@ -1,15 +1,12 @@
 @extends('layouts.farmers_page')
 
-@section('title', 'Edit Product • AgriConnect')
-
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-64">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+<div class="">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-64">
         <div class="px-6 py-5 border-b border-gray-100">
             <h2 class="text-lg font-semibold text-gray-900">Edit Product</h2>
-            <p class="text-sm text-gray-500 mt-1">Update your product details</p>
         </div>
-
+        
         <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data" class="p-6">
             @csrf
             @method('PUT')
@@ -19,7 +16,7 @@
                 <div>
                     <div class="space-y-6">
                         <div>
-                            <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type / Category</label>
+                            <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type</label>
                             <select name="egg_type" id="egg_type" 
                                     class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
                                 <option value="">Select Egg Type</option>
@@ -27,10 +24,24 @@
                                 <option value="duck" {{ (old('egg_type', $product->egg_type) == 'duck') ? 'selected' : '' }}>Duck</option>
                                 <option value="quail" {{ (old('egg_type', $product->egg_type) == 'quail') ? 'selected' : '' }}>Quail</option>
                                 <option value="native_chicken" {{ (old('egg_type', $product->egg_type) == 'native_chicken') ? 'selected' : '' }}>Native Chicken</option>
-                                <option value="brown" {{ (old('egg_type', $product->egg_type) == 'brown') ? 'selected' : '' }}>Brown Egg</option>
-                                <option value="white" {{ (old('egg_type', $product->egg_type) == 'white') ? 'selected' : '' }}>White Egg</option>
                             </select>
                             @error('egg_type')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div id="egg-category-field">
+                            <label for="egg_category" class="block text-sm font-medium text-gray-700 mb-1">Egg Category</label>
+                            <select name="egg_category" id="egg_category" 
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                <option value="">Select Egg Category</option>
+                                <option value="white_egg" {{ (old('egg_category', $product->egg_category) == 'white_egg') ? 'selected' : '' }}>White Egg</option>
+                                <option value="brown_egg" {{ (old('egg_category', $product->egg_category) == 'brown_egg') ? 'selected' : '' }}>Brown Egg</option>
+                                <option value="free_range" {{ (old('egg_category', $product->egg_category) == 'free_range') ? 'selected' : '' }}>Free-Range</option>
+                                <option value="organic" {{ (old('egg_category', $product->egg_category) == 'organic') ? 'selected' : '' }}>Organic</option>
+                                <option value="salted_duck_egg" {{ (old('egg_category', $product->egg_category) == 'salted_duck_egg') ? 'selected' : '' }}>Salted Duck Egg</option>
+                            </select>
+                            @error('egg_category')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -39,8 +50,8 @@
                             <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity Available</label>
                             <input type="number" name="quantity" id="quantity" 
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('quantity', $product->quantity) }}" min="1" required readonly>
-                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on tray counts</p>
+                                   value="{{ old('quantity', $product->quantity) }}" min="1" required>
+                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter number of dozens/packs. For other eggs: Automatically calculated based on tray counts</p>
                             @error('quantity')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -52,12 +63,12 @@
                                     class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
                                 <option value="trays" {{ (old('unit', $product->unit) == 'trays') ? 'selected' : '' }}>Trays</option>
-                                <option value="pieces" {{ (old('unit', $product->unit) == 'pieces') ? 'selected' : '' }}>Pieces (pcs)</option>
+                                <!-- <option value="pieces" {{ (old('unit', $product->unit) == 'pieces') ? 'selected' : '' }}>Pieces (pcs)</option> -->
                                 <option value="dozen" {{ (old('unit', $product->unit) == 'dozen') ? 'selected' : '' }}>Dozen</option>
-                                <option value="kilos" {{ (old('unit', $product->unit) == 'kilos') ? 'selected' : '' }}>Kilograms (kg)</option>
+                                <!-- <option value="kilos" {{ (old('unit', $product->unit) == 'kilos') ? 'selected' : '' }}>Kilograms (kg)</option>
                                 <option value="bunches" {{ (old('unit', $product->unit) == 'bunches') ? 'selected' : '' }}>Bunches</option>
                                 <option value="boxes" {{ (old('unit', $product->unit) == 'boxes') ? 'selected' : '' }}>Boxes</option>
-                                <option value="sacks" {{ (old('unit', $product->unit) == 'sacks') ? 'selected' : '' }}>Sacks</option>
+                                <option value="sacks" {{ (old('unit', $product->unit) == 'sacks') ? 'selected' : '' }}>Sacks</option> -->
                             </select>
                             @error('unit')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -68,8 +79,11 @@
                             <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Total Price (₱)</label>
                             <input type="number" name="price" id="price" step="0.01" min="0"
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('price', $product->price) }}" required readonly>
-                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on size prices</p>
+                                   value="{{ old('price', $product->price) }}" required>
+                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter total price. For other eggs: Automatically calculated based on size prices</p>
+                            <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
+                                <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
+                            </div>
                             @error('price')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -86,13 +100,45 @@
                         </div>
 
                         <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <input type="text" name="address" id="address" 
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('address', $product->address) }}" placeholder="Enter product location/address">
-                            @error('address')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="purok_street" class="block text-xs text-gray-500 mb-1">Purok/Street</label>
+                                    <input type="text" name="purok_street" id="purok_street" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('purok_street', $product->purok_street) }}" placeholder="Enter purok or street">
+                                    @error('purok_street')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="barangay" class="block text-xs text-gray-500 mb-1">Barangay</label>
+                                    <input type="text" name="barangay" id="barangay" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('barangay', $product->barangay) }}" placeholder="Enter barangay">
+                                    @error('barangay')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="municipality_city" class="block text-xs text-gray-500 mb-1">Municipality/City</label>
+                                    <input type="text" name="municipality_city" id="municipality_city" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('municipality_city', $product->municipality_city) }}" placeholder="Enter municipality or city">
+                                    @error('municipality_city')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="province" class="block text-xs text-gray-500 mb-1">Province</label>
+                                    <input type="text" name="province" id="province" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('province', $product->province) }}" placeholder="Enter province">
+                                    @error('province')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Egg-specific fields -->
@@ -101,6 +147,52 @@
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Egg-Specific Details</h3>
                                 
                                 <div class="space-y-6">
+                                    <!-- Unit Selection for Quail Eggs -->
+                                    <div id="quail-unit-options" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-3">Unit / Selling Option</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="border border-green-500 rounded-lg p-4 bg-green-50 cursor-pointer quail-unit-option"">
+                                                <div class="font-medium">Per Dozen (12 pcs)</div>
+                                                <div class="text-sm text-gray-500">Default selection</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_dozen" id="quail_quantity_dozen" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per dozen (₱)</label>
+                                                    <input type="number" name="quail_price_dozen" id="quail_price_dozen" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                            <div class="border border-gray-300 rounded-lg p-4 hover:border-green-300 cursor-pointer quail-unit-option" data-value="pack_24">
+                                                <div class="font-medium">Per 24 pcs pack</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_pack" id="quail_quantity_pack" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per pack (₱)</label>
+                                                    <input type="number" name="quail_price_pack" id="quail_price_pack" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                            <div class="border border-gray-300 rounded-lg p-4 hover:border-green-300 cursor-pointer quail-unit-option" data-value="tray_36">
+                                                <div class="font-medium">Per Tray (36 pcs)</div>
+                                                <div class="text-sm text-gray-500">Optional</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_tray" id="quail_quantity_tray" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per tray (₱)</label>
+                                                    <input type="number" name="quail_price_tray" id="quail_price_tray" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- <input type="hidden" name="unit" id="quail-unit-hidden" value="{{ old('unit', $product->unit) }}"> -->
+                                        <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
+                                            <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Egg Sizes Table -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-3">Sizes</label>
@@ -119,43 +211,13 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody class="divide-y divide-gray-200 bg-white" id="sizes-table-body">
-                                                    <!-- Existing sizes will be populated here -->
-                                                    @foreach($product->sizes as $size)
-                                                    <tr class="size-row">
-                                                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                                                            <select name="sizes[{{ $loop->index }}][name]" class="rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                                                <option value="small" {{ $size->size_name == 'small' ? 'selected' : '' }}>Small</option>
-                                                                <option value="medium" {{ $size->size_name == 'medium' ? 'selected' : '' }}>Medium</option>
-                                                                <option value="large" {{ $size->size_name == 'large' ? 'selected' : '' }}>Large</option>
-                                                                <option value="extra_large" {{ $size->size_name == 'extra_large' ? 'selected' : '' }}>Extra Large</option>
-                                                                <option value="jumbo" {{ $size->size_name == 'jumbo' ? 'selected' : '' }}>Jumbo</option>
-                                                            </select>
-                                                        </td>
-                                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                            <input type="number" name="sizes[{{ $loop->index }}][tray_count]" min="1" value="{{ $size->tray_count }}"
-                                                                   class="w-24 rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                                        </td>
-                                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                            <div class="flex items-center">
-                                                                <span class="mr-1">₱</span>
-                                                                <input type="number" name="sizes[{{ $loop->index }}][price_per_tray]" step="0.01" min="0" value="{{ $size->price_per_tray }}"
-                                                                       class="w-24 rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                                            </div>
-                                                        </td>
-                                                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                            <span>₱{{ number_format($size->total_price, 2) }}</span>
-                                                        </td>
-                                                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                                                            <button type="button" class="text-red-600 hover:text-red-900 remove-size-btn">Remove</button>
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
+                                                    <!-- Size rows will be added here dynamically -->
                                                 </tbody>
                                                 <tfoot class="bg-gray-50">
                                                     <tr>
                                                         <td colspan="3" class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">Totals:</td>
                                                         <td class="px-3 py-3 text-left text-sm font-semibold text-gray-900">
-                                                            <span id="total-price-display">₱{{ number_format($product->price, 2) }}</span>
+                                                            <span id="total-price-display">₱0.00</span>
                                                         </td>
                                                         <td class="relative py-3 pl-3 pr-4 sm:pr-6"></td>
                                                     </tr>
@@ -174,6 +236,11 @@
                                 </div>
                             </div>
                         </div>
+                        <input type="hidden" name="egg_size" id="egg_size_hidden">
+                        <input type="hidden" name="total_price" id="total_price_hidden">
+                        @error('egg_size')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
                 
@@ -182,46 +249,16 @@
                     <div class="space-y-6">
                         <div>
                             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                            <textarea name="description" id="description" rows="6"
+                            <textarea name="description" id="description" rows="6" 
                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                      placeholder="Enter product description...">{{ old('description', $product->description) }}</textarea>
-                            <p class="mt-1 text-sm text-gray-500">Provide details about the product quality, farming methods, etc.</p>
+                                      placeholder="Describe the quality, farming methods, etc.">{{ old('description', $product->description) }}</textarea>
                             @error('description')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
-
+                        
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
-                            
-                            <!-- Current Images Display -->
-                            @if($product->images->count() > 0)
-                                <div class="mb-4">
-                                    <p class="text-sm text-gray-700 font-medium mb-2">Current Images:</p>
-                                    <div class="flex flex-wrap gap-3">
-                                        @foreach($product->images as $image)
-                                            <div class="relative group">
-                                                <img src="{{ asset('storage/' . $image->image_path) }}" alt="{{ $product->product_name }}" class="h-24 w-24 object-cover rounded-md border border-gray-200">
-                                                @if($image->is_primary)
-                                                    <span class="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded-br rounded-tl">Primary</span>
-                                                @endif
-                                                <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
-                                                    <span class="text-white text-xs text-center px-1">Existing Image</span>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @elseif($product->image)
-                                <div class="mb-4">
-                                    <p class="text-sm text-gray-700 font-medium mb-2">Current Primary Image:</p>
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}" class="h-24 w-24 object-cover rounded-md border border-gray-200">
-                                    </div>
-                                </div>
-                            @endif
-                            
-                            <!-- Upload New Images -->
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50 hover:border-green-400 transition-colors cursor-pointer" 
                                  onclick="document.getElementById('images').click()">
                                 <div class="flex flex-col items-center justify-center">
@@ -230,7 +267,7 @@
                                     </svg>
                                     <div class="flex text-sm text-gray-600">
                                         <label for="images" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
-                                            <span>Upload new images</span>
+                                            <span>Upload files</span>
                                         </label>
                                         <p class="pl-1">or drag and drop</p>
                                     </div>
@@ -240,7 +277,7 @@
                                 <input type="file" name="images[]" id="images" multiple 
                                        class="sr-only" accept="image/*" onchange="previewImages(this)">
                             </div>
-                            <p class="mt-2 text-sm text-gray-500">Click or drag images to this area to upload new images</p>
+                            <p class="mt-2 text-sm text-gray-500">Click or drag images to this area to upload</p>
                             @error('images')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -253,11 +290,31 @@
                                 <p class="text-sm text-gray-700 font-medium mb-2 w-full">Newly Uploaded Images:</p>
                                 <div id="preview-container" class="flex flex-wrap gap-3"></div>
                             </div>
+                            
+                            <!-- Current images -->
+                            @if($product->images->count() > 0)
+                            <div class="mt-4">
+                                <p class="text-sm text-gray-700 font-medium mb-2">Current Images:</p>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    @foreach($product->images as $image)
+                                        <div class="relative group">
+                                            <img src="{{ asset('storage/' . $image->image_path) }}" alt="Product Image" 
+                                                 class="h-24 w-24 object-cover rounded-md border border-gray-200">
+                                            <button type="button" 
+                                                    class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity remove-image-btn"
+                                                    data-image-id="{{ $image->id }}">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-
+            
             <div class="mt-8 flex justify-end gap-3">
                 <a href="{{ route('products.index') }}" 
                    class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
@@ -271,7 +328,7 @@
         </form>
     </div>
 </div>
-
+@endsection
 <script>
     // Check on page load
     window.addEventListener('DOMContentLoaded', function() {
@@ -281,7 +338,7 @@
         const priceInput = document.getElementById('price');
         const addSizeBtn = document.getElementById('add-size-btn');
         
-        let sizeCounter = {{ $product->sizes->count() }};
+        let sizeCounter = 0;
         let totalTrays = 0;
         let totalPrice = 0;
         
@@ -294,13 +351,50 @@
             { value: 'jumbo', label: 'Jumbo' }
         ];
         
+        // Initialize with existing sizes
+        @foreach($product->sizes as $index => $size)
+            addSizeRow({
+                name: '{{ $size->size_name }}',
+                tray_count: {{ $size->tray_count }},
+                price_per_tray: {{ $size->price_per_tray }}
+            });
+        @endforeach
+        
+        // Ensure egg fields are visible on page load
+        const eggFieldsContainer = document.getElementById('egg-fields');
+        if (eggFieldsContainer) {
+            eggFieldsContainer.style.display = 'block';
+        }        
+        // Debug: Log the number of size rows added
+        console.log('Initialized with ' + sizeCounter + ' size rows');
+        
         // Add size button click handler
-        addSizeBtn.addEventListener('click', function() {
-            addSizeRow();
-        });
+        if (addSizeBtn) {
+            addSizeBtn.addEventListener('click', function() {
+                addSizeRow();
+            });
+        }
+        
+        // Handle egg type change
+        const eggTypeSelect = document.getElementById('egg_type');
+        if (eggTypeSelect) {
+            eggTypeSelect.addEventListener('change', function() {
+                handleEggTypeChange();
+            });
+            
+            // Initialize form based on egg type
+            handleEggTypeChange();
+        }
+        
+        // Initialize quail unit options event listeners
+        setTimeout(initializeQuailUnitOptions, 100);
+        
+        // Initialize calculations
+        updateCalculations();
         
         // Function to add a new size row
         function addSizeRow(sizeData = null) {
+            console.log('Adding size row with data:', sizeData);
             const rowId = 'size-row-' + sizeCounter;
             const sizeSelectId = 'size-name-' + sizeCounter;
             const trayInputId = 'tray-count-' + sizeCounter;
@@ -379,6 +473,7 @@
             
             sizeCounter++;
             updateCalculations();
+            console.log('Added size row. Total rows:', sizeCounter);
         }
         
         // Function to update size select options to prevent duplicates
@@ -420,11 +515,13 @@
         
         // Function to update calculations
         function updateCalculations() {
+            console.log('updateCalculations called');
             totalTrays = 0;
             totalPrice = 0;
             
             // Get all size rows
             const rows = document.querySelectorAll('.size-row');
+            console.log('Found', rows.length, 'size rows');
             
             rows.forEach((row, index) => {
                 const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
@@ -435,46 +532,226 @@
                 const pricePerTray = parseFloat(priceInput.value) || 0;
                 const total = trayCount * pricePerTray;
                 
-                totalSpan.textContent = '₱' + total.toFixed(2);
+                if (totalSpan) {
+                    totalSpan.textContent = '₱' + total.toFixed(2);
+                }
                 
                 totalTrays += trayCount;
                 totalPrice += total;
             });
             
             // Update summary display
-            totalPriceDisplay.textContent = '₱' + totalPrice.toFixed(2);
+            if (totalPriceDisplay) {
+                totalPriceDisplay.textContent = '₱' + totalPrice.toFixed(2);
+            }
             
             // Update form inputs
-            quantityInput.value = totalTrays;
-            priceInput.value = totalPrice.toFixed(2);
+            if (quantityInput) {
+                quantityInput.value = totalTrays;
+            }
+            if (priceInput) {
+                priceInput.value = totalPrice.toFixed(2);
+            }
+            
+            // Update hidden inputs
+            const totalPriceHidden = document.getElementById('total_price_hidden');
+            if (totalPriceHidden) {
+                totalPriceHidden.value = totalPrice.toFixed(2);
+            }
+            
+            // Update egg size hidden input
+            updateEggSizeHidden();
         }
         
-        // Add event listeners to existing remove buttons
-        document.querySelectorAll('.remove-size-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                this.closest('.size-row').remove();
-                updateCalculations();
-                updateSizeSelectOptions();
+        // Function to update the hidden input with egg sizes and tray counts
+        function updateEggSizeHidden() {
+            const selectedValues = [];
+            const rows = document.querySelectorAll('.size-row');
+            
+            rows.forEach((row, index) => {
+                const sizeSelect = row.querySelector(`select[name="sizes[${index}][name]"]`);
+                const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
+                const priceInput = row.querySelector(`input[name="sizes[${index}][price_per_tray]"]`);
+                
+                const sizeValue = sizeSelect.value;
+                const trayCount = trayInput.value;
+                const priceValue = priceInput.value;
+                
+                // Find the label for the size
+                let sizeLabel = '';
+                sizeOptions.forEach(option => {
+                    if (option.value === sizeValue) {
+                        sizeLabel = option.label;
+                    }
+                });
+                
+                if (sizeValue && trayCount && priceValue) {
+                    selectedValues.push(`${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''}) @ ₱${parseFloat(priceValue).toFixed(2)}/tray`);
+                } else if (sizeValue && trayCount) {
+                    selectedValues.push(`${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
+                } else if (sizeValue) {
+                    selectedValues.push(sizeLabel);
+                }
             });
-        });
+            
+            document.getElementById('egg_size_hidden').value = selectedValues.join(', ');
+        }
         
-        // Add event listeners to existing inputs
-        document.querySelectorAll('.size-row input').forEach(input => {
-            input.addEventListener('input', updateCalculations);
-        });
+        // Handle quail unit option clicks
+        function initializeQuailUnitOptions() {
+            console.log('initializeQuailUnitOptions called');
+            if (document.querySelectorAll('.quail-unit-option').length > 0) {
+                console.log('Found', document.querySelectorAll('.quail-unit-option').length, 'quail unit options');
+                document.querySelectorAll('.quail-unit-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove active state from all options
+                        document.querySelectorAll('.quail-unit-option').forEach(opt => {
+                            opt.classList.remove('border-green-500', 'bg-green-50');
+                            opt.classList.add('border-gray-300');
+                        });
+                        
+                        // Add active state to clicked option
+                        this.classList.remove('border-gray-300');
+                        this.classList.add('border-green-500', 'bg-green-50');
+                        
+                        // Update hidden input
+                        document.getElementById('quail-unit-hidden').value = this.dataset.value;
+                    });
+                });
+                
+                // Add input event listeners for quail quantity and price fields
+                document.getElementById('quail_quantity_dozen').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_dozen').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_quantity_pack').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_pack').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_quantity_tray').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_tray').addEventListener('input', calculateQuailTotalPrice);
+            }
+        }
         
-        // Add event listeners to existing selects
-        document.querySelectorAll('.size-row select').forEach(select => {
-            select.addEventListener('change', function() {
-                updateCalculations();
-                updateSizeSelectOptions();
-            });
-        });
+        // Function to calculate total price for quail eggs
+        function calculateQuailTotalPrice() {
+            let totalPrice = 0;
+            
+            // Calculate total for dozen
+            const qtyDozen = parseFloat(document.getElementById('quail_quantity_dozen').value) || 0;
+            const priceDozen = parseFloat(document.getElementById('quail_price_dozen').value) || 0;
+            totalPrice += qtyDozen * priceDozen;
+            
+            // Calculate total for pack
+            const qtyPack = parseFloat(document.getElementById('quail_quantity_pack').value) || 0;
+            const pricePack = parseFloat(document.getElementById('quail_price_pack').value) || 0;
+            totalPrice += qtyPack * pricePack;
+            
+            // Calculate total for tray
+            const qtyTray = parseFloat(document.getElementById('quail_quantity_tray').value) || 0;
+            const priceTray = parseFloat(document.getElementById('quail_price_tray').value) || 0;
+            totalPrice += qtyTray * priceTray;
+            
+            // Calculate total for trays
+            const qtyTrays = parseFloat(document.getElementById('quail_quantity_trays').value) || 0;
+            const priceTrays = parseFloat(document.getElementById('quail_price_trays').value) || 0;
+            totalPrice += qtyTrays * priceTrays;
+            
+            // Update display
+            document.getElementById('calculated-total-price').textContent = '₱' + totalPrice.toFixed(2);
+            document.getElementById('quail-total-price-display').classList.remove('hidden');
+            
+            // Update hidden inputs
+            document.getElementById('total_price_hidden').value = totalPrice.toFixed(2);
+            document.getElementById('quantity').value = qtyDozen + qtyPack + qtyTray + qtyTrays;
+            document.getElementById('price').value = totalPrice.toFixed(2);
+            
+            // Update unit field based on which option has values
+            if (qtyDozen > 0) {
+                document.getElementById('unit').value = 'dozen';
+            } else if (qtyPack > 0) {
+                document.getElementById('unit').value = 'pack_24';
+            } else if (qtyTray > 0) {
+                document.getElementById('unit').value = 'tray_36';
+            } else if (qtyTrays > 0) {
+                document.getElementById('unit').value = 'trays';
+            }
+        }
         
-        // Initialize calculations
-        updateCalculations();
-    });
-    
+        // Function to handle egg type change
+        function handleEggTypeChange() {
+            console.log('handleEggTypeChange called with eggType:', document.getElementById('egg_type').value);
+            const eggType = document.getElementById('egg_type').value;
+            const eggFieldsContainer = document.getElementById('egg-fields');
+            const priceInput = document.getElementById('price');
+            const quantityInput = document.getElementById('quantity');
+            const eggCategoryField = document.getElementById('egg-category-field');
+            const unitSelectDiv = document.querySelector('label[for="unit"]').closest('div');
+            const quailUnitOptions = document.getElementById('quail-unit-options');
+            
+            if (eggType === 'quail') {
+                console.log('Handling quail egg type');
+                // Show quail-specific unit options
+                quailUnitOptions.classList.remove('hidden');
+                
+                // Show main quantity and price fields for quail eggs (don't hide them)
+                quantityInput.closest('div').style.display = 'block';
+                priceInput.closest('div').style.display = 'block';
+                
+                // Hide unit of measure field for quail eggs
+                if (unitSelectDiv) {
+                    unitSelectDiv.style.display = 'none';
+                }
+                
+                // Show egg-specific details section for quail eggs
+                eggFieldsContainer.style.display = 'block';
+                
+                // Show egg sizes table for quail eggs but hide add size button
+                const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
+                if (eggSizesTable) {
+                    eggSizesTable.style.display = 'block';
+                    console.log('Found egg sizes table for quail');
+                    // Hide the add size button for quail eggs
+                    const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
+                    if (addSizeButton) {
+                        addSizeButton.style.display = 'none';
+                        console.log('Hid add size button for quail');
+                    }
+                }
+                
+                // Hide egg category field for quail eggs
+                eggCategoryField.style.display = 'none';
+            } else {
+                console.log('Handling non-quail egg type:', eggType);
+                // Hide quail-specific unit options
+                quailUnitOptions.classList.add('hidden');
+                
+                // Show main quantity and price fields for non-quail eggs
+                quantityInput.closest('div').style.display = 'block';
+                priceInput.closest('div').style.display = 'block';
+                
+                // Show unit of measure field for non-quail eggs
+                if (unitSelectDiv) {
+                    unitSelectDiv.style.display = 'block';
+                }
+                
+                // Show egg-specific details section and egg sizes table for non-quail eggs
+                eggFieldsContainer.style.display = 'block';
+                
+                // Show egg sizes table for non-quail eggs
+                const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
+                if (eggSizesTable) {
+                    eggSizesTable.style.display = 'block';
+                    console.log('Found egg sizes table for non-quail');
+                    // Show the add size button for non-quail eggs
+                    const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
+                    if (addSizeButton) {
+                        addSizeButton.style.display = 'inline-flex'; // Changed from 'block' to 'inline-flex' to match the original style
+                        console.log('Showed add size button for non-quail');
+                    }
+                }
+                
+                // Show egg category field for non-quail eggs
+                eggCategoryField.style.display = 'block';
+            }
+        }
+    });    
     // Preview newly uploaded images
     function previewImages(input) {
         const previewContainer = document.getElementById('preview-container');
@@ -538,5 +815,37 @@
             imagePreview.classList.add('hidden');
         }
     }
+
+// Handle remove image button clicks
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.remove-image-btn')) {
+        e.preventDefault();
+        const button = e.target.closest('.remove-image-btn');
+        const imageId = button.getAttribute('data-image-id');
+        
+        if (confirm('Are you sure you want to remove this image?')) {
+            // Send AJAX request to remove image
+            fetch(`/farmer/products/remove-image/${imageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the image element from DOM
+                    button.closest('.relative').remove();
+                } else {
+                    alert('Failed to remove image. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while removing the image.');
+            });
+        }
+    }
+});
 </script>
-@endsection

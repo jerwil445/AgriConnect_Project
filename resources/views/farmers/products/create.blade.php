@@ -15,7 +15,7 @@
                 <div>
                     <div class="space-y-6">
                         <div>
-                            <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type / Category</label>
+                            <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type</label>
                             <select name="egg_type" id="egg_type" 
                                     class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
                                 <option value="">Select Egg Type</option>
@@ -23,10 +23,25 @@
                                 <option value="duck" {{ old('egg_type') == 'duck' ? 'selected' : '' }}>Duck</option>
                                 <option value="quail" {{ old('egg_type') == 'quail' ? 'selected' : '' }}>Quail</option>
                                 <option value="native_chicken" {{ old('egg_type') == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option>
-                                <option value="brown" {{ old('egg_type') == 'brown' ? 'selected' : '' }}>Brown Egg</option>
-                                <option value="white" {{ old('egg_type') == 'white' ? 'selected' : '' }}>White Egg</option>
+                                
                             </select>
                             @error('egg_type')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div id="egg-category-field">
+                            <label for="egg_category" class="block text-sm font-medium text-gray-700 mb-1">Egg Category</label>
+                            <select name="egg_category" id="egg_category" 
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                <option value="">Select Egg Category</option>
+                                <option value="white_egg" {{ old('egg_category') == 'white_egg' ? 'selected' : '' }}>White Egg</option>
+                                <option value="brown_egg" {{ old('egg_category') == 'brown_egg' ? 'selected' : '' }}>Brown Egg</option>
+                                <option value="free_range" {{ old('egg_category') == 'free_range' ? 'selected' : '' }}>Free-Range</option>
+                                <option value="organic" {{ old('egg_category') == 'organic' ? 'selected' : '' }}>Organic</option>
+                                <option value="salted_duck_egg" {{ old('egg_category') == 'salted_duck_egg' ? 'selected' : '' }}>Salted Duck Egg</option>
+                            </select>
+                            @error('egg_category')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -35,8 +50,8 @@
                             <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity Available</label>
                             <input type="number" name="quantity" id="quantity" 
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('quantity') }}" min="1" required readonly>
-                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on tray counts</p>
+                                   value="{{ old('quantity') }}" min="1" required>
+                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter number of dozens/packs. For other eggs: Automatically calculated based on tray counts</p>
                             @error('quantity')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -48,13 +63,13 @@
                                     class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
                                 <option value="trays" selected>Trays</option>
-                                <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces (pcs)</option>
+                                <!-- <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces (pcs)</option> -->
                                 <option value="dozen" {{ old('unit') == 'dozen' ? 'selected' : '' }}>Dozen</option>
-                                <option value="kilos" {{ old('unit') == 'kilos' ? 'selected' : '' }}>Kilograms (kg)</option>
+                                <!-- <option value="kilos" {{ old('unit') == 'kilos' ? 'selected' : '' }}>Kilograms (kg)</option>
                                 <option value="bunches" {{ old('unit') == 'bunches' ? 'selected' : '' }}>Bunches</option>
                                 <option value="boxes" {{ old('unit') == 'boxes' ? 'selected' : '' }}>Boxes</option>
                                 <option value="sacks" {{ old('unit') == 'sacks' ? 'selected' : '' }}>Sacks</option>
-                            </select>
+                            </select> -->
                             @error('unit')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -64,8 +79,11 @@
                             <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Total Price (₱)</label>
                             <input type="number" name="price" id="price" step="0.01" min="0"
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('price') }}" required readonly>
-                            <p class="mt-1 text-sm text-gray-500">Automatically calculated based on size prices</p>
+                                   value="{{ old('price') }}" required>
+                            <p class="mt-1 text-sm text-gray-500">For quail eggs: Enter total price. For other eggs: Automatically calculated based on size prices</p>
+                            <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
+                                <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
+                            </div>
                             @error('price')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -82,13 +100,45 @@
                         </div>
 
                         <div>
-                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                            <input type="text" name="address" id="address" 
-                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                   value="{{ old('address') }}" placeholder="Enter product location/address">
-                            @error('address')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="purok_street" class="block text-xs text-gray-500 mb-1">Purok/Street</label>
+                                    <input type="text" name="purok_street" id="purok_street" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('purok_street') }}" placeholder="Enter purok or street">
+                                    @error('purok_street')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="barangay" class="block text-xs text-gray-500 mb-1">Barangay</label>
+                                    <input type="text" name="barangay" id="barangay" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('barangay') }}" placeholder="Enter barangay">
+                                    @error('barangay')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="municipality_city" class="block text-xs text-gray-500 mb-1">Municipality/City</label>
+                                    <input type="text" name="municipality_city" id="municipality_city" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('municipality_city') }}" placeholder="Enter municipality or city">
+                                    @error('municipality_city')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label for="province" class="block text-xs text-gray-500 mb-1">Province</label>
+                                    <input type="text" name="province" id="province" 
+                                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                           value="{{ old('province') }}" placeholder="Enter province">
+                                    @error('province')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Egg-specific fields -->
@@ -97,6 +147,52 @@
                                 <h3 class="text-lg font-medium text-gray-900 mb-4">Egg-Specific Details</h3>
                                 
                                 <div class="space-y-6">
+                                    <!-- Unit Selection for Quail Eggs -->
+                                    <div id="quail-unit-options" class="hidden">
+                                        <label class="block text-sm font-medium text-gray-700 mb-3">Unit / Selling Option</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                            <div class="border border-green-500 rounded-lg p-4 bg-green-50 cursor-pointer quail-unit-option" data-value="dozen">
+                                                <div class="font-medium">Per Dozen (12 pcs)</div>
+                                                <div class="text-sm text-gray-500">Default selection</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_dozen" id="quail_quantity_dozen" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per dozen (₱)</label>
+                                                    <input type="number" name="quail_price_dozen" id="quail_price_dozen" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                            <div class="border border-gray-300 rounded-lg p-4 hover:border-green-300 cursor-pointer quail-unit-option" data-value="pack_24">
+                                                <div class="font-medium">Per 24 pcs pack</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_pack" id="quail_quantity_pack" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per pack (₱)</label>
+                                                    <input type="number" name="quail_price_pack" id="quail_price_pack" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                            <div class="border border-gray-300 rounded-lg p-4 hover:border-green-300 cursor-pointer quail-unit-option" data-value="tray_36">
+                                                <div class="font-medium">Per Tray (36 pcs)</div>
+                                                <div class="text-sm text-gray-500">Optional</div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Quantity</label>
+                                                    <input type="number" name="quail_quantity_tray" id="quail_quantity_tray" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter quantity">
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="block text-xs text-gray-600">Price per tray (₱)</label>
+                                                    <input type="number" name="quail_price_tray" id="quail_price_tray" step="0.01" min="0" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" placeholder="Enter price">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- <input type="hidden" name="unit" id="unit" value="{{ old('unit', 'trays') }}"> -->
+                                        <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
+                                            <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
+                                        </div>
+                                    </div>
+                                    
                                     <!-- Egg Sizes Table -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-3">Sizes</label>
@@ -212,7 +308,7 @@
         </form>
     </div>
 </div>
-
+@endsection
 <script>
     // Check on page load
     window.addEventListener('DOMContentLoaded', function() {
@@ -432,7 +528,155 @@
         
         // Initialize with one empty row
         addSizeRow();
+        
+        // Handle egg type change
+        const eggTypeSelect = document.getElementById('egg_type');
+        eggTypeSelect.addEventListener('change', function() {
+            handleEggTypeChange();
+        });
+        
+        // Initialize form based on egg type
+        handleEggTypeChange();
+        
+        // Handle quail unit option clicks
+        setTimeout(function() {
+            if (document.querySelectorAll('.quail-unit-option').length > 0) {
+                document.querySelectorAll('.quail-unit-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        // Remove active state from all options
+                        document.querySelectorAll('.quail-unit-option').forEach(opt => {
+                            opt.classList.remove('border-green-500', 'bg-green-50');
+                            opt.classList.add('border-gray-300');
+                        });
+                        
+                        // Add active state to clicked option
+                        this.classList.remove('border-gray-300');
+                        this.classList.add('border-green-500', 'bg-green-50');
+                        
+                        // Update hidden input
+                        document.getElementById('unit').value = this.dataset.unit;
+                    });
+                });
+                
+                // Add input event listeners for quail quantity and price fields
+                document.getElementById('quail_quantity_dozen').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_dozen').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_quantity_pack').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_pack').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_quantity_tray').addEventListener('input', calculateQuailTotalPrice);
+                document.getElementById('quail_price_tray').addEventListener('input', calculateQuailTotalPrice);
+            }
+        }, 100);
     });
+    
+    // Function to calculate total price for quail eggs
+    function calculateQuailTotalPrice() {
+        let totalPrice = 0;
+        
+        // Calculate total for dozen
+        const qtyDozen = parseFloat(document.getElementById('quail_quantity_dozen').value) || 0;
+        const priceDozen = parseFloat(document.getElementById('quail_price_dozen').value) || 0;
+        totalPrice += qtyDozen * priceDozen;
+        
+        // Calculate total for pack
+        const qtyPack = parseFloat(document.getElementById('quail_quantity_pack').value) || 0;
+        const pricePack = parseFloat(document.getElementById('quail_price_pack').value) || 0;
+        totalPrice += qtyPack * pricePack;
+        
+        // Calculate total for tray
+        const qtyTray = parseFloat(document.getElementById('quail_quantity_tray').value) || 0;
+        const priceTray = parseFloat(document.getElementById('quail_price_tray').value) || 0;
+        totalPrice += qtyTray * priceTray;
+        
+        // Update display
+        document.getElementById('calculated-total-price').textContent = '₱' + totalPrice.toFixed(2);
+        document.getElementById('quail-total-price-display').classList.remove('hidden');
+        
+        // Update hidden inputs
+        document.getElementById('total_price_hidden').value = totalPrice.toFixed(2);
+        document.getElementById('quantity').value = qtyDozen + qtyPack + qtyTray;
+        document.getElementById('price').value = totalPrice.toFixed(2);
+                    
+        // Update unit field based on which option has values
+        if (qtyDozen > 0) {
+            document.getElementById('unit').value = 'dozen';
+        } else if (qtyPack > 0) {
+            document.getElementById('unit').value = 'pack_24';
+        } else if (qtyTray > 0) {
+            document.getElementById('unit').value = 'tray_36';
+        }
+    }
+    
+    // Function to handle egg type change
+    function handleEggTypeChange() {
+        const eggType = document.getElementById('egg_type').value;
+        const eggFieldsContainer = document.getElementById('egg-fields');
+        const priceInput = document.getElementById('price');
+        const quantityInput = document.getElementById('quantity');
+        const eggCategoryField = document.getElementById('egg-category-field');
+        const unitSelectDiv = document.querySelector('label[for="unit"]').closest('div');
+        const quailUnitOptions = document.getElementById('quail-unit-options');
+        
+        if (eggType === 'quail') {
+            // Show quail-specific unit options
+            quailUnitOptions.classList.remove('hidden');
+            
+            // Show main quantity and price fields for quail eggs (don't hide them)
+            quantityInput.closest('div').style.display = 'block';
+            priceInput.closest('div').style.display = 'block';
+            
+            // Hide unit of measure field for quail eggs
+            if (unitSelectDiv) {
+                unitSelectDiv.style.display = 'none';
+            }
+            
+            // Show egg-specific details section for quail eggs
+            eggFieldsContainer.style.display = 'block';
+            
+            // Show egg sizes table for quail eggs but hide add size button
+            const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
+            if (eggSizesTable) {
+                eggSizesTable.style.display = 'block';
+                // Hide the add size button for quail eggs
+                const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
+                if (addSizeButton) {
+                    addSizeButton.style.display = 'none';
+                }
+            }
+            
+            // Hide egg category field for quail eggs
+            eggCategoryField.style.display = 'none';
+        } else {
+            // Hide quail-specific unit options
+            quailUnitOptions.classList.add('hidden');
+            
+            // Show main quantity and price fields for non-quail eggs
+            quantityInput.closest('div').style.display = 'block';
+            priceInput.closest('div').style.display = 'block';
+            
+            // Show unit of measure field for non-quail eggs
+            if (unitSelectDiv) {
+                unitSelectDiv.style.display = 'block';
+            }
+            
+            // Show egg-specific details section and egg sizes table for non-quail eggs
+            eggFieldsContainer.style.display = 'block';
+            
+            // Show egg sizes table for non-quail eggs
+            const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
+            if (eggSizesTable) {
+                eggSizesTable.style.display = 'block';
+                // Show the add size button for non-quail eggs
+                const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
+                if (addSizeButton) {
+                    addSizeButton.style.display = 'inline-flex';
+                }
+            }
+            
+            // Show egg category field for non-quail eggs
+            eggCategoryField.style.display = 'block';
+        }
+    }
     
     // Preview newly uploaded images
     function previewImages(input) {
@@ -498,4 +742,3 @@
         }
     }
 </script>
-@endsection

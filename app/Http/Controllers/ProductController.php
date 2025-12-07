@@ -75,7 +75,10 @@ class ProductController extends Controller
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
             'harvest_date' => 'required|date',
-            'address' => 'nullable|string|max:255',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sizes' => 'required|array|min:1',
             'sizes.*.name' => 'required|string|in:small,medium,large,extra_large,jumbo',
@@ -178,8 +181,39 @@ class ProductController extends Controller
             abort(403);
         }
         
-        // Load product images and sizes
-        $product->load(['images', 'sizes']);
+        // Load product images, sizes, and remaining inventory
+        $product->load(['images', 'sizes', 'remainingInventory']);
+        
+        // If no remaining inventory record exists, create one with original values
+        if (!$product->remainingInventory) {
+            $perSizeRemaining = [];
+            foreach ($product->sizes as $size) {
+                $perSizeRemaining[] = [
+                    'size_id' => $size->id,
+                    'size_name' => $size->size_name,
+                    'original_tray_count' => $size->tray_count,
+                    'remaining_tray_count' => $size->tray_count,
+                    'original_price_per_tray' => $size->price_per_tray,
+                    'remaining_price_per_tray' => $size->price_per_tray,
+                    'original_total_price' => $size->total_price,
+                    'remaining_total_price' => $size->total_price
+                ];
+            }
+            
+            $remainingInventory = \App\Models\RemainingInventory::create([
+                'product_id' => $product->id,
+                'original_quantity' => $product->quantity,
+                'original_price' => $product->price,
+                'original_total_trays' => $product->sizes->sum('tray_count'),
+                'remaining_quantity' => $product->quantity,
+                'remaining_price' => $product->price,
+                'remaining_total_trays' => $product->sizes->sum('tray_count'),
+                'per_size_remaining' => $perSizeRemaining,
+                'last_updated' => now()
+            ]);
+            
+            $product->setRelation('remainingInventory', $remainingInventory);
+        }
         
         // Get unread message count for the farmer
         $unreadMessageCount = 0;
@@ -242,12 +276,16 @@ class ProductController extends Controller
         
         $request->validate([
             'egg_type' => 'required|string|max:50',
+            'egg_category' => 'nullable|string|in:white_egg,brown_egg,free_range,organic,salted_duck_egg',
             'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
             'harvest_date' => 'required|date',
-            'address' => 'nullable|string|max:255',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images' => 'nullable|array|max:10',
             'sizes' => 'required|array|min:1',
@@ -337,6 +375,98 @@ class ProductController extends Controller
         }
         
         $product->save();
+        
+        // Update remaining inventory record with new original values if it exists
+        if ($product->remainingInventory) {
+            $perSizeRemaining = [];
+            
+            // If product is marked as sold out, keep remaining values at zero
+            if ($product->status === 'Sold Out') {
+                $newRemainingQuantity = 0;
+            } else {
+                // Calculate the difference between original and remaining values to maintain sold quantities
+                $soldQuantity = $product->remainingInventory->original_quantity - $product->remainingInventory->remaining_quantity;
+                // Calculate new remaining quantity based on sold quantity
+                // Ensure we don't go below zero
+                $newRemainingQuantity = max(0, $product->quantity - $soldQuantity);
+            }
+            
+            foreach ($product->sizes as $size) {
+                // Find existing size data
+                $existingSize = null;
+                foreach ($product->remainingInventory->per_size_remaining ?? [] as $existing) {
+                    if ($existing['size_id'] == $size->id) {
+                        $existingSize = $existing;
+                        break;
+                    }
+                }
+                
+                // Calculate remaining values based on what has been sold
+                $originalTrayCount = $size->tray_count;
+                $originalPricePerTray = $size->price_per_tray;
+                $originalTotalPrice = $size->total_price;
+                
+                // If product is marked as sold out, keep remaining values at zero
+                if ($product->status === 'Sold Out') {
+                    $remainingTrayCount = 0;
+                    $remainingTotalPrice = 0;
+                } else {
+                    // If we have existing data, calculate remaining based on what was sold
+                    if ($existingSize) {
+                        $soldTrayCount = $existingSize['original_tray_count'] - $existingSize['remaining_tray_count'];
+                        $remainingTrayCount = max(0, $originalTrayCount - $soldTrayCount);
+                        $remainingTotalPrice = $remainingTrayCount * $originalPricePerTray;
+                    } else {
+                        // If no existing data, use original values
+                        $remainingTrayCount = $originalTrayCount;
+                        $remainingTotalPrice = $originalTotalPrice;
+                    }
+                }
+                
+                $perSizeRemaining[] = [
+                    'size_id' => $size->id,
+                    'size_name' => $size->size_name,
+                    'original_tray_count' => $originalTrayCount,
+                    'remaining_tray_count' => $remainingTrayCount,
+                    'original_price_per_tray' => $originalPricePerTray,
+                    'remaining_price_per_tray' => $originalPricePerTray,
+                    'original_total_price' => $originalTotalPrice,
+                    'remaining_total_price' => $remainingTotalPrice
+                ];
+            }
+            
+            // Calculate new remaining totals
+            $newRemainingTotalTrays = 0;
+            $newRemainingPrice = 0;
+            foreach ($perSizeRemaining as $sizeData) {
+                $newRemainingTotalTrays += $sizeData['remaining_tray_count'];
+                $newRemainingPrice += $sizeData['remaining_total_price'];
+            }
+            
+            $product->remainingInventory->update([
+                'original_quantity' => $product->quantity,
+                'original_price' => $product->price,
+                'original_total_trays' => $product->sizes->sum('tray_count'),
+                'remaining_quantity' => $newRemainingQuantity,
+                'remaining_price' => $newRemainingPrice,
+                'remaining_total_trays' => $newRemainingTotalTrays,
+                'per_size_remaining' => $perSizeRemaining,
+                'last_updated' => now()
+            ]);
+            
+            // Update product status based on remaining quantity
+            // Only update status automatically if it's not manually set to Sold Out
+            if ($product->status !== 'Sold Out' && $newRemainingQuantity <= 0) {
+                $product->update([
+                    'status' => 'Sold Out'
+                ]);
+            } else if ($product->status === 'Sold Out' && $newRemainingQuantity > 0) {
+                // If product was sold out but now has inventory, mark as available
+                $product->update([
+                    'status' => 'Available'
+                ]);
+            }
+        }
 
         return redirect()->route('products.index')
                          ->with('success', 'Product updated successfully.');
@@ -406,6 +536,57 @@ class ProductController extends Controller
         
         $product->status = $request->input('status');
         $product->save();
+        
+        // Update remaining inventory when status changes
+        if ($product->remainingInventory) {
+            if ($request->input('status') === 'Sold Out') {
+                // When marking as sold out, set remaining values to zero
+                $perSizeRemaining = [];
+                foreach ($product->remainingInventory->per_size_remaining ?? [] as $sizeData) {
+                    $perSizeRemaining[] = [
+                        'size_id' => $sizeData['size_id'],
+                        'size_name' => $sizeData['size_name'],
+                        'original_tray_count' => $sizeData['original_tray_count'],
+                        'remaining_tray_count' => 0,
+                        'original_price_per_tray' => $sizeData['original_price_per_tray'],
+                        'remaining_price_per_tray' => $sizeData['original_price_per_tray'],
+                        'original_total_price' => $sizeData['original_total_price'],
+                        'remaining_total_price' => 0
+                    ];
+                }
+                
+                $product->remainingInventory->update([
+                    'remaining_quantity' => 0,
+                    'remaining_price' => 0,
+                    'remaining_total_trays' => 0,
+                    'per_size_remaining' => $perSizeRemaining,
+                    'last_updated' => now()
+                ]);
+            } else {
+                // When marking as available, restore remaining values to original values
+                $perSizeRemaining = [];
+                foreach ($product->sizes as $size) {
+                    $perSizeRemaining[] = [
+                        'size_id' => $size->id,
+                        'size_name' => $size->size_name,
+                        'original_tray_count' => $size->tray_count,
+                        'remaining_tray_count' => $size->tray_count,
+                        'original_price_per_tray' => $size->price_per_tray,
+                        'remaining_price_per_tray' => $size->price_per_tray,
+                        'original_total_price' => $size->total_price,
+                        'remaining_total_price' => $size->total_price
+                    ];
+                }
+                
+                $product->remainingInventory->update([
+                    'remaining_quantity' => $product->quantity,
+                    'remaining_price' => $product->price,
+                    'remaining_total_trays' => $product->sizes->sum('tray_count'),
+                    'per_size_remaining' => $perSizeRemaining,
+                    'last_updated' => now()
+                ]);
+            }
+        }
         
         return redirect()->back()->with('success', 'Product status updated successfully.');
     }

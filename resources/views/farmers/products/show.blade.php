@@ -1,4 +1,4 @@
-@extends('layouts.farmers_page')
+    @extends('layouts.farmers_page')
 
 @section('title', 'Product Details • AgriConnect')
 
@@ -134,13 +134,21 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <p class="text-sm text-gray-500">Quantity</p>
+                        <p class="text-sm text-gray-500">Original Quantity</p>
                         <p class="text-lg font-semibold">{{ $product->quantity }} {{ $product->unit }}</p>
+                        @if($product->remainingInventory)
+                            <p class="text-sm text-gray-500 mt-2">Remaining Quantity</p>
+                            <p class="text-lg font-semibold">{{ $product->remainingInventory->remaining_quantity }} {{ $product->unit }}</p>
+                        @endif
                     </div>
 
                     <div>
-                        <p class="text-sm text-gray-500">Price</p>
+                        <p class="text-sm text-gray-500">Original Price</p>
                         <p class="text-lg font-semibold">₱{{ number_format($product->price, 2) }}</p>
+                        @if($product->remainingInventory)
+                            <p class="text-sm text-gray-500 mt-2">Remaining Price</p>
+                            <p class="text-lg font-semibold">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</p>
+                        @endif
                     </div>
 
                     <div>
@@ -151,6 +159,25 @@
                     <div>
                         <p class="text-sm text-gray-500">Posted On</p>
                         <p class="text-lg font-semibold">{{ $product->created_at->format('F d, Y') }}</p>
+                    </div>
+                    
+                    <!-- Address Information -->
+                    <div class="md:col-span-2">
+                        <p class="text-sm text-gray-500">Address</p>
+                        <p class="text-lg font-semibold">
+                            @if($product->purok_street)
+                                {{ $product->purok_street }}
+                            @endif
+                            @if($product->barangay)
+                                {{ $product->barangay }}
+                            @endif
+                            @if($product->municipality_city)
+                                {{ $product->municipality_city }}
+                            @endif
+                            @if($product->province)
+                                {{ $product->province }}
+                            @endif
+                        </p>
                     </div>
                     
                     <!-- Display egg-specific attributes if this is an egg product -->
@@ -171,6 +198,24 @@
                                 {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
                             </p>
                         </div>
+                        
+                        @if($product->egg_category)
+                        <div>
+                            <p class="text-sm text-gray-500">Egg Category</p>
+                            <p class="text-lg font-semibold">
+                                @php
+                                    $eggCategories = [
+                                        'white_egg' => 'White Egg',
+                                        'brown_egg' => 'Brown Egg',
+                                        'free_range' => 'Free-Range',
+                                        'organic' => 'Organic',
+                                        'salted_duck_egg' => 'Salted Duck Egg'
+                                    ];
+                                @endphp
+                                {{ $eggCategories[$product->egg_category] ?? ucfirst(str_replace('_', ' ', $product->egg_category)) }}
+                            </p>
+                        </div>
+                        @endif
                     @endif
                 </div>
 
@@ -183,7 +228,8 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="py-3 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Size</th>
-                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Trays</th>
+                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Original Trays</th>
+                                    <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Remaining Trays</th>
                                     <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Price per Tray</th>
                                     <th scope="col" class="px-3 py-3 text-left text-sm font-semibold text-gray-900">Total</th>
                                 </tr>
@@ -204,6 +250,24 @@
                                         {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ $size->tray_count }}</td>
+                                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                        @if($product->remainingInventory)
+                                            @php
+                                                $remainingTrays = 0;
+                                                if($product->remainingInventory->per_size_remaining) {
+                                                    foreach($product->remainingInventory->per_size_remaining as $remainingSize) {
+                                                        if($remainingSize['size_id'] == $size->id) {
+                                                            $remainingTrays = $remainingSize['remaining_tray_count'];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ $remainingTrays }}
+                                        @else
+                                            {{ $size->tray_count }}
+                                        @endif
+                                    </td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($size->price_per_tray, 2) }}</td>
                                     <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">₱{{ number_format($size->total_price, 2) }}</td>
                                 </tr>
@@ -211,9 +275,15 @@
                             </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
-                                    <td colspan="3" class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">Total:</td>
+                                    <td colspan="4" class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">Original Total:</td>
                                     <td class="px-3 py-3 text-sm font-semibold text-gray-900">₱{{ number_format($product->price, 2) }}</td>
                                 </tr>
+                                @if($product->remainingInventory)
+                                <tr>
+                                    <td colspan="4" class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">Remaining Total:</td>
+                                    <td class="px-3 py-3 text-sm font-semibold text-green-600">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</td>
+                                </tr>
+                                @endif
                             </tfoot>
                         </table>
                     </div>

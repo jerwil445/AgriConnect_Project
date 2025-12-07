@@ -41,10 +41,26 @@
                                 <p class="mt-1 text-sm text-gray-900">₱{{ number_format($demand->target_price ?? 0, 2) }}</p>
                             </div>
                             
+                            <!-- Address Information -->
+                            @if($demand->purok_street || $demand->barangay || $demand->municipality_city || $demand->province)
                             <div>
-                                <label class="block text-sm font-medium text-gray-600">Location</label>
-                                <p class="mt-1 text-sm text-gray-900">{{ $demand->location }}</p>
+                                <label class="block text-sm font-medium text-gray-600">Address</label>
+                                <p class="mt-1 text-sm text-gray-900">
+                                    @if($demand->purok_street)
+                                        {{ $demand->purok_street }}
+                                    @endif
+                                    @if($demand->barangay)
+                                        {{ $demand->barangay }}
+                                    @endif
+                                    @if($demand->municipality_city)
+                                        {{ $demand->municipality_city }}
+                                    @endif
+                                    @if($demand->province)
+                                        {{ $demand->province }}
+                                    @endif
+                                </p>
                             </div>
+                            @endif
                             
                             <div>
                                 <label class="block text-sm font-medium text-gray-600">Delivery Date</label>

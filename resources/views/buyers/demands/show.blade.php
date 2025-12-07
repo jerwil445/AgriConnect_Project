@@ -2,7 +2,7 @@
 
 @section('content')
 <div class=" mx-auto px-4  buyer-content">
-    <div class="max-w-5xl mx-auto">
+    <div class="">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Demand Details</h1>
             <a href="{{ route('demands.index') }}" class="text-indigo-600 hover:text-indigo-800">
@@ -35,7 +35,7 @@
                         </div>
                         
                         <!-- Egg-specific information -->
-                        @if($demand->egg_type || $demand->egg_size)
+                        @if($demand->egg_type || $demand->egg_category || $demand->egg_size)
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
@@ -43,6 +43,12 @@
                             <span class="text-gray-700">
                                 @if($demand->egg_type)
                                     Egg Type: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $demand->egg_type)) }}</span>
+                                    @if($demand->egg_category || $demand->egg_size)
+                                        <span class="mx-1">•</span>
+                                    @endif
+                                @endif
+                                @if($demand->egg_category)
+                                    Category: <span class="font-medium">{{ ucfirst(str_replace('_', ' ', $demand->egg_category)) }}</span>
                                     @if($demand->egg_size)
                                         <span class="mx-1">•</span>
                                     @endif
@@ -54,13 +60,39 @@
                         </div>
                         @endif
                         
-                        <div class="flex items-center">
+                        <!-- <div class="flex items-center">
                             <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
-                            <span class="text-gray-700">Location: <span class="font-medium">{{ $demand->location }}</span></span>
+                            Removed location display as it's no longer used for matching
+                        </div> -->
+                        
+                        <!-- Address Information -->
+                        @if($demand->purok_street || $demand->barangay || $demand->municipality_city || $demand->province)
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="text-gray-700">
+                                Address: 
+                                <span class="font-medium">
+                                    @if($demand->purok_street)
+                                        {{ $demand->purok_street }}
+                                    @endif
+                                    @if($demand->barangay)
+                                        {{ $demand->barangay }}
+                                    @endif
+                                    @if($demand->municipality_city)
+                                        {{ $demand->municipality_city }}
+                                    @endif
+                                    @if($demand->province)
+                                        {{ $demand->province }}
+                                    @endif
+                                </span>
+                            </span>
                         </div>
+                        @endif
                         
                         <div class="flex items-center">
                             <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -80,18 +112,22 @@
                 
                 <div class="bg-gray-50 p-4 rounded-lg">
                     <h3 class="font-bold text-lg text-gray-800 mb-3">Match Summary</h3>
-                    <div class="grid grid-cols-3 gap-4 text-center">
+                    <div class="grid grid-cols-4 gap-4 text-center">
                         <div class="bg-white p-3 rounded shadow">
                             <div class="text-2xl font-bold text-indigo-600">{{ $demand->matches->count() }}</div>
                             <div class="text-sm text-gray-600">Total Matches</div>
                         </div>
                         <div class="bg-white p-3 rounded shadow">
                             <div class="text-2xl font-bold text-green-600">{{ $demand->matches->where('status', 'Matched')->count() }}</div>
-                            <div class="text-sm text-gray-600">Accepted</div>
+                            <div class="text-sm text-gray-600">Ordered</div>
                         </div>
                         <div class="bg-white p-3 rounded shadow">
-                            <div class="text-2xl font-bold text-yellow-600">{{ $demand->matches->where('status', 'Pending')->count() }}</div>
-                            <div class="text-sm text-gray-600">Pending</div>
+                            <div class="text-2xl font-bold text-blue-600">{{ $demand->matches->where('status', 'Transaction Started')->count() }}</div>
+                            <div class="text-sm text-gray-600">Transaction Started</div>
+                        </div>
+                        <div class="bg-white p-3 rounded shadow">
+                            <div class="text-2xl font-bold text-red-600">{{ $demand->matches->where('status', 'Sold Out')->count() }}</div>
+                            <div class="text-sm text-gray-600">Sold Out</div>
                         </div>
                     </div>
                 </div>
@@ -163,13 +199,25 @@
                             
                             <div class="space-y-3 mb-5">
                                 <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Available Quantity:</span>
+                                    <span class="text-gray-500 text-sm">Original Quantity:</span>
                                     <span class="font-medium">{{ $match->product->quantity }} {{ $match->product->unit }}</span>
                                 </div>
+                                @if($match->product->remainingInventory)
                                 <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Price:</span>
+                                    <span class="text-gray-500 text-sm">Remaining Quantity:</span>
+                                    <span class="font-medium text-green-600">{{ $match->product->remainingInventory->remaining_quantity }} {{ $match->product->unit }}</span>
+                                </div>
+                                @endif
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Original Price:</span>
                                     <span class="font-medium text-green-600">₱{{ number_format($match->product->price, 2) }}/{{ $match->product->unit }}</span>
                                 </div>
+                                @if($match->product->remainingInventory)
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Remaining Price:</span>
+                                    <span class="font-medium text-green-600">₱{{ number_format($match->product->remainingInventory->remaining_price, 2) }}/{{ $match->product->unit }}</span>
+                                </div>
+                                @endif
                                 <div class="flex justify-between">
                                     <span class="text-gray-500 text-sm">Harvest Date:</span>
                                     <span class="font-medium">{{ $match->product->harvest_date->format('M d, Y') }}</span>
@@ -196,6 +244,7 @@
                                 <!-- Egg Sizes -->
                                 @if($match->product->sizes && $match->product->sizes->count() > 0)
                                 <div class="mt-2">
+                                    <p class="text-gray-500 text-sm mb-1">Egg Sizes:</p>
                                     <div class="flex flex-wrap gap-1">
                                         @foreach($match->product->sizes as $size)
                                             @php
@@ -206,12 +255,53 @@
                                                     'extra_large' => 'Extra Large',
                                                     'jumbo' => 'Jumbo'
                                                 ];
+                                                
+                                                // Get remaining tray count for this size
+                                                $remainingTrays = $size->tray_count;
+                                                if($match->product->remainingInventory) {
+                                                    foreach($match->product->remainingInventory->per_size_remaining ?? [] as $remainingSize) {
+                                                        if(isset($remainingSize['size_id']) && $remainingSize['size_id'] == $size->id) {
+                                                            $remainingTrays = $remainingSize['remaining_tray_count'];
+                                                            break;
+                                                        }
+                                                    }
+                                                }
                                             @endphp
                                             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: {{ $size->tray_count }}
+                                                {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: 
+                                                <span class="font-medium">{{ $size->tray_count }}</span>
+                                                @if($remainingTrays != $size->tray_count)
+                                                <span class="ml-1 text-green-600 font-semibold">({{ $remainingTrays }} left)</span>
+                                                @endif
                                             </span>
                                         @endforeach
                                     </div>
+                                </div>
+                                @endif
+                                
+                                <!-- Address Information -->
+                                @if($match->product->purok_street || $match->product->barangay || $match->product->municipality_city || $match->product->province)
+                                <div class="flex items-start">
+                                    <svg class="w-5 h-5 text-gray-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                    </svg>
+                                    <span class="text-gray-700">
+                                        Address: 
+                                        <span class="font-medium">
+                                            @if($match->product->purok_street)
+                                                {{ $match->product->purok_street }}
+                                            @endif
+                                            @if($match->product->barangay)
+                                                {{ $match->product->barangay }}
+                                            @endif
+                                            @if($match->product->municipality_city)
+                                                {{ $match->product->municipality_city }}
+                                            @endif
+                                            @if($match->product->province)
+                                                {{ $match->product->province }}
+                                            @endif
+                                        </span>
+                                    </span>
                                 </div>
                                 @endif
                                 

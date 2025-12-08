@@ -14,15 +14,99 @@ class BuyerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // Fetch all products with their farmer information
-        // Show both available and sold out products
-        $products = Product::with('farmer.user')
-            ->whereIn('status', ['Available', 'Sold Out'])
-            ->paginate(12);
+        $search = $request->input('search');
+        $location = $request->input('location');
+        $category = $request->input('category');
+        $status = $request->input('status', 'all');
+        $minPrice = $request->input('min_price');
+        $maxPrice = $request->input('max_price');
+        $minQuantity = $request->input('min_quantity');
+        $maxQuantity = $request->input('max_quantity');
+        $certification = $request->input('certification', []);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDirection = $request->input('sort_direction', 'desc');
+
+        // Build the query
+        $query = Product::with(['farmer.user', 'sizes']);
         
-        return view('buyers.dashboard', compact('products'));
+        // Apply status filter
+        if ($status === 'Available') {
+            $query->where('status', 'Available');
+        } else {
+            $query->whereIn('status', ['Available', 'Sold Out']);
+        }
+
+        // Apply search filter
+        if ($search) {
+            $query->where('egg_type', 'LIKE', "%{$search}%");
+        }
+
+        // Apply location filter
+        if ($location) {
+            $query->whereHas('farmer.user', function($q) use ($location) {
+                $q->where('address', 'LIKE', "%{$location}%");
+            });
+        }
+
+        // Apply category filter (egg type)
+        if ($category && $category !== 'all') {
+            $query->where('egg_type', 'LIKE', "%{$category}%");
+        }
+
+        // Apply price range filter
+        if ($minPrice) {
+            $query->where('price', '>=', $minPrice);
+        }
+        if ($maxPrice) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        // Apply quantity range filter
+        if ($minQuantity) {
+            $query->where('quantity', '>=', $minQuantity);
+        }
+        if ($maxQuantity) {
+            $query->where('quantity', '<=', $maxQuantity);
+        }
+
+        // Apply certification filter
+        if (!empty($certification)) {
+            $query->whereHas('farmer', function($q) use ($certification) {
+                $q->whereIn('certification', $certification);
+            });
+        }
+
+        // Apply sorting
+        switch ($sortBy) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'quantity':
+                $query->orderBy('quantity', 'desc');
+                break;
+            case 'harvest_date':
+                $query->orderBy('harvest_date', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+
+        // Paginate results
+        $products = $query->paginate(12)->appends($request->query());
+
+        // Get unique egg types for category filter
+        $eggTypes = Product::select('egg_type')
+            ->distinct()
+            ->whereNotNull('egg_type')
+            ->pluck('egg_type')
+            ->sort();
+
+        return view('buyers.dashboard', compact('products', 'eggTypes', 'search', 'location', 'category', 'status', 'minPrice', 'maxPrice', 'minQuantity', 'maxQuantity', 'certification', 'sortBy'));
     }
     
     /**

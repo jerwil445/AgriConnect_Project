@@ -34,20 +34,42 @@
         <!-- Results Header and Controls -->
         <div class="bg-white rounded-xl shadow-sm p-3 mb-2 animate-slide-up">
             <div class="flex flex-col md:flex-row md:items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-gray-800">Showing 12 results</h2>
-                    <p class="text-gray-600 mt-1">From 125 listings available</p>
+                <div class="flex items-center space-x-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-gray-800">Showing {{ $products->count() }} results</h2>
+                        <p class="text-gray-600 mt-1">From {{ $products->total() }} listings available</p>
+                    </div>
+                    <button onclick="toggleFilters()" class="lg:hidden bg-primary-500 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                        <i class="fas fa-filter"></i>
+                        <span>Filters</span>
+                    </button>
                 </div>
                 <div class="flex items-center space-x-2 mt-2 md:mt-0">
-                    <div class="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
+                    <form method="GET" action="{{ route('buyer.dashboard') }}" class="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
+                        <!-- Preserve existing filters -->
+                        <input type="hidden" name="search" value="{{ $search }}">
+                        <input type="hidden" name="location" value="{{ $location }}">
+                        <input type="hidden" name="category" value="{{ $category }}">
+                        <input type="hidden" name="status" value="{{ $status }}">
+                        <input type="hidden" name="min_price" value="{{ $minPrice }}">
+                        <input type="hidden" name="max_price" value="{{ $maxPrice }}">
+                        <input type="hidden" name="min_quantity" value="{{ $minQuantity }}">
+                        <input type="hidden" name="max_quantity" value="{{ $maxQuantity }}">
+                        @if($certification)
+                            @foreach($certification as $cert)
+                                <input type="hidden" name="certification[]" value="{{ $cert }}">
+                            @endforeach
+                        @endif
+                        
                         <span class="text-gray-600 text-sm">Sort by:</span>
-                        <select class="bg-transparent focus:outline-none text-gray-800  ">
-                            <option class="text-sm">Newest First</option>
-                            <option class="text-sm">Price: Low to High</option>
-                            <option class="text-sm">Price: High to Low</option>
-                            <option class="text-sm">Most Popular</option>
+                        <select name="sort_by" onchange="this.form.submit()" class="bg-transparent focus:outline-none text-gray-800">
+                            <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }} class="text-sm">Newest First</option>
+                            <option value="price_low" {{ $sortBy == 'price_low' ? 'selected' : '' }} class="text-sm">Price: Low to High</option>
+                            <option value="price_high" {{ $sortBy == 'price_high' ? 'selected' : '' }} class="text-sm">Price: High to Low</option>
+                            <option value="quantity" {{ $sortBy == 'quantity' ? 'selected' : '' }} class="text-sm">Quantity: High to Low</option>
+                            <option value="harvest_date" {{ $sortBy == 'harvest_date' ? 'selected' : '' }} class="text-sm">Harvest Date</option>
                         </select>
-                    </div>
+                    </form>
                     <div class="flex space-x-2">
                         <button
                             class="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
@@ -63,14 +85,15 @@
         </div>
 
         <!-- Desktop Filters Section -->
+        <form method="GET" action="{{ route('buyer.dashboard') }}" id="filterForm">
         <div id="filtersContainer" class="hidden lg:block filters-container bg-white rounded-xl shadow-sm p-6 mb-4">
             <div class="flex justify-between items-center mb-2">
                 <h2 class="text-xl font-semibold text-gray-800">Filter Products</h2>
-                <button
+                <a href="{{ route('buyer.dashboard') }}"
                     class="text-primary-500 hover:text-primary-700 text-sm font-medium flex items-center space-x-1">
                     <i class="fas fa-sync-alt"></i>
                     <span>Reset All</span>
-                </button>
+                </a>
             </div>
             
 
@@ -80,7 +103,7 @@
                 <div class="w-full">
                     <h3 class="text-sm text-gray-700 mb-1">Search</h3>
                     <div class="relative">
-                        <input type="text" placeholder="Product name..."
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Egg type..."
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
                             <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
@@ -90,7 +113,7 @@
                 <div class="w-full">
                     <h3 class="text-sm text-gray-700 mb-1">Location</h3>
                     <div class="relative">
-                        <input type="text" placeholder="City or region"
+                        <input type="text" name="location" value="{{ $location }}" placeholder="City or region"
                             class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
                         <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-400"></i>
                     </div>
@@ -98,60 +121,54 @@
 
                 <!-- Category -->
                 <div class="w-full">
-                    <h3 class="text-sm text-gray-700 mb-1">Category</h3>
-                    <select
+                    <h3 class="text-sm text-gray-700 mb-1">Egg Type</h3>
+                    <select name="category"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
-                        <option>All Categories</option>
-                        <option>Grains</option>
-                        <option>Fruits</option>
-                        <option>Vegetables</option>
-                        <option>Dairy</option>
-                        <option>Livestock</option>
+                        <option value="all">All Egg Types</option>
+                        @foreach($eggTypes as $eggType)
+                            <option value="{{ $eggType }}" {{ $category == $eggType ? 'selected' : '' }}>{{ $eggType }}</option>
+                        @endforeach
                     </select>
                 </div>
 
-                <!-- Listing Type -->
+                <!-- Status Filter -->
                 <div class="w-full  justify-center">
-                    <h3 class="text-sm text-gray-700 mb-1">Listing Type</h3>
+                    <h3 class="text-sm text-gray-700 mb-1">Availability</h3>
                     <div class="flex space-x-4">
                         <label
                             class="flex-1 flex items-center justify-center p-2 border border-primary-500 bg-primary-50 text-primary-700 rounded-lg cursor-pointer transition duration-200">
-                            <input type="radio" name="listingType" class="hidden" checked>
-                            <span class="text-sm">For Sale</span>
+                            <input type="radio" name="status" value="all" class="hidden" {{ !request('status') || request('status') == 'all' ? 'checked' : '' }}>
+                            <span class="text-sm">All Products</span>
                         </label>
                         <label
                             class="flex-1 flex items-center justify-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition duration-200">
-                            <input type="radio" name="listingType" class="hidden">
-                            <span class="text-sm text-gray-600">To Buy</span>
+                            <input type="radio" name="status" value="Available" class="hidden" {{ request('status') == 'Available' ? 'checked' : '' }}>
+                            <span class="text-sm text-gray-600">Available Only</span>
                         </label>
                     </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <!-- Quantity -->
+                <!-- Quantity Range -->
                 <div>
-                    <h3 class="text-sm text-gray-700 mb-1">Quantity (in Tons)</h3>
-                    <div class="px-2">
-                        <input type="range" min="0" max="100" value="50" class="range-slider ">
-                        <div class="flex justify-between text-sm text-gray-500 mt-2">
-                            <span>0</span>
-                            <span>50</span>
-                            <span>100+</span>
-                        </div>
+                    <h3 class="text-sm text-gray-700 mb-1">Quantity Range</h3>
+                    <div class="flex space-x-2">
+                        <input type="number" name="min_quantity" value="{{ $minQuantity }}" placeholder="Min" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <input type="number" name="max_quantity" value="{{ $maxQuantity }}" placeholder="Max" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                     </div>
                 </div>
 
                 <!-- Price Range -->
                 <div>
-                    <h3 class="text-sm text-gray-700 mb-1">Price Range</h3>
-                    <div class="px-2">
-                        <input type="range" min="0" max="500" value="250" class="range-slider">
-                        <div class="flex justify-between text-sm text-gray-500 mt-2">
-                            <span>$0</span>
-                            <span>$250</span>
-                            <span>$500+</span>
-                        </div>
+                    <h3 class="text-sm text-gray-700 mb-1">Price Range ($)</h3>
+                    <div class="flex space-x-2">
+                        <input type="number" name="min_price" value="{{ $minPrice }}" placeholder="Min" step="0.01"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <input type="number" name="max_price" value="{{ $maxPrice }}" placeholder="Max" step="0.01"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
                     </div>
                 </div>
 
@@ -161,26 +178,31 @@
                     <div class="space-y-2">
                         <label
                             class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition duration-200">
-                            <input type="checkbox" class="rounded text-primary-500 mr-3 focus:ring-primary-500">
-                            <span class="text-gray-600">Organic Certified</span>
+                            <input type="checkbox" name="certification[]" value="Organic" 
+                                {{ in_array('Organic', $certification ?? []) ? 'checked' : '' }}
+                                class="rounded text-primary-500 mr-3 focus:ring-primary-500">
+                            <span class="text-gray-600">Organic</span>
                         </label>
                         <label
                             class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition duration-200">
-                            <input type="checkbox" class="rounded text-primary-500 mr-3 focus:ring-primary-500">
-                            <span class="text-gray-600">Fair Trade</span>
+                            <input type="checkbox" name="certification[]" value="Non-GMO" 
+                                {{ in_array('Non-GMO', $certification ?? []) ? 'checked' : '' }}
+                                class="rounded text-primary-500 mr-3 focus:ring-primary-500">
+                            <span class="text-gray-600">Non-GMO</span>
                         </label>
                     </div>
                 </div>
             </div>
 
             <div class="mt-2 pt-6 border-t border-gray-200">
-                <button
+                <button type="submit"
                     class="w-full bg-primary-500 text-white py-2 rounded-lg hover:bg-primary-600 transition duration-200 text-sm flex items-center justify-center space-x-2">
                     <i class="fas fa-filter"></i>
                     <span>Apply Filters</span>
                 </button>
             </div>
         </div>
+        </form>
 
         <!-- Product Listings -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -363,38 +385,73 @@
         </div>
     </footer>
 @endsection
-    <script>
-        // Mobile sidebar functionality
-        const mobileSidebarTogssgle = document.getElementById('mobileSidebarToggle');
-        const mobileSidebar = document.getElementById('mobileSidebar');
-        const closeSidebar = document.getElementById('closeSidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+@section('scripts')
+<script>
+    // Toggle filters visibility
+    function toggleFilters() {
+        const filtersContainer = document.getElementById('filtersContainer');
+        filtersContainer.classList.toggle('hidden');
+        filtersContainer.classList.toggle('lg:block');
+    }
+
+    // Auto-submit form when filter inputs change
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filterForm');
+        const inputs = filterForm.querySelectorAll('input[type="text"], input[type="number"], select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Add a small delay for better UX
+                setTimeout(() => {
+                    filterForm.submit();
+                }, 300);
+            });
+        });
+
+        // Handle checkbox changes
+        const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                setTimeout(() => {
+                    filterForm.submit();
+                }, 300);
+            });
+        });
+
+        // Handle radio button changes
+        const radios = filterForm.querySelectorAll('input[type="radio"]');
+        radios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                setTimeout(() => {
+                    filterForm.submit();
+                }, 300);
+            });
+        });
+    });
+
+    // Mobile sidebar functionality (if needed)
+    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+    const mobileSidebar = document.getElementById('mobileSidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    if (mobileSidebarToggle && mobileSidebar) {
         function openMobileSidebar() {
             mobileSidebar.classList.add('open');
-            sidebarOverlay.classList.add('open');
+            if (sidebarOverlay) sidebarOverlay.classList.add('open');
             document.body.style.overflow = 'hidden';
         }
 
         function closeMobileSidebar() {
             mobileSidebar.classList.remove('open');
-            sidebarOverlay.classList.remove('open');
+            if (sidebarOverlay) sidebarOverlay.classList.remove('open');
             document.body.style.overflow = 'auto';
         }
 
         mobileSidebarToggle.addEventListener('click', openMobileSidebar);
-        closeSidebar.addEventListener('click', closeMobileSidebar);
-        sidebarOverlay.addEventListener('click', closeMobileSidebar);
-
-        // Close sidebar when clicking on a filter option (for better UX)
-        const filterLabels = document.querySelectorAll('.mobile-sidebar label');
-        filterLabels.forEach(label => {
-            label.addEventListener('click', () => {
-                if (window.innerWidth < 1024) {
-                    setTimeout(closeMobileSidebar, 300);
-                }
-            });
-        });
+        if (closeSidebar) closeSidebar.addEventListener('click', closeMobileSidebar);
+        if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
         // Close sidebar on window resize if it becomes desktop view
         window.addEventListener('resize', () => {
@@ -402,4 +459,6 @@
                 closeMobileSidebar();
             }
         });
-
+    }
+</script>
+@endsection

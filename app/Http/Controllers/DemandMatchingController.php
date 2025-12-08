@@ -472,7 +472,7 @@ public function startTransaction(DemandMatch $demandMatch)
         'conversation_thread_id' => $conversationThread->id
     ]);
     
-    // Send a welcome message
+    // Send a welcome message from farmer
     $eggTypes = [
         'chicken' => 'Chicken Eggs',
         'duck' => 'Duck Eggs',
@@ -482,7 +482,7 @@ public function startTransaction(DemandMatch $demandMatch)
         'white' => 'White Eggs'
     ];
     $eggTypeName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: ₱" . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
+    $messageText = "Hello! I saw your demand and I can supply this product.\n\n📦 Product Details:\nEgg Type: {$eggTypeName}\nAvailable Quantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: ₱" . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}\n\nLet me know if you're interested and we can discuss the details!";
     Message::create([
         'transaction_id' => $transaction->id,
         'sender_id' => Auth::id(),
@@ -1198,6 +1198,7 @@ public function markOrderAsPrepared(Transaction $transaction)
     }
     
     $transaction->update([
+        'status' => 'Prepared',
         'delivery_status' => 'Prepared'
     ]);
     
@@ -1226,6 +1227,7 @@ public function assignLogistics(Transaction $transaction)
     }
     
     $transaction->update([
+        'status' => 'In Transit',
         'delivery_status' => 'In Transit'
     ]);
     

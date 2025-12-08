@@ -8,7 +8,7 @@
         ['label' => 'Matches', 'icon' => 'M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z', 'route' => route('farmer.matches'), 'active' => request()->routeIs('farmer.matches')],
         ['label' => 'Orders', 'icon' => 'M12 6h8m-8 6h8m-8 6h8M4 16a2 2 0 1 1 3.321 1.5L4 20h5M4 5l2-1v6m-2 0h4', 'route' => route('farmer.orders'), 'active' => request()->routeIs('farmer.orders')],
         ['label' => 'Messages', 'icon' => 'M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z', 'route' => route('farmer.messages'), 'active' => request()->routeIs('farmer.messages')],
-        ['label' => 'Analytics', 'icon' => 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', 'route' => '#'],
+        ['label' => 'Analytics', 'icon' => 'M3 13v6m0 0a2 2 0 1 0 4 0m-4 0a2 2 0 1 1 4 0m-4 0V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2M7 7h10M7 11h10m-5 4h5', 'route' => route('farmer.analytics'), 'active' => request()->routeIs('farmer.analytics')],
     ];
 @endphp
 

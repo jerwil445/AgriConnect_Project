@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/farmer/notifications', [FarmerController::class, 'notifications'])->name('farmer.notifications');
     Route::post('/farmer/notifications/{id}/read', [FarmerController::class, 'markNotificationAsRead'])->name('farmer.notifications.read');
     
+    Route::get('/farmer/analytics', [FarmerController::class, 'analytics'])->name('farmer.analytics');
+    
     Route::resource('/farmer/products', ProductController::class);
     Route::put('/farmer/products/{product}/status', [ProductController::class, 'updateStatus'])->name('products.updateStatus');
     

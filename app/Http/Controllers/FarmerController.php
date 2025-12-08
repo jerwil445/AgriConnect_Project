@@ -204,4 +204,112 @@ class FarmerController extends Controller
         
         return back();
     }
+
+    /**
+     * Display farmer analytics.
+     */
+    public function analytics()
+    {
+        $user = Auth::user();
+        $farmerId = $user->id;
+        
+        // Get total products
+        $totalProducts = Product::where('farmer_id', $user->farmer->id)->count();
+        
+        // Get available products
+        $availableProducts = Product::where('farmer_id', $user->farmer->id)
+            ->where('status', 'Available')
+            ->count();
+        
+        // Get sold out products
+        $soldOutProducts = Product::where('farmer_id', $user->farmer->id)
+            ->where('status', 'Sold Out')
+            ->count();
+        
+        // Get total matches
+        $totalMatches = DemandMatch::whereHas('product', function($query) use ($user) {
+            $query->where('farmer_id', $user->farmer->id);
+        })->count();
+        
+        // Get accepted matches
+        $acceptedMatches = DemandMatch::whereHas('product', function($query) use ($user) {
+            $query->where('farmer_id', $user->farmer->id);
+        })->where('status', 'Matched')->count();
+        
+        // Get total orders
+        $totalOrders = Transaction::where('farmer_id', $farmerId)->count();
+        
+        // Get completed orders
+        $completedOrders = Transaction::where('farmer_id', $farmerId)
+            ->where('status', 'Delivered')
+            ->count();
+        
+        // Get total revenue
+        $totalRevenue = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered'])
+            ->sum('total_amount');
+        
+        // Get monthly revenue (last 12 months)
+        $monthlyRevenue = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered'])
+            ->where('created_at', '>=', Carbon::now()->subMonths(12))
+            ->select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('SUM(total_amount) as total')
+            )
+            ->groupBy('year', 'month')
+            ->orderBy('year')
+            ->orderBy('month')
+            ->get();
+        
+        // Get order status breakdown
+        $ordersByStatus = Transaction::where('farmer_id', $farmerId)
+            ->select('status', DB::raw('count(*) as count'))
+            ->groupBy('status')
+            ->get();
+        
+        // Get top selling products
+        $topProducts = Product::where('farmer_id', $user->farmer->id)
+            ->withCount(['transactions' => function($query) {
+                $query->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered']);
+            }])
+            ->orderBy('transactions_count', 'desc')
+            ->take(5)
+            ->get();
+        
+        // Get recent transactions
+        $recentTransactions = Transaction::where('farmer_id', $farmerId)
+            ->with(['buyer', 'product'])
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+        
+        // Calculate average order value
+        $avgOrderValue = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered'])
+            ->avg('total_amount');
+        
+        // Get match conversion rate
+        $matchConversionRate = $totalMatches > 0 
+            ? round(($totalOrders / $totalMatches) * 100, 2) 
+            : 0;
+        
+        return view('farmers.analytics', compact(
+            'totalProducts',
+            'availableProducts',
+            'soldOutProducts',
+            'totalMatches',
+            'acceptedMatches',
+            'totalOrders',
+            'completedOrders',
+            'totalRevenue',
+            'monthlyRevenue',
+            'ordersByStatus',
+            'topProducts',
+            'recentTransactions',
+            'avgOrderValue',
+            'matchConversionRate'
+        ));
+    }
 }

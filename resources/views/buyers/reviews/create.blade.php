@@ -178,26 +178,33 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle star rating interactions
-    const starContainers = document.querySelectorAll('[name$="_rating"]');
+    // Get all rating sections
+    const ratingSections = document.querySelectorAll('.space-y-6 > div');
     
-    starContainers.forEach(function(radioGroup) {
-        const name = radioGroup.getAttribute('name');
-        const container = radioGroup.closest('div').querySelector('.flex');
+    ratingSections.forEach(function(section) {
+        const container = section.querySelector('.flex.items-center.space-x-2');
+        if (!container) return;
+        
         const stars = container.querySelectorAll('.star-icon');
         const radios = container.querySelectorAll('.star-radio');
         
-        // Handle click on star
-        radios.forEach(function(radio, index) {
-            radio.addEventListener('change', function() {
-                updateStars(stars, index + 1);
+        // Handle click on star label
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                radios[index].checked = true;
+                updateStars(stars, radios, index + 1);
+            });
+            
+            // Handle hover
+            star.addEventListener('mouseenter', function() {
+                updateStars(stars, radios, index + 1);
             });
         });
         
-        // Handle hover
-        stars.forEach(function(star, index) {
-            star.addEventListener('mouseenter', function() {
-                updateStars(stars, index + 1);
+        // Handle radio change
+        radios.forEach(function(radio, index) {
+            radio.addEventListener('change', function() {
+                updateStars(stars, radios, index + 1);
             });
         });
         
@@ -206,14 +213,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const checkedRadio = container.querySelector('.star-radio:checked');
             if (checkedRadio) {
                 const checkedIndex = Array.from(radios).indexOf(checkedRadio);
-                updateStars(stars, checkedIndex + 1);
+                updateStars(stars, radios, checkedIndex + 1);
             } else {
-                updateStars(stars, 0);
+                updateStars(stars, radios, 0);
             }
         });
     });
     
-    function updateStars(stars, rating) {
+    function updateStars(stars, radios, rating) {
         stars.forEach(function(star, index) {
             if (index < rating) {
                 star.classList.remove('text-gray-300');

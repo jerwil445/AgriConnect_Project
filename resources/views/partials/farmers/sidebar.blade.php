@@ -1,6 +1,19 @@
 @php
     use App\Models\Message;
+    use App\Models\FarmerEarning;
+    
     $unreadMessageCount = Auth::check() ? Message::where('receiver_id', Auth::id())->where('is_read', false)->count() : 0;
+    
+    // Get real-time earnings data for the logged-in farmer
+    $totalEarnings = 0;
+    $unpaidEarnings = 0;
+    if (Auth::check() && Auth::user()->farmer) {
+        $farmerId = Auth::user()->farmer->id;
+        $totalEarnings = FarmerEarning::where('farmer_id', $farmerId)->sum('net_amount');
+        $unpaidEarnings = FarmerEarning::where('farmer_id', $farmerId)
+            ->where('payout_status', 'unpaid')
+            ->sum('net_amount');
+    }
     
     $navItems = [
         ['label' => 'Dashboard', 'icon' => 'M4 12l8-8 8 8M6 10.5V19a1 1 0 0 0 1 1h3v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h3a1 1 0 0 0 1-1v-8.5', 'route' => route('farmer.dashboard'), 'active' => request()->routeIs('farmer.dashboard')],
@@ -33,7 +46,8 @@
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $item['icon'] }}" />
                 </svg>
-                {{ $item['label'] }}
+                <span class="flex-1">{{ $item['label'] }}</span>
+                
                 @if($item['label'] === 'Messages')
                     @if($unreadMessageCount > 0)
                         <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full messages-count">
@@ -42,6 +56,14 @@
                     @else
                         <span class="inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full messages-count hidden">
                             0
+                        </span>
+                    @endif
+                @endif
+                
+                @if($item['label'] === 'Earnings')
+                    @if($unpaidEarnings > 0)
+                        <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold text-white bg-green-600 rounded-full" title="Unpaid Earnings">
+                            ₱{{ number_format($unpaidEarnings, 0) }}
                         </span>
                     @endif
                 @endif

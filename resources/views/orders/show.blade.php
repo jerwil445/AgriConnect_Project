@@ -208,14 +208,6 @@
                 </button>
             @endif
             
-            @if(auth()->user()->buyer && $order->payment_status != 'Paid' && in_array($order->status, ['Ordered', 'Accepted', 'Prepared', 'In Transit']))
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none mark-paid-btn"
-                        data-transaction-id="{{ $order->id }}">
-                    <i class="fas fa-money-bill mr-2"></i> Mark as Paid
-                </button>
-            @endif
-            
             @if(auth()->user()->farmer && $order->status == 'Accepted')
                 <button type="button" 
                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none mark-prepared-btn"
@@ -226,14 +218,6 @@
                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none assign-logistics-btn"
                         data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-truck mr-2"></i> Assign Logistics
-                </button>
-            @endif
-            
-            @if(auth()->user()->buyer && ($order->delivery_status == 'In Transit' || $order->delivery_status == 'Prepared'))
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none mark-delivered-by-buyer-btn"
-                        data-transaction-id="{{ $order->id }}">
-                    <i class="fas fa-truck mr-2"></i> Mark as Delivered
                 </button>
             @endif
             

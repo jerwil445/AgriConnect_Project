@@ -118,15 +118,6 @@
                                         @enderror
                                     </div>
                                     <div>
-                                        <label for="product_type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                        <input type="text" name="product_type" id="product_type" 
-                                               value="{{ old('product_type', Auth::user()->farmer->product_type) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('product_type')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
                                         <label for="experience_years" class="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
                                         <input type="number" name="experience_years" id="experience_years" 
                                                value="{{ old('experience_years', Auth::user()->farmer->experience_years) }}"

@@ -380,7 +380,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Update product status (Available/Sold Out)
+     * Update product status (Available / Pending / Sold Out)
      */
     public function updateStatus(Request $request, Product $product)
     {
@@ -400,12 +400,20 @@ class ProductController extends Controller
             abort(403);
         }
         
-        $request->validate([
-            'status' => 'required|in:Available,Sold Out'
+        $validated = $request->validate([
+            'status' => 'required|in:Available,Pending,Sold Out'
         ]);
         
-        $product->status = $request->input('status');
+        $product->status = $validated['status'];
         $product->save();
+        
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Product status updated successfully.',
+                'status' => $product->status,
+            ]);
+        }
         
         return redirect()->back()->with('success', 'Product status updated successfully.');
     }

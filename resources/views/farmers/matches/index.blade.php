@@ -37,7 +37,7 @@
     @if($products->isEmpty())
         <div class="bg-white shadow-md rounded-lg p-6 text-center">
             <p class="text-gray-600">You don't have any products listed yet.</p>
-            <a href="{{ route('farmer.products.create') }}" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('products.create') }}" class="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                 Add Your First Product
             </a>
         </div>

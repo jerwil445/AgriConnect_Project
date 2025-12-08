@@ -240,6 +240,7 @@
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
                 },
                 body: JSON.stringify({ status: status })

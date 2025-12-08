@@ -49,10 +49,6 @@ const fieldValidations = {
         ],
         dependsOnRole: "farmer",
     },
-    product_type: {
-        rules: [{ type: "required", message: "Product type is required." }],
-        dependsOnRole: "farmer",
-    },
     business_type: {
         rules: [{ type: "required", message: "Business type is required for buyers." }],
         dependsOnRole: "buyer",

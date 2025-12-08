@@ -96,10 +96,6 @@
                             <span class="text-gray-900">{{ $farmer->farm_size ?? 'N/A' }}</span>
                         </div>
                         <div class="flex">
-                            <span class="font-medium text-gray-700 w-32">Product Type:</span>
-                            <span class="text-gray-900">{{ $farmer->product_type ?? 'N/A' }}</span>
-                        </div>
-                        <div class="flex">
                             <span class="font-medium text-gray-700 w-32">Experience:</span>
                             <span class="text-gray-900">{{ $farmer->experience_years ?? 'N/A' }} years</span>
                         </div>

@@ -238,7 +238,6 @@
                                         data-email="{{ $match->product->farmer->user->email ?? '' }}"
                                         data-phone="{{ $match->product->farmer->user->phone_number ?? 'N/A' }}"
                                         data-farm-name="{{ $match->product->farmer->farm_name ?? 'N/A' }}"
-                                        data-product-type="{{ $match->product->farmer->product_type ?? 'N/A' }}"
                                         data-farm-address="{{ $match->product->farmer->farm_address ?? 'N/A' }}">
                                     View Profile
                                 </button>
@@ -324,10 +323,6 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
                                     <p id="modal-farm-name" class="text-gray-900"></p>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                    <p id="modal-product-type" class="text-gray-900"></p>
-                                </div>
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
                                     <p id="modal-farm-address" class="text-gray-900"></p>
@@ -362,7 +357,6 @@
                 var email = this.getAttribute('data-email');
                 var phone = this.getAttribute('data-phone');
                 var farmName = this.getAttribute('data-farm-name');
-                var productType = this.getAttribute('data-product-type');
                 var farmAddress = this.getAttribute('data-farm-address');
                 
                 // Populate modal with data
@@ -372,7 +366,6 @@
                 document.getElementById('modal-email').textContent = email;
                 document.getElementById('modal-phone').textContent = phone;
                 document.getElementById('modal-farm-name').textContent = farmName;
-                document.getElementById('modal-product-type').textContent = productType;
                 document.getElementById('modal-farm-address').textContent = farmAddress;
                 
                 // Show modal

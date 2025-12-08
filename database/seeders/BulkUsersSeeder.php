@@ -30,7 +30,6 @@ class BulkUsersSeeder extends Seeder
                 'user_id' => $user->id,
                 'farm_name' => $faker->company(),
                 'farm_size' => $faker->randomFloat(2, 1, 100),
-                'product_type' => $faker->randomElement(['Vegetables', 'Fruits', 'Grains', 'Livestock']),
                 'experience_years' => $faker->numberBetween(1, 30),
                 'certification' => $faker->randomElement(['Organic', 'Non-GMO', 'Conventional', 'Biodynamic']),
                 'farm_address' => $faker->address(),

@@ -226,22 +226,6 @@
                                     {{ $experienceError }}
                                 </p>
                             </div>
-
-                            <div class="relative w-full">
-                                @php($productTypeError = $errors->first('product_type'))
-                                <input type="text" name="product_type" id="product_type" data-role-field="farmer"
-                                    @if($activeRole === 'buyer') disabled @endif
-                                    class="peer w-full px-2 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                    placeholder=" " value="{{ old('product_type') }}" data-role-required="farmer" required />
-                                <label for="product_type"
-                                    class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                    Product Type/s
-                                </label>
-                                <p class="input-error text-sm text-red-600 mt-1 {{ $productTypeError ? '' : 'hidden' }}"
-                                    data-error-for="product_type">
-                                    {{ $productTypeError }}
-                                </p>
-                            </div>
                         </div>
 
                         <!-- BUYER INFO -->

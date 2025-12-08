@@ -120,13 +120,6 @@
                             </div>
 
                             <div>
-                                <label for="product_type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                <input type="text" name="product_type" id="product_type" 
-                                       value="{{ old('product_type', $farmer->product_type ?? '') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                            </div>
-
-                            <div>
                                 <label for="experience_years" class="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
                                 <input type="number" name="experience_years" id="experience_years" 
                                        value="{{ old('experience_years', $farmer->experience_years ?? '') }}"

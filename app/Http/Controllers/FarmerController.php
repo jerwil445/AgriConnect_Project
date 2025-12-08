@@ -44,7 +44,6 @@ class FarmerController extends Controller
             // Farmer specific fields
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
-            'product_type' => 'nullable|string|max:255',
             'experience_years' => 'nullable|integer|min:0|max:100',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
@@ -76,7 +75,6 @@ class FarmerController extends Controller
             $user->farmer->update($request->only([
                 'farm_name',
                 'farm_size',
-                'product_type',
                 'experience_years',
                 'certification',
                 'farm_address'
@@ -86,7 +84,6 @@ class FarmerController extends Controller
             $user->farmer()->create($request->only([
                 'farm_name',
                 'farm_size',
-                'product_type',
                 'experience_years',
                 'certification',
                 'farm_address'

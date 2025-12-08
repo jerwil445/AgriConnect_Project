@@ -166,7 +166,7 @@ class AdminController extends Controller
             'quantity' => 'required|numeric|min:0',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
-            'status' => 'required|in:available,sold,unavailable',
+            'status' => 'required|in:Available,Sold Out,Pending',
             'harvest_date' => 'nullable|date',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
@@ -195,7 +195,7 @@ class AdminController extends Controller
      */
     public function approveProduct(Product $product)
     {
-        $product->update(['status' => 'available']);
+        $product->update(['status' => 'Available']);
         
         return redirect()->route('admin.products.index')->with('success', 'Product approved successfully.');
     }
@@ -205,7 +205,7 @@ class AdminController extends Controller
      */
     public function rejectProduct(Product $product)
     {
-        $product->update(['status' => 'unavailable']);
+        $product->update(['status' => 'Pending']);
         
         return redirect()->route('admin.products.index')->with('success', 'Product rejected successfully.');
     }
@@ -702,7 +702,6 @@ class AdminController extends Controller
         $request->validate([
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
-            'product_type' => 'nullable|string|max:255',
             'experience_years' => 'nullable|integer|min:0',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
@@ -713,7 +712,6 @@ class AdminController extends Controller
             $farmer->update($request->only([
                 'farm_name',
                 'farm_size',
-                'product_type',
                 'experience_years',
                 'certification',
                 'farm_address'
@@ -723,7 +721,6 @@ class AdminController extends Controller
                 $request->only([
                     'farm_name',
                     'farm_size',
-                    'product_type',
                     'experience_years',
                     'certification',
                     'farm_address'

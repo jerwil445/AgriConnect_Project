@@ -58,10 +58,6 @@
                                     <p class="text-gray-900">{{ Auth::user()->farmer->farm_size ?? 'Not provided' }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                    <p class="text-gray-900">{{ Auth::user()->farmer->product_type ?? 'Not provided' }}</p>
-                                </div>
-                                <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Experience</label>
                                     <p class="text-gray-900">{{ Auth::user()->farmer->experience_years ?? 'Not provided' }} years</p>
                                 </div>

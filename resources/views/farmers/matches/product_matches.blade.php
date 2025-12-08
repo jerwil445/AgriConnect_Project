@@ -238,13 +238,52 @@
                             </div>
                             
                             @if($product->status == 'Sold Out')
-                                <button disabled class="w-full inline-block text-center px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed">
+                                <button disabled class="w-full px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
                                     Product Sold Out
+                                </button>
+                            @elseif($match->status == 'New')
+                                <div class="flex gap-2">
+                                    <form action="{{ route('matches.accept', $match) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <button type="submit" class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                            Accept
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('matches.reject', $match) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <button type="submit" class="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-2"
+                                                onclick="return confirm('Are you sure you want to decline this match?')">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                            Decline
+                                        </button>
+                                    </form>
+                                </div>
+                            @elseif($match->status == 'Matched' || $match->status == 'Transaction Started')
+                                <form action="{{ route('matches.startTransaction', $match) }}" method="POST" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                        </svg>
+                                        Message Buyer
+                                    </button>
+                                </form>
+                            @elseif($match->status == 'Rejected')
+                                <button disabled class="w-full px-4 py-2 bg-gray-300 text-gray-500 text-sm font-medium rounded-lg cursor-not-allowed">
+                                    Match Declined
                                 </button>
                             @else
                                 <form action="{{ route('matches.startTransaction', $match) }}" method="POST" class="w-full">
                                     @csrf
-                                    <button type="submit" class="w-full inline-block text-center px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
+                                    <button type="submit" class="w-full px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                        </svg>
                                         Message
                                     </button>
                                 </form>

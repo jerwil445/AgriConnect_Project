@@ -276,7 +276,6 @@ class ProductController extends Controller
         
         $request->validate([
             'egg_type' => 'required|string|max:50',
-            'egg_category' => 'nullable|string|in:white_egg,brown_egg,free_range,organic,salted_duck_egg',
             'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',

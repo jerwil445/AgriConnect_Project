@@ -21,7 +21,8 @@
                                 <option value="">Select Egg Type</option>
                                 <option value="chicken" {{ old('egg_type') == 'chicken' ? 'selected' : '' }}>Chicken</option>
                                 <option value="duck" {{ old('egg_type') == 'duck' ? 'selected' : '' }}>Duck</option>
-                                <option value="native_chicken" {{ old('egg_type') == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option>
+                                <option value="quail" {{ old('egg_type') == 'quail' ? 'selected' : '' }}>Quail  </option>
+                                <!-- <option value="native_chicken" {{ old('egg_type') == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option> -->
                                 
                             </select>
                             @error('egg_type')

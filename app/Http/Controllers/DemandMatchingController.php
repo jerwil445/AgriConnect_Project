@@ -8,6 +8,9 @@ use App\Models\DemandMatch;
 use App\Models\Transaction;
 use App\Models\Message;
 use App\Models\ConversationThread;
+use App\Models\Farmer;
+use App\Models\FarmerEarning;
+use App\Models\ProductAnalytic;
 use App\Notifications\BuyerFarmerAcceptNotification;
 use App\Notifications\FarmerMatchNotification;
 use App\Notifications\OrderAcceptedNotification;
@@ -1256,8 +1259,32 @@ public function markOrderAsDeliveredByBuyer(Transaction $transaction)
     }
     
     $transaction->update([
-        'delivery_status' => 'Delivered'
+        'delivery_status' => 'Delivered',
+        'status' => 'Delivered',
     ]);
+
+    // When the buyer confirms delivery and payment is completed,
+    // generate an earning for the farmer and update stats.
+    if ($transaction->payment_status === 'Paid') {
+        // Create earning record (uses farmer profile behind the scenes)
+        FarmerEarning::createFromTransaction($transaction);
+
+        // Update farmer completion stats
+        $farmerProfile = Farmer::where('user_id', $transaction->farmer_id)->first();
+        if ($farmerProfile) {
+            $farmerProfile->incrementCompletedOrders();
+        }
+
+        // Update product performance / analytics
+        if ($transaction->product) {
+            $transaction->product->incrementOrder();
+
+            $analytic = ProductAnalytic::recordDailyMetrics($transaction->product_id);
+            if ($analytic) {
+                $analytic->incrementOrder($transaction->total_amount, $transaction->final_quantity);
+            }
+        }
+    }
     
     // Notify farmer
     $farmerUser = $transaction->farmer;
@@ -1284,7 +1311,7 @@ public function listOrders()
         // Get orders for buyer
         $orders = Transaction::where('buyer_id', $user->id)
             ->whereIn('status', ['Ordered', 'Accepted', 'Rejected', 'Prepared', 'In Transit', 'Delivered'])
-            ->with('product', 'farmer')
+            ->with('product', 'farmer', 'farmerReview')
             ->orderBy('created_at', 'desc')
             ->get();
         

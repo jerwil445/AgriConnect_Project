@@ -115,6 +115,10 @@ Route::middleware('auth')->group(function () {
     
     // Order tracking route for buyer
     Route::get('/buyer/orders', [DemandMatchingController::class, 'listOrders'])->name('buyer.orders');
+    
+    // Buyer review routes
+    Route::get('/buyer/orders/{transaction}/review', [BuyerController::class, 'showReviewForm'])->name('buyer.orders.review');
+    Route::post('/buyer/orders/{transaction}/review', [BuyerController::class, 'submitReview'])->name('buyer.orders.review.submit');
 });
 
 // Demand and Matching Routes

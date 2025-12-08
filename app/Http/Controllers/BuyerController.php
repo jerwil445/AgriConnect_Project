@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\Farmer;
+use App\Models\FarmerReview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -233,5 +236,99 @@ class BuyerController extends Controller
         }
 
         return redirect()->route('buyer.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Show the review form for a completed order
+     */
+    public function showReviewForm(Transaction $transaction)
+    {
+        $user = Auth::user();
+        
+        // Check if the user is the buyer for this transaction
+        if ($transaction->buyer_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+        
+        // Check if order is delivered
+        if ($transaction->status !== 'Delivered') {
+            return redirect()->route('buyer.orders')
+                ->with('error', 'You can only review completed orders.');
+        }
+        
+        // Check if already reviewed
+        if ($transaction->farmerReview) {
+            return redirect()->route('buyer.orders')
+                ->with('info', 'You have already reviewed this order.');
+        }
+        
+        $transaction->load('product', 'farmer');
+        
+        return view('buyers.reviews.create', compact('transaction'));
+    }
+
+    /**
+     * Submit a review for a completed order
+     */
+    public function submitReview(Request $request, Transaction $transaction)
+    {
+        $user = Auth::user();
+        
+        // Check if the user is the buyer for this transaction
+        if ($transaction->buyer_id !== $user->id) {
+            abort(403, 'Unauthorized');
+        }
+        
+        // Check if order is delivered
+        if ($transaction->status !== 'Delivered') {
+            return redirect()->route('buyer.orders')
+                ->with('error', 'You can only review completed orders.');
+        }
+        
+        // Check if already reviewed
+        if ($transaction->farmerReview) {
+            return redirect()->route('buyer.orders')
+                ->with('error', 'You have already reviewed this order.');
+        }
+        
+        // Validate the review
+        $validated = $request->validate([
+            'overall_rating' => 'required|numeric|min:1|max:5',
+            'product_quality_rating' => 'required|numeric|min:1|max:5',
+            'delivery_rating' => 'required|numeric|min:1|max:5',
+            'communication_rating' => 'required|numeric|min:1|max:5',
+            'packaging_rating' => 'required|numeric|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+        
+        // Get the farmer profile
+        $farmer = Farmer::where('user_id', $transaction->farmer_id)->first();
+        
+        if (!$farmer) {
+            return redirect()->route('buyer.orders')
+                ->with('error', 'Unable to submit review: Farmer profile not found.');
+        }
+        
+        // Create the review
+        FarmerReview::create([
+            'farmer_id' => $farmer->id,
+            'buyer_id' => $user->id,
+            'transaction_id' => $transaction->id,
+            'product_id' => $transaction->product_id,
+            'overall_rating' => $validated['overall_rating'],
+            'product_quality_rating' => $validated['product_quality_rating'],
+            'delivery_rating' => $validated['delivery_rating'],
+            'communication_rating' => $validated['communication_rating'],
+            'packaging_rating' => $validated['packaging_rating'],
+            'comment' => $validated['comment'],
+            'status' => 'approved',
+            'is_verified_purchase' => true,
+        ]);
+        
+        // Update farmer's rating statistics
+        $farmer->updateRating();
+        
+        return redirect()->route('buyer.orders')
+            ->with('success', 'Thank you for your review!');
     }
 }

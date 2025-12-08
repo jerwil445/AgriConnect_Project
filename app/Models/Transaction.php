@@ -79,4 +79,9 @@ class Transaction extends Model
     {
         return $this->hasMany(SizeTransaction::class);
     }
+
+    public function farmerReview()
+    {
+        return $this->hasOne(FarmerReview::class);
+    }
 }

@@ -208,7 +208,7 @@
                 </button>
             @endif
             
-            @if(auth()->user()->buyer && $order->payment_status != 'Paid' && $order->status == 'Accepted')
+            @if(auth()->user()->buyer && $order->payment_status != 'Paid' && in_array($order->status, ['Ordered', 'Accepted', 'Prepared', 'In Transit']))
                 <button type="button" 
                         class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none mark-paid-btn"
                         data-transaction-id="{{ $order->id }}">
@@ -235,6 +235,19 @@
                         data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-truck mr-2"></i> Mark as Delivered
                 </button>
+            @endif
+            
+            @if(auth()->user()->buyer && $order->status == 'Delivered')
+                @if($order->farmerReview)
+                    <div class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white">
+                        <i class="fas fa-check-circle mr-2 text-green-500"></i> Reviewed
+                    </div>
+                @else
+                    <a href="{{ route('buyer.orders.review', $order->id) }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none">
+                        <i class="fas fa-star mr-2"></i> Leave a Review
+                    </a>
+                @endif
             @endif
         </div>
     </div>

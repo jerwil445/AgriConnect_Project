@@ -97,7 +97,7 @@
                                                     <i class="fas fa-comment mr-2 text-blue-500"></i>Chat with Farmer
                                                 </a>
                                                 
-                                                @if($order->status == 'Ordered' && $order->payment_status == 'Pending')
+                                                @if($order->payment_status == 'Pending' && in_array($order->status, ['Ordered', 'Accepted', 'Prepared', 'In Transit']))
                                                 <button type="button" 
                                                         class="text-gray-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 mark-paid-btn" 
                                                         role="menuitem"
@@ -113,6 +113,21 @@
                                                         data-transaction-id="{{ $order->id }}">
                                                     <i class="fas fa-truck mr-2 text-blue-500"></i>Mark as Delivered
                                                 </button>
+                                                @endif
+                                                
+                                                @if($order->status == 'Delivered')
+                                                    @if($order->farmerReview)
+                                                        <div class="text-gray-500 px-4 py-2 text-sm flex items-center">
+                                                            <i class="fas fa-check-circle mr-2 text-green-500"></i>
+                                                            <span>Reviewed</span>
+                                                        </div>
+                                                    @else
+                                                        <a href="{{ route('buyer.orders.review', $order->id) }}" 
+                                                           class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
+                                                           role="menuitem">
+                                                            <i class="fas fa-star mr-2 text-yellow-500"></i>Leave a Review
+                                                        </a>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </div>

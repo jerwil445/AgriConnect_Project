@@ -5,10 +5,96 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Product;
+use App\Models\Transaction;
+use App\Models\DemandMatch;
+use Carbon\Carbon;
 
 class FarmerController extends Controller
 {
+    /**
+     * Display the farmer dashboard.
+     */
+    public function dashboard()
+    {
+        $user = Auth::user();
+        $farmerId = $user->id;
+        
+        // Get total products
+        $totalProducts = Product::where('farmer_id', $user->farmer->id)->count();
+        
+        // Get available products
+        $availableProducts = Product::where('farmer_id', $user->farmer->id)
+            ->where('status', 'Available')
+            ->count();
+        
+        // Get total matches
+        $totalMatches = DemandMatch::whereHas('product', function($query) use ($user) {
+            $query->where('farmer_id', $user->farmer->id);
+        })->count();
+        
+        // Get new matches (status = 'New')
+        $newMatches = DemandMatch::whereHas('product', function($query) use ($user) {
+            $query->where('farmer_id', $user->farmer->id);
+        })->where('status', 'New')->count();
+        
+        // Get pending orders (status = 'Ordered')
+        $pendingOrders = Transaction::where('farmer_id', $farmerId)
+            ->where('status', 'Ordered')
+            ->count();
+        
+        // Get total sales (sum of completed transactions)
+        $totalSales = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered'])
+            ->sum('total_amount');
+        
+        // Get active chats
+        $activeChats = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Transaction Started', 'Accepted', 'Prepared', 'In Transit'])
+            ->count();
+        
+        // Get recent orders (last 5)
+        $recentOrders = Transaction::where('farmer_id', $farmerId)
+            ->with(['buyer', 'product'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+        
+        // Get monthly sales data (last 6 months)
+        $monthlySales = Transaction::where('farmer_id', $farmerId)
+            ->whereIn('status', ['Accepted', 'Prepared', 'In Transit', 'Delivered'])
+            ->where('created_at', '>=', Carbon::now()->subMonths(6))
+            ->select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('SUM(total_amount) as total')
+            )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+        
+        // Get top products
+        $topProducts = Product::where('farmer_id', $user->farmer->id)
+            ->withCount('matches')
+            ->orderBy('matches_count', 'desc')
+            ->take(5)
+            ->get();
+        
+        return view('farmers.dashboard', compact(
+            'totalProducts',
+            'availableProducts',
+            'totalMatches',
+            'newMatches',
+            'pendingOrders',
+            'totalSales',
+            'activeChats',
+            'recentOrders',
+            'monthlySales',
+            'topProducts'
+        ));
+    }
+
     /**
      * Display the farmer profile.
      */

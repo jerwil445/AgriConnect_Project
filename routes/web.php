@@ -68,9 +68,7 @@ Route::get('/admin/transactions/{transaction}', [AdminController::class, 'viewTr
 
 // Farmer Product Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/farmer', function () {
-        return view('farmers.dashboard');
-    })->name('farmer.dashboard');
+    Route::get('/farmer', [FarmerController::class, 'dashboard'])->name('farmer.dashboard');
     
     Route::get('/farmer/profile', [FarmerController::class, 'showProfile'])->name('farmer.profile');
     Route::get('/farmer/profile/edit', [FarmerController::class, 'editProfile'])->name('farmer.profile.edit');

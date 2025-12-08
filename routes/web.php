@@ -79,6 +79,17 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/farmer/analytics', [FarmerController::class, 'analytics'])->name('farmer.analytics');
     
+    // Earnings & Payouts
+    Route::get('/farmer/earnings', [FarmerController::class, 'earnings'])->name('farmer.earnings');
+    
+    // Reviews & Ratings
+    Route::get('/farmer/reviews', [FarmerController::class, 'reviews'])->name('farmer.reviews');
+    Route::post('/farmer/reviews/{review}/reply', [FarmerController::class, 'replyToReview'])->name('farmer.reviews.reply');
+    
+    // Activity & Inventory Logs
+    Route::get('/farmer/activities', [FarmerController::class, 'activityLogs'])->name('farmer.activities');
+    Route::get('/farmer/inventory/logs', [FarmerController::class, 'inventoryLogs'])->name('farmer.inventory.logs');
+    
     Route::resource('/farmer/products', ProductController::class);
     Route::put('/farmer/products/{product}/status', [ProductController::class, 'updateStatus'])->name('products.updateStatus');
     

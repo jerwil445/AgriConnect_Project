@@ -9,6 +9,8 @@
         ['label' => 'Orders', 'icon' => 'M12 6h8m-8 6h8m-8 6h8M4 16a2 2 0 1 1 3.321 1.5L4 20h5M4 5l2-1v6m-2 0h4', 'route' => route('farmer.orders'), 'active' => request()->routeIs('farmer.orders')],
         ['label' => 'Messages', 'icon' => 'M9 17h6l3 3v-3h2V9h-2M4 4h11v8H9l-3 3v-3H4V4Z', 'route' => route('farmer.messages'), 'active' => request()->routeIs('farmer.messages')],
         ['label' => 'Analytics', 'icon' => 'M3 13v6m0 0a2 2 0 1 0 4 0m-4 0a2 2 0 1 1 4 0m-4 0V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2M7 7h10M7 11h10m-5 4h5', 'route' => route('farmer.analytics'), 'active' => request()->routeIs('farmer.analytics')],
+        ['label' => 'Earnings', 'icon' => 'M12 6v13m0-13c-2.8-.8-4.7-1-8-1a1 1 0 0 0-1 1v9c0 .6.4 1 1 1 3.2 0 5.2.2 8 1m0-11c2.8-.8 4.7-1 8-1 .6 0 1 .4 1 1v9c0 .6-.4 1-1 1-3.2 0-5.2.2-8 1', 'route' => route('farmer.earnings'), 'active' => request()->routeIs('farmer.earnings')],
+        ['label' => 'Reviews', 'icon' => 'M11.083 5.104c.35-.8 1.485-.8 1.834 0l1.752 4.022a1 1 0 0 0 .84.597l4.463.342c.9.069 1.255 1.2.556 1.771l-3.33 2.723a1 1 0 0 0-.337 1.016l1.03 4.119c.214.858-.71 1.552-1.474 1.106l-3.913-2.281a1 1 0 0 0-1.008 0L7.583 20.8c-.764.446-1.688-.248-1.474-1.106l1.03-4.119A1 1 0 0 0 6.8 14.56l-3.33-2.723c-.698-.571-.342-1.702.557-1.771l4.462-.342a1 1 0 0 0 .84-.597l1.753-4.022Z', 'route' => route('farmer.reviews'), 'active' => request()->routeIs('farmer.reviews')],
     ];
 @endphp
 

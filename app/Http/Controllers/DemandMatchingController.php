@@ -197,8 +197,11 @@ class DemandMatchingController extends Controller
             abort(403);
         }
         
-        // Load the matches with demand and buyer information
-        $product->load('matches.demand.buyer');
+        // Load the matches with demand and buyer information including user details
+        $product->load([
+            'matches.demand.buyer.buyer', // Load buyer profile through user
+            'sizes'
+        ]);
         
         return view('farmers.matches.product_matches', compact('product'));
     }
@@ -434,16 +437,8 @@ public function startTransaction(DemandMatch $demandMatch)
         return redirect()->route('farmer.messages', ['transaction_id' => $existingTransaction->id]);
     }
     
-    // Get the buyer user
-    $buyer = $demandMatch->demand->buyer;
-    
-    // Check if buyer exists
-    if (!$buyer) {
-        return redirect()->back()->with('error', 'Unable to start conversation: Buyer profile not found.');
-    }
-    
-    // Get the user associated with the buyer
-    $buyerUser = $buyer->user;
+    // Get the buyer user (demand->buyer returns User model directly)
+    $buyerUser = $demandMatch->demand->buyer;
     
     // Check if buyer user exists
     if (!$buyerUser) {

@@ -68,12 +68,28 @@ class FarmerEarning extends Model
     // Static Helper Methods
     public static function createFromTransaction(Transaction $transaction, $platformFeePercentage = 5)
     {
+        // Transaction::farmer_id stores the farmer's user_id, while
+        // farmer_earnings.farmer_id references the farmers table.
+        $farmer = Farmer::where('user_id', $transaction->farmer_id)->first();
+
+        if (!$farmer) {
+            // If for some reason there is no farmer profile, do not create
+            // an earning record to avoid foreign key issues.
+            return null;
+        }
+
         $grossAmount = $transaction->total_amount;
+
+        // Do not create earnings for zero or negative amounts
+        if ($grossAmount <= 0) {
+            return null;
+        }
+
         $platformFee = ($grossAmount * $platformFeePercentage) / 100;
         $netAmount = $grossAmount - $platformFee;
 
         return self::create([
-            'farmer_id' => $transaction->farmer_id,
+            'farmer_id' => $farmer->id,
             'transaction_id' => $transaction->id,
             'gross_amount' => $grossAmount,
             'platform_fee' => $platformFee,

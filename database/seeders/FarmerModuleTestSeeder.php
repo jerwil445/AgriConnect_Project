@@ -22,19 +22,35 @@ class FarmerModuleTestSeeder extends Seeder
     {
         echo "🌱 Seeding Farmer Module Test Data...\n\n";
 
-        // Get first farmer (or create one if none exists)
-        $farmer = Farmer::first();
+        // Get farmer for jstincid01@gmail.com
+        $targetEmail = 'jstincid01@gmail.com';
+        
+        $user = User::where('email', $targetEmail)->first();
+        
+        if (!$user) {
+            echo "⚠️  No user found with email: {$targetEmail}\n";
+            echo "   Please make sure this user account exists.\n";
+            return;
+        }
+        
+        $farmer = Farmer::where('user_id', $user->id)->first();
         
         if (!$farmer) {
-            echo "⚠️  No farmer found. Please create a farmer account first.\n";
-            echo "   Use: php artisan db:seed --class=UsersSeeder\n";
-            return;
+            echo "⚠️  User found but no farmer profile exists.\n";
+            echo "   Creating farmer profile for {$targetEmail}...\n";
+            $farmer = Farmer::create([
+                'user_id' => $user->id,
+                'farm_name' => $user->first_name . "'s Farm",
+            ]);
+            echo "   ✓ Farmer profile created (ID: {$farmer->id})\n\n";
         }
 
         $farmerId = $farmer->id;
         $userId = $farmer->user_id;
 
-        echo "✓ Using Farmer ID: {$farmerId}\n";
+        echo "✓ Using Farmer: {$user->first_name} {$user->last_name}\n";
+        echo "✓ Email: {$targetEmail}\n";
+        echo "✓ Farmer ID: {$farmerId}\n";
         echo "✓ User ID: {$userId}\n\n";
 
         // Get a product for the farmer

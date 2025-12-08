@@ -43,11 +43,6 @@
                         </span>
                     @endif
                 </a>
-                <a href="#" 
-                   class="text-gray-600 hover:text-primary-700 font-medium transition duration-200 pb-1
-                          {{ request()->is('analytics*') ? 'text-primary-700 border-b-2 border-primary-500' : '' }}">
-                    Analytics
-                </a>
                 <a href="{{ route('demands.index') }}" 
                    class="text-gray-600 hover:text-primary-700 font-medium transition duration-200 pb-1
                           {{ request()->routeIs('demands.*') ? 'text-primary-700 border-b-2 border-primary-500' : '' }}">

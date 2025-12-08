@@ -20,7 +20,20 @@
                 <span>Argi-Connect </span>
             </h2>   
 
-            <p class = "text-gray-400 text-xs ">Welcome! Please Login or Register to continue.</p>
+            <p class="text-gray-600 text-sm mb-2">Welcome! Please login to continue.</p>
+            
+            <!-- Role Indicators -->
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <i class="fas fa-user-shield mr-1"></i> Admin
+                </span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <i class="fas fa-tractor mr-1"></i> Farmer
+                </span>
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                    <i class="fas fa-shopping-cart mr-1"></i> Buyer
+                </span>
+            </div>
             <form action="{{ route('login.perform') }}" method="POST" class="space-y-6 w-full">
                 @csrf
                 <!-- Email -->

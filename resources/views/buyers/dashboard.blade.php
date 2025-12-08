@@ -32,20 +32,20 @@
         
 
         <!-- Results Header and Controls -->
-        <div class="bg-white rounded-xl shadow-sm p-3 mb-2 animate-slide-up">
-            <div class="flex flex-col md:flex-row md:items-center justify-between">
+        <div class="bg-white rounded-xl shadow-sm p-4 mb-4 animate-slide-up">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div class="flex items-center space-x-4">
                     <div>
-                        <h2 class="text-sm font-bold text-gray-800">Showing {{ $products->count() }} results</h2>
-                        <p class="text-gray-600 mt-1">From {{ $products->total() }} listings available</p>
+                        <h2 class="text-lg font-bold text-gray-800">{{ $products->count() }} Products</h2>
+                        <p class="text-gray-600 text-sm">{{ $products->total() }} total listings</p>
                     </div>
-                    <button onclick="toggleFilters()" class="lg:hidden bg-primary-500 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2">
+                    <button onclick="toggleFilters()" class="bg-primary-500 text-white px-4 py-2 rounded-lg text-sm flex items-center space-x-2 hover:bg-primary-600 transition">
                         <i class="fas fa-filter"></i>
                         <span>Filters</span>
                     </button>
                 </div>
-                <div class="flex items-center space-x-2 mt-2 md:mt-0">
-                    <form method="GET" action="{{ route('buyer.dashboard') }}" class="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
+                <div class="flex items-center space-x-2">
+                    <form method="GET" action="{{ route('buyer.dashboard') }}" class="flex items-center space-x-2">
                         <!-- Preserve existing filters -->
                         <input type="hidden" name="search" value="{{ $search }}">
                         <input type="hidden" name="location" value="{{ $location }}">
@@ -61,145 +61,146 @@
                             @endforeach
                         @endif
                         
-                        <span class="text-gray-600 text-sm">Sort by:</span>
-                        <select name="sort_by" onchange="this.form.submit()" class="bg-transparent focus:outline-none text-gray-800">
-                            <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }} class="text-sm">Newest First</option>
-                            <option value="price_low" {{ $sortBy == 'price_low' ? 'selected' : '' }} class="text-sm">Price: Low to High</option>
-                            <option value="price_high" {{ $sortBy == 'price_high' ? 'selected' : '' }} class="text-sm">Price: High to Low</option>
-                            <option value="quantity" {{ $sortBy == 'quantity' ? 'selected' : '' }} class="text-sm">Quantity: High to Low</option>
-                            <option value="harvest_date" {{ $sortBy == 'harvest_date' ? 'selected' : '' }} class="text-sm">Harvest Date</option>
+                        <label class="text-gray-600 text-sm font-medium">Sort:</label>
+                        <select name="sort_by" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                            <option value="created_at" {{ $sortBy == 'created_at' ? 'selected' : '' }}>Newest First</option>
+                            <option value="price_low" {{ $sortBy == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                            <option value="price_high" {{ $sortBy == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                            <option value="quantity" {{ $sortBy == 'quantity' ? 'selected' : '' }}>Quantity: High to Low</option>
+                            <option value="harvest_date" {{ $sortBy == 'harvest_date' ? 'selected' : '' }}>Harvest Date</option>
                         </select>
                     </form>
-                    <div class="flex space-x-2">
-                        <button
-                            class="w-10 h-10 flex items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
-                            <i class="fas fa-th-large text-gray-600"></i>
-                        </button>
-                        <button
-                            class="w-10 h-10 flex items-center justify-center border border-primary-500 bg-primary-50 text-primary-700 rounded-lg">
-                            <i class="fas fa-list text-primary-700"></i>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Desktop Filters Section -->
+        <!-- Filters Section -->
         <form method="GET" action="{{ route('buyer.dashboard') }}" id="filterForm">
-        <div id="filtersContainer" class="hidden lg:block filters-container bg-white rounded-xl shadow-sm p-6 mb-4">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-xl font-semibold text-gray-800">Filter Products</h2>
+        <div id="filtersContainer" class="hidden filters-container bg-white rounded-xl shadow-sm p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-filter text-primary-500 mr-2"></i>
+                    Filter Products
+                </h2>
                 <a href="{{ route('buyer.dashboard') }}"
-                    class="text-primary-500 hover:text-primary-700 text-sm font-medium flex items-center space-x-1">
+                    class="text-primary-500 hover:text-primary-700 text-sm font-medium flex items-center space-x-1 transition">
                     <i class="fas fa-sync-alt"></i>
-                    <span>Reset All</span>
+                    <span>Clear Filters</span>
                 </a>
             </div>
             
-
-            <div class="flex gap-6  w-full  text-center justify-center ">
+            <!-- Main Filters Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                 
                 <!-- Search -->
-                <div class="w-full">
-                    <h3 class="text-sm text-gray-700 mb-1">Search</h3>
-                    <div class="relative">
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Egg type..."
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
-                            <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-search text-gray-400 mr-1"></i> Search Product
+                    </label>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Search by name..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
                 </div>
 
-                <!-- Location -->
-                <div class="w-full">
-                    <h3 class="text-sm text-gray-700 mb-1">Location</h3>
-                    <div class="relative">
-                        <input type="text" name="location" value="{{ $location }}" placeholder="City or region"
-                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
-                        <i class="fas fa-map-marker-alt absolute left-3 top-3.5 text-gray-400"></i>
-                    </div>
-                </div>
-
-                <!-- Category -->
-                <div class="w-full">
-                    <h3 class="text-sm text-gray-700 mb-1">Egg Type</h3>
+                <!-- Egg Type -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-egg text-gray-400 mr-1"></i> Egg Type
+                    </label>
                     <select name="category"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition duration-200">
-                        <option value="all">All Egg Types</option>
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                        <option value="all">All Types</option>
                         @foreach($eggTypes as $eggType)
                             <option value="{{ $eggType }}" {{ $category == $eggType ? 'selected' : '' }}>{{ $eggType }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Status Filter -->
-                <div class="w-full  justify-center">
-                    <h3 class="text-sm text-gray-700 mb-1">Availability</h3>
-                    <div class="flex space-x-4">
-                        <label
-                            class="flex-1 flex items-center justify-center p-2 border border-primary-500 bg-primary-50 text-primary-700 rounded-lg cursor-pointer transition duration-200">
-                            <input type="radio" name="status" value="all" class="hidden" {{ !request('status') || request('status') == 'all' ? 'checked' : '' }}>
-                            <span class="text-sm">All Products</span>
-                        </label>
-                        <label
-                            class="flex-1 flex items-center justify-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition duration-200">
-                            <input type="radio" name="status" value="Available" class="hidden" {{ request('status') == 'Available' ? 'checked' : '' }}>
-                            <span class="text-sm text-gray-600">Available Only</span>
-                        </label>
-                    </div>
+                <!-- Location -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> Location
+                    </label>
+                    <input type="text" name="location" value="{{ $location }}" placeholder="City or region"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                </div>
+
+                <!-- Availability -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-check-circle text-gray-400 mr-1"></i> Availability
+                    </label>
+                    <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                        <option value="all" {{ !request('status') || request('status') == 'all' ? 'selected' : '' }}>All Products</option>
+                        <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available Only</option>
+                    </select>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-                <!-- Quantity Range -->
+            <!-- Advanced Filters Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                
+                <!-- Price Range -->
                 <div>
-                    <h3 class="text-sm text-gray-700 mb-1">Quantity Range</h3>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-dollar-sign text-gray-400 mr-1"></i> Price Range
+                    </label>
                     <div class="flex space-x-2">
-                        <input type="number" name="min_quantity" value="{{ $minQuantity }}" placeholder="Min" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        <input type="number" name="max_quantity" value="{{ $maxQuantity }}" placeholder="Max" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <input type="number" name="min_price" value="{{ $minPrice }}" placeholder="Min" step="0.01"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                        <span class="flex items-center text-gray-500">-</span>
+                        <input type="number" name="max_price" value="{{ $maxPrice }}" placeholder="Max" step="0.01"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
                     </div>
                 </div>
 
-                <!-- Price Range -->
+                <!-- Quantity Range -->
                 <div>
-                    <h3 class="text-sm text-gray-700 mb-1">Price Range ($)</h3>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-boxes text-gray-400 mr-1"></i> Quantity Range
+                    </label>
                     <div class="flex space-x-2">
-                        <input type="number" name="min_price" value="{{ $minPrice }}" placeholder="Min" step="0.01"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        <input type="number" name="max_price" value="{{ $maxPrice }}" placeholder="Max" step="0.01"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <input type="number" name="min_quantity" value="{{ $minQuantity }}" placeholder="Min" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                        <span class="flex items-center text-gray-500">-</span>
+                        <input type="number" name="max_quantity" value="{{ $maxQuantity }}" placeholder="Max" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
                     </div>
                 </div>
 
                 <!-- Certification -->
                 <div>
-                    <h3 class="text-sm text-gray-700 mb-1">Certification</h3>
-                    <div class="space-y-2">
-                        <label
-                            class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition duration-200">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-certificate text-gray-400 mr-1"></i> Certification
+                    </label>
+                    <div class="flex space-x-4">
+                        <label class="flex items-center cursor-pointer">
                             <input type="checkbox" name="certification[]" value="Organic" 
                                 {{ in_array('Organic', $certification ?? []) ? 'checked' : '' }}
-                                class="rounded text-primary-500 mr-3 focus:ring-primary-500">
-                            <span class="text-gray-600">Organic</span>
+                                class="rounded text-primary-500 mr-2 focus:ring-primary-500">
+                            <span class="text-sm text-gray-700">Organic</span>
                         </label>
-                        <label
-                            class="flex items-center p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition duration-200">
+                        <label class="flex items-center cursor-pointer">
                             <input type="checkbox" name="certification[]" value="Non-GMO" 
                                 {{ in_array('Non-GMO', $certification ?? []) ? 'checked' : '' }}
-                                class="rounded text-primary-500 mr-3 focus:ring-primary-500">
-                            <span class="text-gray-600">Non-GMO</span>
+                                class="rounded text-primary-500 mr-2 focus:ring-primary-500">
+                            <span class="text-sm text-gray-700">Non-GMO</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-2 pt-6 border-t border-gray-200">
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mt-6 pt-4 border-t border-gray-200">
                 <button type="submit"
-                    class="w-full bg-primary-500 text-white py-2 rounded-lg hover:bg-primary-600 transition duration-200 text-sm flex items-center justify-center space-x-2">
-                    <i class="fas fa-filter"></i>
+                    class="flex-1 bg-primary-500 text-white py-3 rounded-lg hover:bg-primary-600 transition duration-200 font-medium flex items-center justify-center space-x-2">
+                    <i class="fas fa-search"></i>
                     <span>Apply Filters</span>
                 </button>
+                <a href="{{ route('buyer.dashboard') }}"
+                    class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition duration-200 font-medium flex items-center justify-center">
+                    <i class="fas fa-times mr-2"></i>
+                    Reset
+                </a>
             </div>
         </div>
         </form>
@@ -315,20 +316,114 @@
             @endforelse
         </div>
 
-        <!-- Pagination -->
+        <!-- Modern Pagination -->
         @if($products->hasPages())
-        <div class="mt-8 flex justify-center">
-            {{ $products->links() }}
+        <div class="mt-8 mb-8 pagination-container">
+            <div class="bg-white rounded-xl shadow-sm p-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <!-- Pagination Info -->
+                    <div class="text-sm text-gray-600">
+                        Showing <span class="font-semibold text-gray-800">{{ $products->firstItem() }}</span> 
+                        to <span class="font-semibold text-gray-800">{{ $products->lastItem() }}</span> 
+                        of <span class="font-semibold text-gray-800">{{ $products->total() }}</span> products
+                    </div>
+                    
+                    <!-- Pagination Links -->
+                    <nav class="flex items-center space-x-2" aria-label="Pagination">
+                        {{-- Previous Button --}}
+                        @if ($products->onFirstPage())
+                            <span class="px-3 py-2 text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <i class="fas fa-chevron-left"></i>
+                            </span>
+                        @else
+                            <a href="{{ $products->previousPageUrl() }}" 
+                               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        @endif
+
+                        {{-- Page Numbers --}}
+                        @php
+                            $start = max($products->currentPage() - 2, 1);
+                            $end = min($start + 4, $products->lastPage());
+                            $start = max($end - 4, 1);
+                        @endphp
+
+                        @if($start > 1)
+                            <a href="{{ $products->url(1) }}" 
+                               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+                                1
+                            </a>
+                            @if($start > 2)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                        @endif
+
+                        @for ($i = $start; $i <= $end; $i++)
+                            @if ($i == $products->currentPage())
+                                <span class="px-4 py-2 text-white bg-primary-500 rounded-lg font-semibold shadow-md">
+                                    {{ $i }}
+                                </span>
+                            @else
+                                <a href="{{ $products->url($i) }}" 
+                                   class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-primary-50 hover:text-primary-700 hover:border-primary-300 transition duration-200">
+                                    {{ $i }}
+                                </a>
+                            @endif
+                        @endfor
+
+                        @if($end < $products->lastPage())
+                            @if($end < $products->lastPage() - 1)
+                                <span class="px-2 text-gray-500">...</span>
+                            @endif
+                            <a href="{{ $products->url($products->lastPage()) }}" 
+                               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+                                {{ $products->lastPage() }}
+                            </a>
+                        @endif
+
+                        {{-- Next Button --}}
+                        @if ($products->hasMorePages())
+                            <a href="{{ $products->nextPageUrl() }}" 
+                               class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-200">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        @else
+                            <span class="px-3 py-2 text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
+                        @endif
+                    </nav>
+
+                    <!-- Quick Jump (Desktop only) -->
+                    <div class="hidden lg:flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Go to:</span>
+                        <form method="GET" action="{{ route('buyer.dashboard') }}" class="flex items-center space-x-2">
+                            @foreach(request()->except('page') as $key => $value)
+                                @if(is_array($value))
+                                    @foreach($value as $item)
+                                        <input type="hidden" name="{{ $key }}[]" value="{{ $item }}">
+                                    @endforeach
+                                @else
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                            <input type="number" 
+                                   name="page" 
+                                   min="1" 
+                                   max="{{ $products->lastPage() }}" 
+                                   value="{{ $products->currentPage() }}"
+                                   class="w-16 px-2 py-1 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500">
+                            <button type="submit" 
+                                    class="px-3 py-1 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition duration-200">
+                                Go
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
         @endif
-
-        <!-- Load More Button -->
-        <div class="mt-12 text-center">
-            <button
-                class="bg-white text-primary-500 border border-primary-500 px-8 py-3 rounded-lg hover:bg-primary-50 transition duration-200 font-medium">
-                Load More Listings
-            </button>
-        </div>
     </div>
 
     <!-- Footer -->
@@ -388,77 +483,45 @@
 
 @section('scripts')
 <script>
-    // Toggle filters visibility
+    // Toggle filters visibility with smooth animation
     function toggleFilters() {
         const filtersContainer = document.getElementById('filtersContainer');
-        filtersContainer.classList.toggle('hidden');
-        filtersContainer.classList.toggle('lg:block');
-    }
-
-    // Auto-submit form when filter inputs change
-    document.addEventListener('DOMContentLoaded', function() {
-        const filterForm = document.getElementById('filterForm');
-        const inputs = filterForm.querySelectorAll('input[type="text"], input[type="number"], select');
+        const isHidden = filtersContainer.classList.contains('hidden');
         
-        inputs.forEach(input => {
-            input.addEventListener('change', function() {
-                // Add a small delay for better UX
-                setTimeout(() => {
-                    filterForm.submit();
-                }, 300);
-            });
-        });
-
-        // Handle checkbox changes
-        const checkboxes = filterForm.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                setTimeout(() => {
-                    filterForm.submit();
-                }, 300);
-            });
-        });
-
-        // Handle radio button changes
-        const radios = filterForm.querySelectorAll('input[type="radio"]');
-        radios.forEach(radio => {
-            radio.addEventListener('change', function() {
-                setTimeout(() => {
-                    filterForm.submit();
-                }, 300);
-            });
-        });
-    });
-
-    // Mobile sidebar functionality (if needed)
-    const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-    const mobileSidebar = document.getElementById('mobileSidebar');
-    const closeSidebar = document.getElementById('closeSidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-    if (mobileSidebarToggle && mobileSidebar) {
-        function openMobileSidebar() {
-            mobileSidebar.classList.add('open');
-            if (sidebarOverlay) sidebarOverlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
+        if (isHidden) {
+            filtersContainer.classList.remove('hidden');
+            // Add smooth slide down animation
+            setTimeout(() => {
+                filtersContainer.style.opacity = '1';
+                filtersContainer.style.transform = 'translateY(0)';
+            }, 10);
+        } else {
+            filtersContainer.style.opacity = '0';
+            filtersContainer.style.transform = 'translateY(-10px)';
+            setTimeout(() => {
+                filtersContainer.classList.add('hidden');
+            }, 200);
         }
-
-        function closeMobileSidebar() {
-            mobileSidebar.classList.remove('open');
-            if (sidebarOverlay) sidebarOverlay.classList.remove('open');
-            document.body.style.overflow = 'auto';
-        }
-
-        mobileSidebarToggle.addEventListener('click', openMobileSidebar);
-        if (closeSidebar) closeSidebar.addEventListener('click', closeMobileSidebar);
-        if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeMobileSidebar);
-
-        // Close sidebar on window resize if it becomes desktop view
-        window.addEventListener('resize', () => {
-            if (window.innerWidth >= 1024) {
-                closeMobileSidebar();
-            }
-        });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtersContainer = document.getElementById('filtersContainer');
+        
+        // Add transition styles
+        filtersContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        filtersContainer.style.opacity = '0';
+        filtersContainer.style.transform = 'translateY(-10px)';
+        
+        // Show filters if any filter is active
+        const hasActiveFilters = {{ 
+            ($search || $location || $category != 'all' || $status != 'all' || 
+             $minPrice || $maxPrice || $minQuantity || $maxQuantity || 
+             !empty($certification)) ? 'true' : 'false' 
+        }};
+        
+        if (hasActiveFilters) {
+            toggleFilters();
+        }
+    });
 </script>
 @endsection

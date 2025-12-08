@@ -83,3 +83,57 @@ body {
 .buyer-content {
     margin-top: 1rem;
 }
+
+/* Modern Pagination Styles */
+.pagination-container {
+    animation: fadeInUp 0.3s ease-in-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pagination button hover effects */
+nav[aria-label="Pagination"] a {
+    position: relative;
+    overflow: hidden;
+}
+
+nav[aria-label="Pagination"] a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(34, 197, 94, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+nav[aria-label="Pagination"] a:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+/* Active page number pulse effect */
+nav[aria-label="Pagination"] span.bg-primary-500 {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.9;
+    }
+}

@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/farmer/notifications', [FarmerController::class, 'notifications'])->name('farmer.notifications');
     Route::post('/farmer/notifications/{id}/read', [FarmerController::class, 'markNotificationAsRead'])->name('farmer.notifications.read');
+    Route::post('/farmer/notifications/read-all', [FarmerController::class, 'markAllNotificationsAsRead'])->name('farmer.notifications.read-all');
     
     Route::get('/farmer/analytics', [FarmerController::class, 'analytics'])->name('farmer.analytics');
     
@@ -109,6 +110,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/buyer/products/{product}', [BuyerController::class, 'showProduct'])->name('buyer.products.show');
     Route::get('/buyer/notifications', [BuyerController::class, 'notifications'])->name('buyer.notifications');
     Route::post('/buyer/notifications/{id}/read', [BuyerController::class, 'markNotificationAsRead'])->name('buyer.notifications.read');
+    Route::post('/buyer/notifications/read-all', [BuyerController::class, 'markAllNotificationsAsRead'])->name('buyer.notifications.read-all');
     
     // Buyer messages route
     Route::get('/buyer/messages', [DemandMatchingController::class, 'listTransactions'])->name('buyer.messages');

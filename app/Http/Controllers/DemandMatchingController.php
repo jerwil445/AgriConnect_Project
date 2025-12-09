@@ -32,8 +32,14 @@ class DemandMatchingController extends Controller
             return redirect()->route('buyer.dashboard')->with('error', 'You must have a buyer profile to view demands.');
         }
         
-        // Get all demands for the authenticated buyer
-        $demands = Demand::where('buyer_id', Auth::id())->with('matches.product.farmer.user')->get();
+        // Get demands for the authenticated buyer, excluding those with accepted matches or transactions
+        $demands = Demand::where('buyer_id', Auth::id())
+            ->with('matches.product.farmer.user')
+            ->whereDoesntHave('matches', function($query) {
+                $query->where('status', 'Matched');
+            })
+            ->whereDoesntHave('transactions')
+            ->get();
         
         return view('buyers.demands.index', compact('demands'));
     }

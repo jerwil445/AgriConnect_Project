@@ -14,6 +14,7 @@
         <input type="hidden" name="price" id="price" value="{{ old('price', $product->price) }}">
         <input type="hidden" name="egg_size" id="egg_size_hidden">
         <input type="hidden" name="total_price" id="total_price_hidden">
+        <input type="hidden" name="egg_type" id="egg_type_hidden" value="{{ old('egg_type', $product->egg_type) }}">
         
         <!-- Header -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6">
@@ -72,16 +73,26 @@
                                         Egg Type <span class="text-red-500">*</span>
                                     </span>
                                 </label>
-                                <select name="egg_type" id="egg_type" required
+                                @php
+                                    $currentEggType = old('egg_type', $product->egg_type);
+                                    $isChickenColor = in_array($currentEggType, ['brown', 'white']);
+                                @endphp
+                                <select id="egg_type_select" required
                                         class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900">
                                     <option value="">Choose egg type...</option>
-                                    <option value="chicken" {{ old('egg_type', $product->egg_type) == 'chicken' ? 'selected' : '' }}>🐔 Chicken Eggs</option>
-                                    <option value="duck" {{ old('egg_type', $product->egg_type) == 'duck' ? 'selected' : '' }}>🦆 Duck Eggs</option>
-                                    <option value="quail" {{ old('egg_type', $product->egg_type) == 'quail' ? 'selected' : '' }}>🐦 Quail Eggs</option>
-                                    <option value="native_chicken" {{ old('egg_type', $product->egg_type) == 'native_chicken' ? 'selected' : '' }}>🐓 Native Chicken Eggs</option>
-                                    <option value="brown" {{ old('egg_type', $product->egg_type) == 'brown' ? 'selected' : '' }}>🥚 Brown Eggs</option>
-                                    <option value="white" {{ old('egg_type', $product->egg_type) == 'white' ? 'selected' : '' }}>🥚 White Eggs</option>
+                                    <option value="chicken" {{ $currentEggType == 'chicken' || $isChickenColor ? 'selected' : '' }}>🐔 Chicken Eggs</option>
+                                    <option value="duck" {{ $currentEggType == 'duck' ? 'selected' : '' }}>🦆 Duck Eggs</option>
+                                    <option value="quail" {{ $currentEggType == 'quail' ? 'selected' : '' }}>🐦 Quail Eggs</option>
+                                    <option value="native_chicken" {{ $currentEggType == 'native_chicken' ? 'selected' : '' }}>🐓 Native Chicken Eggs</option>
                                 </select>
+                                <div id="chicken-color-wrapper" class="mt-3 {{ $isChickenColor ? '' : 'hidden' }}">
+                                    <label for="chicken_color" class="block text-xs font-medium text-gray-600 mb-1">Chicken Egg Color</label>
+                                    <select id="chicken_color" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 text-gray-900">
+                                        <option value="">Select color...</option>
+                                        <option value="brown" {{ $currentEggType == 'brown' ? 'selected' : '' }}>Brown Eggs</option>
+                                        <option value="white" {{ $currentEggType == 'white' ? 'selected' : '' }}>White Eggs</option>
+                                    </select>
+                                </div>
                                 @error('egg_type')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -162,8 +173,7 @@
                                                 <option value="small" {{ $size->size_name == 'small' ? 'selected' : '' }}>Small</option>
                                                 <option value="medium" {{ $size->size_name == 'medium' ? 'selected' : '' }}>Medium</option>
                                                 <option value="large" {{ $size->size_name == 'large' ? 'selected' : '' }}>Large</option>
-                                                <option value="extra_large" {{ $size->size_name == 'extra_large' ? 'selected' : '' }}>Extra Large</option>
-                                                <option value="jumbo" {{ $size->size_name == 'jumbo' ? 'selected' : '' }}>Jumbo</option>
+                                                <option value="extra_large" {{ $size->size_name == 'extra_large' || $size->size_name == 'jumbo' ? 'selected' : '' }}>Extra Large</option>
                                             </select>
                                         </div>
                                         <div>
@@ -402,16 +412,67 @@
         const quantityInput = document.getElementById('quantity');
         const priceInput = document.getElementById('price');
         const addSizeBtn = document.getElementById('add-size-btn');
+        const eggTypeSelect = document.getElementById('egg_type_select');
+        const eggTypeHidden = document.getElementById('egg_type_hidden');
+        const chickenColorWrapper = document.getElementById('chicken-color-wrapper');
+        const chickenColorSelect = document.getElementById('chicken_color');
+        const form = document.getElementById('product-form');
         
         let sizeCounter = {{ $product->sizes->count() }};
+        
+        function syncEggType() {
+            if (!eggTypeSelect || !eggTypeHidden) {
+                return;
+            }
+            
+            const baseType = eggTypeSelect.value;
+            
+            if (baseType === 'chicken') {
+                if (chickenColorWrapper) {
+                    chickenColorWrapper.classList.remove('hidden');
+                }
+                if (chickenColorSelect && (chickenColorSelect.value === 'brown' || chickenColorSelect.value === 'white')) {
+                    eggTypeHidden.value = chickenColorSelect.value;
+                } else {
+                    eggTypeHidden.value = 'chicken';
+                }
+            } else {
+                if (chickenColorWrapper) {
+                    chickenColorWrapper.classList.add('hidden');
+                }
+                if (chickenColorSelect) {
+                    chickenColorSelect.value = '';
+                }
+                eggTypeHidden.value = baseType || '';
+            }
+        }
+        
+        if (eggTypeSelect) {
+            eggTypeSelect.addEventListener('change', syncEggType);
+        }
+        
+        if (chickenColorSelect) {
+            chickenColorSelect.addEventListener('change', syncEggType);
+        }
+        
+        if (form && eggTypeSelect && chickenColorSelect) {
+            form.addEventListener('submit', function(e) {
+                if (eggTypeSelect.value === 'chicken' && (!chickenColorSelect.value || chickenColorSelect.value === '')) {
+                    e.preventDefault();
+                    alert('Please select whether the chicken eggs are White or Brown.');
+                    chickenColorSelect.focus();
+                }
+            });
+        }
+        
+        syncEggType();
         
         // Size options
         const sizeOptions = [
             { value: 'small', label: 'Small' },
             { value: 'medium', label: 'Medium' },
             { value: 'large', label: 'Large' },
-            { value: 'extra_large', label: 'Extra Large' },
-            { value: 'jumbo', label: 'Jumbo' }
+            { value: 'extra_large', label: 'Extra Large' }
         ];
         
         // Add size button click handler

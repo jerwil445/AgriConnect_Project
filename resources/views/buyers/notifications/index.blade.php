@@ -10,9 +10,17 @@
                 <h2 class="text-lg font-semibold text-gray-900">Notifications</h2>
                 <p class="text-sm text-gray-500 mt-1">Manage your notifications</p>
             </div>
-            <a href="{{ route('buyer.dashboard') }}" class="text-indigo-600 hover:text-indigo-800">
-                &larr; Back to Dashboard
-            </a>
+            <div class="flex items-center gap-3">
+                @if($notifications->where('read_at', null)->count() > 0)
+                    <button type="button" id="mark-all-read" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition">
+                        Mark all as read
+                    </button>
+                @endif
+                <a href="{{ route('buyer.dashboard') }}" class="text-indigo-600 hover:text-indigo-800">
+                    &larr; Back to Dashboard
+                </a>
+            </div>
         </div>
 
         @if($notifications->isEmpty())
@@ -75,37 +83,68 @@
 </div>
 
 <script>
-    // document.addEventListener('DOMContentLoaded', function() {
-    //     // Handle mark as read buttons
-    //     var markAsReadButtons = document.querySelectorAll('.mark-as-read');
-    //     markAsReadButtons.forEach(function(button) {
-    //         button.addEventListener('click', function() {
-    //             var notificationId = this.getAttribute('data-notification-id');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle mark as read buttons
+        var markAsReadButtons = document.querySelectorAll('.mark-as-read');
+        markAsReadButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var notificationId = this.getAttribute('data-notification-id');
                 
-    //             // Send AJAX request to mark as read
-    //             fetch('/buyer/notifications/' + notificationId + '/read', {
-    //                 method: 'POST',
-    //                 headers: {
-    //                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-    //                     'Content-Type': 'application/json',
-    //                     'Accept': 'application/json'
-    //                 }
-    //             })
-    //             .then(response => response.json())
-    //             .then(data => {
-    //                 if (data.success) {
-    //                     // Reload the page to reflect the updated status
-    //                     location.reload();
-    //                 } else {
-    //                     alert('Error marking notification as read.');
-    //                 }
-    //             })
-    //             .catch(error => {
-    //                 console.error('Error:', error);
-    //                 alert('An error occurred while marking the notification as read.');
-    //             });
-    //         });
-    //     });
-    // });
+                // Send AJAX request to mark as read
+                fetch('/buyer/notifications/' + notificationId + '/read', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to reflect the updated status
+                        location.reload();
+                    } else {
+                        alert('Error marking notification as read.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while marking the notification as read.');
+                });
+            });
+        });
+        
+        // Handle mark all as read button
+        var markAllReadButton = document.getElementById('mark-all-read');
+        if (markAllReadButton) {
+            markAllReadButton.addEventListener('click', function() {
+                if (confirm('Are you sure you want to mark all notifications as read?')) {
+                    // Send AJAX request to mark all as read
+                    fetch('/buyer/notifications/read-all', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to reflect the updated status
+                            location.reload();
+                        } else {
+                            alert('Error marking all notifications as read.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while marking all notifications as read.');
+                    });
+                }
+            });
+        }
+    });
 </script>
 @endsection

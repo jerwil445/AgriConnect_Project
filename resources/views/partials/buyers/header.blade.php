@@ -60,23 +60,107 @@
             <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                     
             <!-- Notification Icon -->
-            <button id="notification-button" type="button" class="relative rounded-full p-1 text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
-                <span class="absolute -inset-1.5"></span>
-                <span class="sr-only">View notifications</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
-                    <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                @auth
-                    @if(auth()->user()->unreadNotifications->count() > 0)
-                        <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-xs items-center justify-center">
-                                {{ auth()->user()->unreadNotifications->count() }}
+            <div class="relative">
+                <button id="notification-button" type="button" class="relative rounded-full p-1 text-gray-400 hover:text-gray-500 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500">
+                    <span class="absolute -inset-1.5"></span>
+                    <span class="sr-only">View notifications</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6">
+                        <path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    @auth
+                        @if(auth()->user()->unreadNotifications->count() > 0)
+                            <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-xs items-center justify-center">
+                                    {{ auth()->user()->unreadNotifications->count() }}
+                                </span>
                             </span>
-                        </span>
-                    @endif
-                @endauth
-            </button>
+                        @endif
+                    @endauth
+                </button>
+                
+                <!-- Notification dropdown menu -->
+                <div id="notification-dropdown" class="hidden absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="notification-button" tabindex="-1">
+                    <div class="px-4 py-3 border-b border-gray-200">
+                        <p class="text-sm font-medium text-gray-900">Notifications</p>
+                    </div>
+                    <div class="max-h-96 overflow-y-auto">
+                        @auth
+                            @forelse(auth()->user()->notifications as $notification)
+                                <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 notification-item" data-notification-id="{{ $notification->id }}">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm text-gray-800">{{ $notification->data['message'] ?? 'No message' }}</p>
+                                        @if(!$notification->read_at)
+                                        <button type="button" 
+                                                                class="text-sm font-medium text-indigo-600 hover:text-indigo-500 mark-as-read"
+                                                                data-notification-id="{{ $notification->id }}">
+                                                            Mark as read
+                                                        </button>
+                                        @endif
+                                    </div>
+                                    @if(isset($notification->data['data']) && is_array($notification->data['data']))
+                                        @if(isset($notification->data['data']['egg_type']))
+                                            <p class="text-xs text-gray-600 mt-1">Product: 
+                                                @php
+                                                    $eggTypes = [
+                                                        'chicken' => 'Chicken',
+                                                        'duck' => 'Duck',
+                                                        'quail' => 'Quail',
+                                                        'native_chicken' => 'Native Chicken',
+                                                        'brown' => 'Brown Egg',
+                                                        'white' => 'White Egg'
+                                                    ];
+                                                @endphp
+                                                {{ $eggTypes[$notification->data['data']['egg_type']] ?? ucfirst(str_replace('_', ' ', $notification->data['data']['egg_type'])) }}
+                                            </p>
+                                        @endif
+                                        @if(isset($notification->data['data']['farmer_name']) && isset($notification->data['data']['buyer_name']))
+                                            @if(auth()->id() == $notification->notifiable_id)
+                                                @if(isset($notification->data['data']['actor']) && $notification->data['data']['actor'] === 'buyer')
+                                                    <p class="text-xs text-gray-600">Action by: You (Buyer)</p>
+                                                @elseif(strpos($notification->data['message'] ?? '', 'Farmer accepted') !== false)
+                                                    <p class="text-xs text-gray-600">From: {{ $notification->data['data']['farmer_name'] }}</p>
+                                                @else
+                                                    <p class="text-xs text-gray-600">From: {{ $notification->data['data']['buyer_name'] }}</p>
+                                                @endif
+                                            @endif
+                                        @elseif(isset($notification->data['data']['farmer_name']))
+                                            <p class="text-xs text-gray-600">From: {{ $notification->data['data']['farmer_name'] }}</p>
+                                        @elseif(isset($notification->data['data']['buyer_name']))
+                                            <p class="text-xs text-gray-600">From: {{ $notification->data['data']['buyer_name'] }}</p>
+                                        @endif
+                                    @endif
+                                    <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                    
+                                    <!-- Add a link to view the transaction if it exists -->
+                                    @if(isset($notification->data['transaction_id']))
+                                        <div class="mt-2">
+                                            <a href="{{ route('orders.show', ['transaction' => $notification->data['transaction_id']]) }}" class="text-xs text-indigo-600 hover:text-indigo-800">
+                                                View Order
+                                            </a>
+                                        </div>
+                                    @endif
+                                </div>
+                            @empty
+                                <div class="px-4 py-6 text-center">
+                                    <p class="text-sm text-gray-500">No notifications</p>
+                                </div>
+                            @endforelse
+                        @else
+                            <div class="px-4 py-6 text-center">
+                                <p class="text-sm text-gray-500">Please log in to see notifications</p>
+                            </div>
+                        @endauth
+                    </div>
+                    @auth
+                        @if(auth()->user()->notifications->count() > 0)
+                            <div class="px-4 py-2 text-center border-t border-gray-200">
+                                <a href="{{ route('buyer.notifications') }}" class="text-sm text-indigo-600 hover:text-indigo-900">View all notifications</a>
+                            </div>
+                        @endif
+                    @endauth
+                </div>
+            </div>
 
                 <!-- Profile dropdown with buyer name -->
                 <div class="relative ml-3 flex items-center">
@@ -114,88 +198,6 @@
         </div>
     </div>
 </header>
-
-<!-- Notification dropdown menu -->
-<div id="notification-dropdown" class="hidden absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="notification-button" tabindex="-1">
-    <div class="px-4 py-3 border-b border-gray-200">
-        <p class="text-sm font-medium text-gray-900">Notifications</p>
-    </div>
-    <div class="max-h-96 overflow-y-auto">
-        @auth
-            @forelse(auth()->user()->notifications as $notification)
-                <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 notification-item" data-notification-id="{{ $notification->id }}">
-                    <div class="flex justify-between">
-                        <p class="text-sm text-gray-800">{{ $notification->data['message'] ?? 'No message' }}</p>
-                        @if(!$notification->read_at)
-                        <button type="button" 
-                                                class="text-sm font-medium text-indigo-600 hover:text-indigo-500 mark-as-read"
-                                                data-notification-id="{{ $notification->id }}">
-                                            Mark as read
-                                        </button>
-                        @endif
-                    </div>
-                    @if(isset($notification->data['data']) && is_array($notification->data['data']))
-                        @if(isset($notification->data['data']['egg_type']))
-                            <p class="text-xs text-gray-600 mt-1">Product: 
-                                @php
-                                    $eggTypes = [
-                                        'chicken' => 'Chicken',
-                                        'duck' => 'Duck',
-                                        'quail' => 'Quail',
-                                        'native_chicken' => 'Native Chicken',
-                                        'brown' => 'Brown Egg',
-                                        'white' => 'White Egg'
-                                    ];
-                                @endphp
-                                {{ $eggTypes[$notification->data['data']['egg_type']] ?? ucfirst(str_replace('_', ' ', $notification->data['data']['egg_type'])) }}
-                            </p>
-                        @endif
-                        @if(isset($notification->data['data']['farmer_name']) && isset($notification->data['data']['buyer_name']))
-                            @if(auth()->id() == $notification->notifiable_id)
-                                @if(isset($notification->data['data']['actor']) && $notification->data['data']['actor'] === 'buyer')
-                                    <p class="text-xs text-gray-600">Action by: You (Buyer)</p>
-                                @elseif(strpos($notification->data['message'] ?? '', 'Farmer accepted') !== false)
-                                    <p class="text-xs text-gray-600">From: {{ $notification->data['data']['farmer_name'] }}</p>
-                                @else
-                                    <p class="text-xs text-gray-600">From: {{ $notification->data['data']['buyer_name'] }}</p>
-                                @endif
-                            @endif
-                        @elseif(isset($notification->data['data']['farmer_name']))
-                            <p class="text-xs text-gray-600">From: {{ $notification->data['data']['farmer_name'] }}</p>
-                        @elseif(isset($notification->data['data']['buyer_name']))
-                            <p class="text-xs text-gray-600">From: {{ $notification->data['data']['buyer_name'] }}</p>
-                        @endif
-                    @endif
-                    <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
-                    
-                    <!-- Add a link to view the transaction if it exists -->
-                    @if(isset($notification->data['transaction_id']))
-                        <div class="mt-2">
-                            <a href="{{ route('orders.show', ['transaction' => $notification->data['transaction_id']]) }}" class="text-xs text-indigo-600 hover:text-indigo-800">
-                                View Order
-                            </a>
-                        </div>
-                    @endif
-                </div>
-            @empty
-                <div class="px-4 py-6 text-center">
-                    <p class="text-sm text-gray-500">No notifications</p>
-                </div>
-            @endforelse
-        @else
-            <div class="px-4 py-6 text-center">
-                <p class="text-sm text-gray-500">Please log in to see notifications</p>
-            </div>
-        @endauth
-    </div>
-    @auth
-        @if(auth()->user()->notifications->count() > 0)
-            <div class="px-4 py-2 text-center border-t border-gray-200">
-                <a href="{{ route('buyer.notifications') }}" class="text-sm text-indigo-600 hover:text-indigo-900">View all notifications</a>
-            </div>
-        @endif
-    @endauth
-</div>
 
 <div class="container mx-auto px-4 py-2">
     @if(session('error'))

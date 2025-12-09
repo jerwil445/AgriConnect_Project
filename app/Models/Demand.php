@@ -32,4 +32,25 @@ class Demand extends Model
     {
         return $this->hasMany(DemandMatch::class, 'demand_id');
     }
+    
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'demand_id');
+    }
+    
+    /**
+     * Check if demand has any accepted matches (status = 'Matched')
+     */
+    public function hasAcceptedMatch()
+    {
+        return $this->matches()->where('status', 'Matched')->exists();
+    }
+    
+    /**
+     * Check if demand has any transactions
+     */
+    public function hasTransaction()
+    {
+        return $this->transactions()->exists();
+    }
 }

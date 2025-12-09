@@ -161,9 +161,23 @@ class BuyerController extends Controller
         
         if ($notification) {
             $notification->markAsRead();
+            return response()->json(['success' => true, 'message' => 'Notification marked as read']);
         }
         
-        return back();
+        return response()->json(['success' => false, 'message' => 'Notification not found'], 404);
+    }
+    
+    /**
+     * Mark all notifications as read.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function markAllNotificationsAsRead()
+    {
+        $user = Auth::user();
+        $user->unreadNotifications->markAsRead();
+        
+        return response()->json(['success' => true, 'message' => 'All notifications marked as read']);
     }
     
     /**

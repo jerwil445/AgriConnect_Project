@@ -78,7 +78,7 @@ class ProductController extends Controller
             'address' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sizes' => 'required|array|min:1',
-            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large,jumbo',
+            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large',
             'sizes.*.tray_count' => 'required|integer|min:1',
             'sizes.*.price_per_tray' => 'required|numeric|min:0',
         ]);
@@ -251,7 +251,7 @@ class ProductController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'images' => 'nullable|array|max:10',
             'sizes' => 'required|array|min:1',
-            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large,jumbo',
+            'sizes.*.name' => 'required|string|in:small,medium,large,extra_large',
             'sizes.*.tray_count' => 'required|integer|min:1',
             'sizes.*.price_per_tray' => 'required|numeric|min:0',
         ]);

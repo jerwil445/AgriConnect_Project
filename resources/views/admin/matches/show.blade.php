@@ -162,10 +162,6 @@
                             <p class="text-sm text-gray-900">{{ $match->demand->quantity }}</p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded">
-                            <label class="block text-sm font-medium text-gray-600">Target Price</label>
-                            <p class="text-sm text-gray-900">₱{{ number_format($match->demand->target_price ?? 0, 2) }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Location</label>
                             <p class="text-sm text-gray-900">{{ $match->demand->location }}</p>
                         </div>

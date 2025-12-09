@@ -121,10 +121,6 @@
                                 <span class="font-medium">{{ $transaction->demand->quantity }}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">Target Price:</span>
-                                <span class="font-medium">₱{{ number_format($transaction->demand->target_price ?? 0, 2) }}</span>
-                            </div>
-                            <div class="flex justify-between">
                                 <span class="text-gray-600">Location:</span>
                                 <span class="font-medium">{{ $transaction->demand->location }}</span>
                             </div>

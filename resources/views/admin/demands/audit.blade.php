@@ -28,10 +28,6 @@
                             <p class="text-sm text-gray-900">{{ $demand->quantity }}</p>
                         </div>
                         <div class="bg-gray-50 p-3 rounded">
-                            <label class="block text-sm font-medium text-gray-600">Target Price</label>
-                            <p class="text-sm text-gray-900">₱{{ number_format($demand->target_price ?? 0, 2) }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-3 rounded">
                             <label class="block text-sm font-medium text-gray-600">Buyer</label>
                             <p class="text-sm text-gray-900">{{ $demand->buyer->first_name }} {{ $demand->buyer->last_name }}</p>
                         </div>

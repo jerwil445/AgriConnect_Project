@@ -299,7 +299,6 @@ class AdminController extends Controller
         $request->validate([
             'egg_type' => 'required|string|max:255',
             'quantity' => 'required|numeric|min:0',
-            'target_price' => 'nullable|numeric|min:0',
             'location' => 'required|string|max:255',
             'delivery_date' => 'required|date',
             'buyer_id' => 'required|exists:users,id',

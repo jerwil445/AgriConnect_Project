@@ -37,11 +37,6 @@
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-600">Target Price</label>
-                                <p class="mt-1 text-sm text-gray-900">₱{{ number_format($demand->target_price ?? 0, 2) }}</p>
-                            </div>
-                            
-                            <div>
                                 <label class="block text-sm font-medium text-gray-600">Location</label>
                                 <p class="mt-1 text-sm text-gray-900">{{ $demand->location }}</p>
                             </div>

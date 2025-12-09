@@ -478,27 +478,59 @@
     
     @if($otherTransactions->count() > 0)
     <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <h3 class="font-bold text-gray-900 mb-3">Other Product Matches</h3>
+        <h3 class="font-bold text-gray-900 mb-3 flex items-center">
+            <i class="fas fa-layer-group text-green-600 mr-2"></i>
+            Other Product Matches
+        </h3>
         <p class="text-sm text-gray-600 mb-3">This user has other products available for transaction:</p>
         <div class="space-y-3">
             @foreach($otherTransactions as $otherTransaction)
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
-                <div>
-                    <h4 class="font-medium text-gray-900">{{ $otherTransaction->product->product_name }}</h4>
-                    <p class="text-sm text-gray-600">{{ $otherTransaction->final_quantity }} {{ $otherTransaction->product->unit }} @ ₱{{ number_format($otherTransaction->final_price, 2) }}/{{ $otherTransaction->product->unit }}</p>
+            <div class="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-200">
+                <div class="flex-1">
+                    <h4 class="font-semibold text-gray-900">
+                        @php
+                            $eggTypes = [
+                                'chicken' => 'Chicken Eggs',
+                                'duck' => 'Duck Eggs',
+                                'quail' => 'Quail Eggs',
+                                'native_chicken' => 'Native Chicken Eggs',
+                                'brown' => 'Brown Eggs',
+                                'white' => 'White Eggs'
+                            ];
+                            $displayName = $eggTypes[$otherTransaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $otherTransaction->product->egg_type));
+                        @endphp
+                        {{ $displayName }}
+                    </h4>
+                    <p class="text-sm text-gray-600 mt-1">
+                        <i class="fas fa-box text-gray-400 mr-1"></i>
+                        {{ $otherTransaction->final_quantity ?? $otherTransaction->product->quantity }} {{ $otherTransaction->product->unit }} @ ₱{{ number_format($otherTransaction->final_price ?? $otherTransaction->product->price, 2) }}/{{ $otherTransaction->product->unit }}
+                    </p>
+                    @if(is_string($otherTransaction->id) && strpos($otherTransaction->id, 'product_') === 0)
+                        <span class="inline-flex items-center px-2 py-1 mt-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Available Product
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-2 py-1 mt-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            Active Transaction
+                        </span>
+                    @endif
                 </div>
-                <div class="text-right">
-                    <p class="font-bold text-green-600">₱{{ number_format($otherTransaction->total_amount, 2) }}</p>
-                    @if(isset($otherTransaction->id) && strpos($otherTransaction->id, 'product_') === 0)
+                <div class="text-right flex flex-col items-end space-y-2">
+                    <p class="font-bold text-green-600 text-lg">₱{{ number_format($otherTransaction->total_amount ?? ($otherTransaction->product->quantity * $otherTransaction->product->price), 2) }}</p>
+                    @if(is_string($otherTransaction->id) && strpos($otherTransaction->id, 'product_') === 0)
                         <!-- This is a pseudo-transaction for a product, not a real transaction -->
-                        <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors"
-                                onclick="showInterestModal('{{ $otherTransaction->product->id }}')">
-                            Show Interest
-                        </button>
+                        <a href="{{ route('buyer.dashboard') }}?product_id={{ $otherTransaction->product->id }}" 
+                           class="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg transition-all duration-200 hover:shadow-md">
+                            <i class="fas fa-shopping-cart mr-1.5"></i>
+                            View Product
+                        </a>
                     @else
                         <!-- This is a real transaction -->
-                        <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors"
-                                onclick="switchToTransaction('{{ $otherTransaction->id }}')">
+                        <button class="inline-flex items-center px-3 py-1.5 text-xs font-semibold bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-all duration-200 hover:shadow-md"
+                                onclick="console.log('Button clicked for transaction:', {{ $otherTransaction->id }}); window.switchToTransaction({{ $otherTransaction->id }}); return false;">
+                            <i class="fas fa-eye mr-1.5"></i>
                             View Details
                         </button>
                     @endif
@@ -585,15 +617,63 @@
 </div>
 
 <script>
-function switchToTransaction(transactionId) {
+// Define function globally on window object to ensure it's accessible
+window.switchToTransaction = function(transactionId) {
+    console.log('switchToTransaction called with ID:', transactionId);
+    console.log('Type of transactionId:', typeof transactionId);
+    
+    // Show loading state
+    const conversationContainer = document.getElementById('conversation-container');
+    const transactionDetails = document.getElementById('transaction-details');
+    
+    if (conversationContainer) {
+        conversationContainer.innerHTML = `
+            <div class="flex-1 flex items-center justify-center">
+                <div class="text-center p-8">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+                    <h3 class="text-lg font-medium text-gray-900">Loading conversation...</h3>
+                    <p class="text-sm text-gray-500 mt-1">Please wait</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    if (transactionDetails) {
+        transactionDetails.innerHTML = `
+            <div class="flex-1 flex items-center justify-center p-8">
+                <div class="text-center">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+                    <h3 class="text-lg font-medium text-gray-900">Loading details...</h3>
+                    <p class="text-sm text-gray-500 mt-1">Please wait</p>
+                </div>
+            </div>
+        `;
+    }
+    
     // Load the new transaction details
     Promise.all([
-        fetch(`/messages/conversation/${transactionId}`).then(response => response.text()),
-        fetch(`/messages/transaction-details/${transactionId}`).then(response => response.text())
+        fetch(`/messages/conversation/${transactionId}`).then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        }),
+        fetch(`/messages/transaction-details/${transactionId}`).then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text();
+        })
     ])
     .then(([conversationHtml, detailsHtml]) => {
-        document.getElementById('conversation-container').innerHTML = conversationHtml;
-        document.getElementById('transaction-details').innerHTML = detailsHtml;
+        // Update the DOM
+        if (conversationContainer) {
+            conversationContainer.innerHTML = conversationHtml;
+        }
+        
+        if (transactionDetails) {
+            transactionDetails.innerHTML = detailsHtml;
+        }
                                     
         // Update the conversation item in the list to show this transaction as selected
         document.querySelectorAll('.conversation-item').forEach(item => {
@@ -604,22 +684,66 @@ function switchToTransaction(transactionId) {
         });
                                     
         // Re-initialize message functionality
-        initializeMessaging();
+        if (typeof initializeMessaging === 'function') {
+            initializeMessaging();
+        }
         
         // Initialize size selection when content is loaded dynamically
         if (typeof initializeSizeSelection === 'function') {
             initializeSizeSelection();
         }
+        
+        // Initialize order modal functionality
+        if (typeof initializeOrderModal === 'function') {
+            initializeOrderModal();
+        }
+        
+        // Scroll to top of conversation
+        if (conversationContainer) {
+            conversationContainer.scrollTop = 0;
+        }
+        
+        console.log('Transaction switched successfully');
     })
     .catch(error => {
         console.error('Error loading transaction:', error);
+        
+        // Show error state
+        if (conversationContainer) {
+            conversationContainer.innerHTML = `
+                <div class="flex-1 flex items-center justify-center">
+                    <div class="text-center p-8">
+                        <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to Load</h3>
+                        <p class="text-sm text-gray-500">Unable to load conversation. Please try again.</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        if (transactionDetails) {
+            transactionDetails.innerHTML = `
+                <div class="flex-1 flex items-center justify-center p-8">
+                    <div class="text-center">
+                        <div class="bg-red-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">Error</h3>
+                        <p class="text-sm text-gray-500">Failed to load transaction details.</p>
+                    </div>
+                </div>
+            `;
+        }
     });
 }
 
-// Function to show interest in a product
-function showInterestModal(productId) {
+// Function to show interest in a product - make it globally accessible
+window.showInterestModal = function(productId) {
+    console.log('showInterestModal called with product ID:', productId);
     // For now, we'll just show an alert
-    // In a real implementation, this would open a modal to express interest
+    // In a full implementation, this would open a modal to express interest
     alert('Interest shown for product ID: ' + productId + '. In a full implementation, this would open a modal to express interest in this product.');
-}
+};
 </script>

@@ -3,10 +3,10 @@
 @section('title', 'Messages • AgriConnect')
 
 @section('content')
-<div class="h-screen flex flex-col">
-    <div class="bg-white shadow-md flex-shrink-0">
-        <!-- Header -->
-        <div class="bg-green-700 px-6 py-4">
+<div class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <div class="bg-green-700 shadow-md">
+        <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <h1 class="text-xl font-bold text-white">Messages</h1>
                 <span class="px-3 py-1 bg-white bg-opacity-20 text-white rounded-full text-sm">
@@ -17,10 +17,11 @@
     </div>
 
     <!-- Three-column layout -->
-    <div class="flex flex-1 overflow-hidden">
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex gap-4 h-[calc(100vh-180px)]">
             <!-- Left Column - Conversations List -->
-            <div class="w-1/4 border-r border-gray-200 flex flex-col">
-                <div class="p-4 border-b border-gray-200">
+            <div class="w-1/4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-200 bg-gray-50">
                     <h2 class="text-lg font-semibold text-gray-800">Conversations</h2>
                 </div>
                 <div class="flex-1 overflow-y-auto">
@@ -98,7 +99,7 @@
             </div>
 
             <!-- Middle Column - Messages Conversation -->
-            <div class="w-2/4 flex flex-col" id="conversation-container">
+            <div class="w-2/4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden" id="conversation-container">
                 <div class="flex-1 flex items-center justify-center">
                     <div class="text-center p-8">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,7 +112,7 @@
             </div>
 
             <!-- Right Column - Transaction Details -->
-            <div class="w-1/4 border-l border-gray-200 flex flex-col" id="transaction-details">
+            <div class="w-1/4 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col overflow-hidden" id="transaction-details">
                 <div class="flex-1 flex items-center justify-center p-8">
                     <div class="text-center">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

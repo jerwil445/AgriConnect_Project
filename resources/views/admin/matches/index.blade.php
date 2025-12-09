@@ -138,36 +138,52 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $match->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @php
-                                        $eggTypes = [
-                                            'chicken' => 'Chicken',
-                                            'duck' => 'Duck',
-                                            'quail' => 'Quail',
-                                            'native_chicken' => 'Native Chicken',
-                                            'brown' => 'Brown Egg',
-                                            'white' => 'White Egg'
-                                        ];
-                                    @endphp
-                                    {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                    @if($match->product)
+                                        @php
+                                            $eggTypes = [
+                                                'chicken' => 'Chicken',
+                                                'duck' => 'Duck',
+                                                'quail' => 'Quail',
+                                                'native_chicken' => 'Native Chicken',
+                                                'brown' => 'Brown Egg',
+                                                'white' => 'White Egg'
+                                            ];
+                                        @endphp
+                                        {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                    @else
+                                        <span class="text-red-500 italic">Product Deleted</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @php
-                                        $eggTypes = [
-                                            'chicken' => 'Chicken',
-                                            'duck' => 'Duck',
-                                            'quail' => 'Quail',
-                                            'native_chicken' => 'Native Chicken',
-                                            'brown' => 'Brown Egg',
-                                            'white' => 'White Egg'
-                                        ];
-                                    @endphp
-                                    {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                    @if($match->demand)
+                                        @php
+                                            $eggTypes = [
+                                                'chicken' => 'Chicken',
+                                                'duck' => 'Duck',
+                                                'quail' => 'Quail',
+                                                'native_chicken' => 'Native Chicken',
+                                                'brown' => 'Brown Egg',
+                                                'white' => 'White Egg'
+                                            ];
+                                        @endphp
+                                        {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                    @else
+                                        <span class="text-red-500 italic">Demand Deleted</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}
+                                    @if($match->product && $match->product->farmer && $match->product->farmer->user)
+                                        {{ $match->product->farmer->user->first_name }} {{ $match->product->farmer->user->last_name }}
+                                    @else
+                                        <span class="text-gray-400 italic">N/A</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $match->demand->buyer->first_name }} {{ $match->demand->buyer->last_name }}
+                                    @if($match->demand && $match->demand->buyer)
+                                        {{ $match->demand->buyer->first_name }} {{ $match->demand->buyer->last_name }}
+                                    @else
+                                        <span class="text-gray-400 italic">N/A</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 

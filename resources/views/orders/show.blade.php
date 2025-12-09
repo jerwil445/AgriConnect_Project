@@ -195,17 +195,6 @@
                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
                     <i class="fas fa-comment mr-2"></i> Chat with Farmer
                 </a>
-            @elseif(auth()->user()->farmer && $order->status == 'Ordered')
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none accept-order-btn"
-                        data-transaction-id="{{ $order->id }}">
-                    <i class="fas fa-check mr-2"></i> Accept Order
-                </button>
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none reject-order-btn"
-                        data-transaction-id="{{ $order->id }}">
-                    <i class="fas fa-times mr-2"></i> Reject Order
-                </button>
             @endif
             
             @if(auth()->user()->farmer && $order->status == 'Accepted')
@@ -241,73 +230,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // CSRF token for AJAX requests
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-    // Accept Order button functionality
-    document.querySelectorAll('.accept-order-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to accept this order?')) {
-                fetch(`/transactions/${transactionId}/accept`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Reject Order button functionality
-    document.querySelectorAll('.reject-order-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to reject this order? This action cannot be undone.')) {
-                fetch(`/transactions/${transactionId}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.href = '{{ $isFarmer ? route('farmer.orders') : route('buyer.orders') }}';
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
     });
     
     // Mark Prepared button functionality

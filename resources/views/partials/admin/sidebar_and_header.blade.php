@@ -39,10 +39,17 @@
             <!-- User Dropdown -->
             <div class="relative" id="user-menu">
                 <button class="flex items-center space-x-2 focus:outline-none" id="user-menu-button">
-                    <img class="h-9 w-9 rounded-full object-cover"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&w=256&h=256&q=80"
-                        alt="User profile">
-                    <span class="text-white hidden md:block font-medium">John Doe</span>
+                    @if(auth()->check() && auth()->user())
+                        <div class="h-9 w-9 rounded-full bg-white flex items-center justify-center font-bold text-green-600">
+                            {{ strtoupper(substr(auth()->user()->first_name ?? 'A', 0, 1)) }}{{ strtoupper(substr(auth()->user()->last_name ?? 'D', 0, 1)) }}
+                        </div>
+                        <span class="text-white hidden md:block font-medium">{{ auth()->user()->first_name }} {{ auth()->user()->last_name }}</span>
+                    @else
+                        <div class="h-9 w-9 rounded-full bg-white flex items-center justify-center font-bold text-green-600">
+                            AD
+                        </div>
+                        <span class="text-white hidden md:block font-medium">Admin</span>
+                    @endif
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -136,16 +143,7 @@
                 <i class="fa-regular fa-handshake text-base text-gray-800 dark:text-white"></i>
                Transactions
             </a>
-            <a href="#"
-                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 font-medium transition-all duration-300">
-                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                </svg>
-
-                Settings
-            </a>
+            
         </nav>
     </aside>
 

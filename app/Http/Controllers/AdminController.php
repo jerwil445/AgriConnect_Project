@@ -23,7 +23,7 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $totalFarmers = User::where('role', 'farmer')->count();
         $totalBuyers = User::where('role', 'buyer')->count();
-        $totalProducts = Product::where('status', 'available')->count();
+        $totalProducts = Product::count(); // Count all products, not just available
         $totalDemands = Demand::count();
         $totalMatches = DemandMatch::count();
         $totalTransactions = Transaction::count();

@@ -216,31 +216,11 @@
                                              aria-labelledby="actions-menu-button-{{ $product->id }}"
                                              style="position: absolute; z-index: 9999;">
                                             <div class="py-1" role="none">
+                                                <!-- View Details -->
                                                 <a href="{{ route('admin.products.view', $product) }}" 
                                                    class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
                                                    role="menuitem">
                                                     <i class="fas fa-eye mr-2 text-blue-500"></i>View Details
-                                                </a>
-                                                <a href="{{ route('admin.products.edit', $product) }}" 
-                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
-                                                   role="menuitem">
-                                                    <i class="fas fa-edit mr-2 text-green-500"></i>Edit
-                                                </a>
-                                                
-                                                <!-- Approve/Reject Options -->
-                                                <div class="border-t border-gray-200 my-1"></div>
-                                                <span class="block px-4 py-2 text-xs font-semibold text-gray-500">Validation</span>
-                                                
-                                                <a href="{{ route('admin.products.approve', $product) }}" 
-                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
-                                                   role="menuitem">
-                                                    <i class="fas fa-check-circle mr-2 text-green-500"></i>Approve
-                                                </a>
-                                                
-                                                <a href="{{ route('admin.products.reject', $product) }}" 
-                                                   class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" 
-                                                   role="menuitem">
-                                                    <i class="fas fa-times-circle mr-2 text-red-500"></i>Reject
                                                 </a>
                                                 
                                                 <!-- Delete Action -->

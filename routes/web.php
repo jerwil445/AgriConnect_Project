@@ -38,13 +38,9 @@ Route::get('/admin/users/{user}/edit', [AdminController::class, 'edit'])->name('
 Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
 Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 
-// Admin Product Routes
+// Admin Product Routes - Admin can only view and delete products
 Route::get('/admin/products', [AdminController::class, 'products'])->name('admin.products.index');
 Route::get('/admin/products/{product}', [AdminController::class, 'viewProduct'])->name('admin.products.view');
-Route::get('/admin/products/{product}/edit', [AdminController::class, 'editProduct'])->name('admin.products.edit');
-Route::put('/admin/products/{product}', [AdminController::class, 'updateProduct'])->name('admin.products.update');
-Route::get('/admin/products/{product}/approve', [AdminController::class, 'approveProduct'])->name('admin.products.approve');
-Route::get('/admin/products/{product}/reject', [AdminController::class, 'rejectProduct'])->name('admin.products.reject');
 Route::delete('/admin/products/{product}', [AdminController::class, 'deleteProduct'])->name('admin.products.delete');
 
 // Admin Demand Routes

@@ -48,14 +48,10 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // Create sample farmers
-        User::factory()->count(5)->create([
-            'role' => 'farmer'
-        ]);
-
-        // Create sample buyers
-        User::factory()->count(5)->create([
-            'role' => 'buyer'
+        // Create bulk farmers and buyers
+        $this->call([
+            BulkFarmersSeeder::class,
+            BulkBuyersSeeder::class,
         ]);
 
         // Seed products and demands

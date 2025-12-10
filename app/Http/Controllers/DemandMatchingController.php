@@ -929,84 +929,41 @@ public function placeOrder(Request $request, Transaction $transaction)
         }
     };
 
-    // Deduct the ordered quantity from the product
+    // Validate quantity availability but DO NOT deduct inventory yet
+    // Inventory will only be deducted when the seller accepts the order
     $product = $transaction->product;
     
-    // Handle size-based deductions if tray counts are provided
+    // Handle size-based validation if tray counts are provided
     if (!empty($trayCounts)) {
-        // Check if there's enough quantity available BEFORE making deductions
+        // Check if there's enough quantity available
         $totalAvailableQuantity = $product->sizes->sum('tray_count');
         if ($totalAvailableQuantity < $orderedQuantity) {
             // Rollback the newly created transaction
             $newTransaction->delete();
-            return back()->with('error', 'Not enough quantity available for this product. Only ' . $totalAvailableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
+            return back()->with('error', 'Not enough quantity available for this product. Only ' . $totalAvailableQuantity . ' ' . $product->unit . ' remaining.');
         }
         
-        // Deduct quantities from each size
+        // Validate each size has enough quantity
         foreach ($trayCounts as $sizeId => $trayCount) {
             if ($trayCount > 0) {
                 $size = $product->sizes->find($sizeId);
-                if ($size) {
-                    $newTrayCount = max(0, $size->tray_count - $trayCount);
-                    $newTotalPrice = $newTrayCount * $size->price_per_tray;
-                    $size->update([
-                        'tray_count' => $newTrayCount,
-                        'total_price' => $newTotalPrice
-                    ]);
+                if ($size && $size->tray_count < $trayCount) {
+                    $newTransaction->delete();
+                    return back()->with('error', 'Not enough quantity available for size ' . $size->size_name . '. Only ' . $size->tray_count . ' trays remaining.');
                 }
             }
         }
-        
-        // Recalculate product total quantity
-        $newProductQuantity = $product->sizes->sum('tray_count');
-        $product->update(['quantity' => $newProductQuantity]);
-        
-        // Recalculate product total price based on remaining inventory value
-        $newProductPrice = 0;
-        foreach ($product->sizes as $size) {
-            $newProductPrice += $size->tray_count * $size->price_per_tray;
-        }
-        $product->update(['price' => $newProductPrice]);
     }
     
     // Check if there's enough quantity available for non-size-based orders
     if (empty($trayCounts) && $product->quantity < $orderedQuantity) {
         // Rollback the newly created transaction
         $newTransaction->delete();
-        return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
+        return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining.');
     }
     
-    // Process the order since there's enough quantity available
-    if (true) {
-        // For size-based orders, we've already deducted quantities from sizes above
-        // For non-size-based orders, deduct the quantity
-        if (empty($trayCounts)) {
-            $newQuantity = $product->quantity - $orderedQuantity;
-            // Calculate unit price based on current total value and quantity
-            $unitPrice = $product->quantity > 0 ? $product->price / $product->quantity : 0;
-            // Calculate new total price based on remaining quantity and unit price
-            $newTotalPrice = $newQuantity * $unitPrice;
-            
-            $product->update([
-                'quantity' => $newQuantity,
-                'price' => $newTotalPrice
-            ]);
-            
-            // If the product quantity reaches 0, mark it as sold out
-            if ($newQuantity <= 0) {
-                $product->update([
-                    'status' => 'Sold Out'
-                ]);
-            }
-        } else {
-            // For size-based orders, check if product is sold out
-            if ($product->quantity <= 0) {
-                $product->update([
-                    'status' => 'Sold Out'
-                ]);
-            }
-        }
-    }
+    // Order is valid and placed successfully
+    // Inventory will be deducted when seller accepts the order
 
     // Send notification to farmer about the order
     $farmerUser = $transaction->farmer;
@@ -1137,89 +1094,114 @@ public function markOrderAsDelivered(Transaction $transaction)
  */
 public function acceptOrder(Transaction $transaction)
 {
-    // Check if the authenticated user is the farmer
-    if (Auth::id() != $transaction->farmer_id) {
-        abort(403);
-    }
-    
-    $transaction->update([
-        'status' => 'Accepted'
-    ]);
-    
-    // Get the product
-    $product = $transaction->product;
-    
-    // Check if buyer is purchasing all available quantity
-    $allQuantityPurchased = false;
-    
-    // Check if this is a size-based transaction
-    if ($transaction->tray_counts && !empty($transaction->tray_counts)) {
-        // For size-based products, check if all sizes are sold out
-        $allSizesSoldOut = true;
+    try {
+        // Check if the authenticated user is the farmer
+        if (Auth::id() != $transaction->farmer_id) {
+            abort(403);
+        }
         
-        foreach ($transaction->tray_counts as $sizeId => $orderedTrayCount) {
-            $size = $product->sizes->find($sizeId);
-            if ($size) {
-                // Check if the ordered quantity equals the available quantity for this size
-                if ($orderedTrayCount >= $size->tray_count) {
-                    // Update size inventory
-                    $size->updateInventory($orderedTrayCount, 'sale');
-                } else {
-                    // Not all trays of this size were purchased
-                    $allSizesSoldOut = false;
-                    // Still update the inventory
-                    $size->updateInventory($orderedTrayCount, 'sale');
+        // Get the product
+        $product = $transaction->product;
+        
+        // Check if buyer is purchasing all available quantity
+        $allQuantityPurchased = false;
+        
+        // Decode tray_counts if it's a JSON string
+        $trayCounts = $transaction->tray_counts;
+        if (is_string($trayCounts)) {
+            $trayCounts = json_decode($trayCounts, true);
+        }
+        
+        // Check if this is a size-based transaction
+        if ($trayCounts && !empty($trayCounts)) {
+            \Log::info("Processing size-based order acceptance for transaction #{$transaction->id}");
+            
+            // For size-based products, deduct inventory from each size
+            foreach ($trayCounts as $sizeId => $orderedTrayCount) {
+                $size = $product->sizes->find($sizeId);
+                if ($size) {
+                    \Log::info("Deducting {$orderedTrayCount} trays from size #{$sizeId}. Current: {$size->tray_count}");
+                    
+                    // Manually deduct inventory
+                    $newTrayCount = max(0, $size->tray_count - $orderedTrayCount);
+                    $newTotalPrice = $newTrayCount * $size->price_per_tray;
+                    
+                    $size->update([
+                        'tray_count' => $newTrayCount,
+                        'total_price' => $newTotalPrice,
+                        'availability_status' => $newTrayCount <= 0 ? 'out_of_stock' : ($newTrayCount <= ($size->low_stock_threshold ?? 5) ? 'low_stock' : 'available')
+                    ]);
+                    
+                    \Log::info("Size #{$sizeId} updated. New tray count: {$newTrayCount}");
                 }
             }
-        }
-        
-        // Check if there are any other sizes with available stock
-        $hasAvailableStock = $product->sizes()
-            ->where('tray_count', '>', 0)
-            ->where('availability_status', '!=', 'out_of_stock')
-            ->exists();
-        
-        if (!$hasAvailableStock) {
-            $allQuantityPurchased = true;
-        }
-    } else {
-        // For regular quantity-based products
-        if ($transaction->final_quantity >= $product->quantity) {
-            $allQuantityPurchased = true;
+            
+            // Recalculate product total quantity
+            $newProductQuantity = $product->sizes->sum('tray_count');
+            $product->update(['quantity' => $newProductQuantity]);
+            
+            // Check if there are any sizes with available stock
+            $hasAvailableStock = $product->sizes()
+                ->where('tray_count', '>', 0)
+                ->exists();
+            
+            if (!$hasAvailableStock) {
+                $allQuantityPurchased = true;
+            }
+        } else {
+            \Log::info("Processing regular order acceptance for transaction #{$transaction->id}");
+            
+            // For regular quantity-based products
+            if ($transaction->final_quantity >= $product->quantity) {
+                $allQuantityPurchased = true;
+            }
             
             // Update product inventory
             $product->quantity -= $transaction->final_quantity;
             if ($product->quantity < 0) {
                 $product->quantity = 0;
             }
-        } else {
-            // Update product inventory
-            $product->quantity -= $transaction->final_quantity;
+            
+            \Log::info("Product #{$product->id} quantity updated to {$product->quantity}");
         }
-    }
-    
-    // If all quantity is purchased, mark product as Sold Out
-    if ($allQuantityPurchased) {
-        $product->status = 'Sold Out';
-        $product->save();
         
-        \Log::info("Product #{$product->id} marked as Sold Out after accepting order #{$transaction->id}");
-    } else {
-        $product->save();
+        // Update transaction status
+        $transaction->update([
+            'status' => 'Accepted'
+        ]);
+        
+        // If all quantity is purchased, mark product as Sold Out
+        if ($allQuantityPurchased) {
+            $product->status = 'Sold Out';
+            $product->save();
+            
+            \Log::info("Product #{$product->id} marked as Sold Out after accepting order #{$transaction->id}");
+        } else {
+            $product->save();
+        }
+        
+        // Notify buyer
+        $buyerUser = $transaction->buyer;
+        $message = "Your order #{$transaction->id} has been accepted. We're preparing your goods for delivery.";
+        $buyerUser->notify(new OrderAcceptedNotification([
+            'message' => $message,
+            'transaction_id' => $transaction->id
+        ]));
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Order accepted. The buyer has been notified.'
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error("Error accepting order #{$transaction->id}: " . $e->getMessage());
+        \Log::error($e->getTraceAsString());
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'An error occurred while accepting the order: ' . $e->getMessage()
+        ], 500);
     }
-    
-    // Notify buyer
-    $buyerUser = $transaction->buyer;
-    $message = "Your order #{$transaction->id} has been accepted. We're preparing your goods for delivery.";
-    $buyerUser->notify(new OrderAcceptedNotification([
-        'message' => $message,
-        'transaction_id' => $transaction->id
-    ]));
-    
-    return response()->json([
-        'success' => true,
-        'message' => 'Order accepted. The buyer has been notified.'
-    ]);
 }
 
 /**
@@ -1236,13 +1218,8 @@ public function rejectOrder(Transaction $transaction)
         'status' => 'Rejected'
     ]);
     
-    // Return the quantity to the product
-    $product = $transaction->product;
-    $product->quantity += $transaction->final_quantity;
-    if ($product->quantity > 0 && $product->status == 'Sold Out') {
-        $product->status = 'Available';
-    }
-    $product->save();
+    // No need to return quantity since inventory is only deducted when order is accepted
+    // The product remains available for other buyers
     
     // Notify buyer
     $buyerUser = $transaction->buyer;

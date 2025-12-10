@@ -34,12 +34,8 @@ class BuyerController extends Controller
         // Build the query
         $query = Product::with(['farmer.user', 'sizes']);
         
-        // Apply status filter
-        if ($status === 'Available') {
-            $query->where('status', 'Available');
-        } else {
-            $query->whereIn('status', ['Available', 'Sold Out']);
-        }
+        // Apply status filter - Only show Available products to buyers
+        $query->where('status', 'Available');
 
         // Apply search filter
         if ($search) {
@@ -102,10 +98,11 @@ class BuyerController extends Controller
         // Paginate results
         $products = $query->paginate(12)->appends($request->query());
 
-        // Get unique egg types for category filter
+        // Get unique egg types for category filter (only from available products)
         $eggTypes = Product::select('egg_type')
             ->distinct()
             ->whereNotNull('egg_type')
+            ->where('status', 'Available')
             ->pluck('egg_type')
             ->sort();
 
@@ -129,6 +126,12 @@ class BuyerController extends Controller
      */
     public function showProduct(Product $product)
     {
+        // Redirect buyers away from sold out products
+        if ($product->status === 'Sold Out') {
+            return redirect()->route('buyer.dashboard')
+                ->with('error', 'This product is no longer available.');
+        }
+        
         // Load the farmer, user information, and product images
         $product->load('farmer.user', 'images');
         

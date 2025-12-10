@@ -70,6 +70,6 @@ class RegisterController extends Controller
         }
 
         // Redirect to login with success message
-        return redirect()->route('login')->with('success', ucfirst($request->role) . ' registered successfully! Please login.');
+        return redirect()->route('login')->with('success', ucfirst($request->role) . ' registered successfully! Your account is pending admin verification. You will be able to login once approved.');
     }
 }

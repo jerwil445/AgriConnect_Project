@@ -22,6 +22,13 @@
 
             <p class="text-gray-600 text-sm mb-2">Welcome! Please login to continue.</p>
             
+            <!-- Success/Error Messages -->
+            @if(session('success'))
+                <div class="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md text-sm w-full">
+                    <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
+                </div>
+            @endif
+            
             <!-- Role Indicators -->
             <div class="flex items-center justify-center gap-2 mb-4">
                 <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

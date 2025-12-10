@@ -42,6 +42,23 @@ class AuthController extends Controller
             ]);
         }
 
+        // Check if farmer or buyer needs admin verification
+        if (in_array($user->role, ['farmer', 'buyer'])) {
+            if ($user->kyc_status === 'pending') {
+                Auth::logout();
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Your account is pending verification by an administrator. Please wait for approval.',
+                ])->withInput($request->only('email'));
+            }
+
+            if ($user->kyc_status === 'rejected') {
+                Auth::logout();
+                return redirect()->route('login')->withErrors([
+                    'email' => 'Your account has been rejected. Please contact the administrator for more information.',
+                ])->withInput($request->only('email'));
+            }
+        }
+
         return match ($user->role) {
             'farmer' => redirect()->route('farmer.dashboard'),
             'buyer' => redirect()->route('buyer.dashboard'),

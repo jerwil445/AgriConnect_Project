@@ -1146,6 +1146,68 @@ public function acceptOrder(Transaction $transaction)
         'status' => 'Accepted'
     ]);
     
+    // Get the product
+    $product = $transaction->product;
+    
+    // Check if buyer is purchasing all available quantity
+    $allQuantityPurchased = false;
+    
+    // Check if this is a size-based transaction
+    if ($transaction->tray_counts && !empty($transaction->tray_counts)) {
+        // For size-based products, check if all sizes are sold out
+        $allSizesSoldOut = true;
+        
+        foreach ($transaction->tray_counts as $sizeId => $orderedTrayCount) {
+            $size = $product->sizes->find($sizeId);
+            if ($size) {
+                // Check if the ordered quantity equals the available quantity for this size
+                if ($orderedTrayCount >= $size->tray_count) {
+                    // Update size inventory
+                    $size->updateInventory($orderedTrayCount, 'sale');
+                } else {
+                    // Not all trays of this size were purchased
+                    $allSizesSoldOut = false;
+                    // Still update the inventory
+                    $size->updateInventory($orderedTrayCount, 'sale');
+                }
+            }
+        }
+        
+        // Check if there are any other sizes with available stock
+        $hasAvailableStock = $product->sizes()
+            ->where('tray_count', '>', 0)
+            ->where('availability_status', '!=', 'out_of_stock')
+            ->exists();
+        
+        if (!$hasAvailableStock) {
+            $allQuantityPurchased = true;
+        }
+    } else {
+        // For regular quantity-based products
+        if ($transaction->final_quantity >= $product->quantity) {
+            $allQuantityPurchased = true;
+            
+            // Update product inventory
+            $product->quantity -= $transaction->final_quantity;
+            if ($product->quantity < 0) {
+                $product->quantity = 0;
+            }
+        } else {
+            // Update product inventory
+            $product->quantity -= $transaction->final_quantity;
+        }
+    }
+    
+    // If all quantity is purchased, mark product as Sold Out
+    if ($allQuantityPurchased) {
+        $product->status = 'Sold Out';
+        $product->save();
+        
+        \Log::info("Product #{$product->id} marked as Sold Out after accepting order #{$transaction->id}");
+    } else {
+        $product->save();
+    }
+    
     // Notify buyer
     $buyerUser = $transaction->buyer;
     $message = "Your order #{$transaction->id} has been accepted. We're preparing your goods for delivery.";

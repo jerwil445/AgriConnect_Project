@@ -12,42 +12,188 @@
             @method('PUT')
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Left Column - Main Product Information -->
+                <!-- Left Column - Basic Information -->
                 <div>
                     <div class="space-y-6">
                         <div>
-                            <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type</label>
-                            <select name="egg_type" id="egg_type" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
-                                <option value="">Select Egg Type</option>
-                                <option value="chicken" {{ (old('egg_type', $product->egg_type) == 'chicken') ? 'selected' : '' }}>Chicken</option>
-                                <option value="duck" {{ (old('egg_type', $product->egg_type) == 'duck') ? 'selected' : '' }}>Duck</option>
-                                <option value="quail" {{ (old('egg_type', $product->egg_type) == 'quail') ? 'selected' : '' }}>Quail</option>
-                                <!-- <option value="native_chicken" {{ (old('egg_type', $product->egg_type) == 'native_chicken') ? 'selected' : '' }}>Native Chicken</option> -->
-                            </select>
-                            @error('egg_type')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                        </div>
-                        
-                        <div id="egg-category-field">
-                            <label for="egg_category" class="block text-sm font-medium text-gray-700 mb-1">Egg Category</label>
-                            <select name="egg_category" id="egg_category" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                <option value="">Select Egg Category</option>
-                                <option value="white_egg" {{ (old('egg_category', $product->egg_category) == 'white_egg') ? 'selected' : '' }}>White Egg</option>
-                                <option value="brown_egg" {{ (old('egg_category', $product->egg_category) == 'brown_egg') ? 'selected' : '' }}>Brown Egg</option>
-                                <option value="free_range" {{ (old('egg_category', $product->egg_category) == 'free_range') ? 'selected' : '' }}>Free-Range</option>
-                                <option value="organic" {{ (old('egg_category', $product->egg_category) == 'organic') ? 'selected' : '' }}>Organic</option>
-                                <option value="salted_duck_egg" {{ (old('egg_category', $product->egg_category) == 'salted_duck_egg') ? 'selected' : '' }}>Salted Duck Egg</option>
-                            </select>
-                            @error('egg_category')
+                            <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                            <input type="text" name="product_name" id="product_name" value="{{ old('product_name', $product->product_name) }}"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('product_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                         
                         <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity Available</label>
+                            <label for="product_category" class="block text-sm font-medium text-gray-700 mb-1">Product Category</label>
+                            <select name="product_category" id="product_category" 
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                <option value="">Select Category</option>
+                                <option value="Crop" {{ old('product_category', $product->product_category) == 'Crop' ? 'selected' : '' }}>Crop</option>
+                                <option value="Livestock" {{ old('product_category', $product->product_category) == 'Livestock' ? 'selected' : '' }}>Livestock</option>
+                                <option value="Processed" {{ old('product_category', $product->product_category) == 'Processed' ? 'selected' : '' }}>Processed</option>
+                                <option value="Other" {{ old('product_category', $product->product_category) == 'Other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                            @error('product_category')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="product_type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
+                            <input type="text" name="product_type" id="product_type" value="{{ old('product_type', $product->product_type) }}"
+                                   placeholder="e.g., Rice, Corn, Milk, etc."
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('product_type')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                            <textarea name="description" id="description" rows="4" 
+                                      class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                      placeholder="Describe your product...">{{ old('description', $product->description) }}</textarea>
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column - Quantity, Pricing & Dates -->
+                <div>
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $product->quantity) }}" min="1"
+                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                @error('quantity')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                                <select name="unit" id="unit" 
+                                        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                    <option value="">Select Unit</option>
+                                    <option value="kg" {{ old('unit', $product->unit) == 'kg' ? 'selected' : '' }}>kg</option>
+                                    <option value="tons" {{ old('unit', $product->unit) == 'tons' ? 'selected' : '' }}>tons</option>
+                                    <option value="pieces" {{ old('unit', $product->unit) == 'pieces' ? 'selected' : '' }}>pieces</option>
+                                    <option value="liters" {{ old('unit', $product->unit) == 'liters' ? 'selected' : '' }}>liters</option>
+                                </select>
+                                @error('unit')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price per Unit (₱)</label>
+                            <input type="number" name="price" id="price" value="{{ old('price', $product->price) }}" step="0.01" min="0"
+                                   class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('price')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="harvest_date" class="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+                                <input type="date" name="harvest_date" id="harvest_date" value="{{ old('harvest_date', $product->harvest_date ? $product->harvest_date->format('Y-m-d') : '') }}"
+                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                @error('harvest_date')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            
+                            <div>
+                                <label for="expiry_date" class="block text-sm font-medium text-gray-700 mb-1">Expiry Date (Optional)</label>
+                                <input type="date" name="expiry_date" id="expiry_date" value="{{ old('expiry_date', $product->expiry_date ? $product->expiry_date->format('Y-m-d') : '') }}"
+                                       class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                @error('expiry_date')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label for="product_condition" class="block text-sm font-medium text-gray-700 mb-1">Product Condition</label>
+                            <select name="product_condition" id="product_condition" 
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                <option value="">Select Condition</option>
+                                <option value="Fresh" {{ old('product_condition', $product->product_condition) == 'Fresh' ? 'selected' : '' }}>Fresh</option>
+                                <option value="Dried" {{ old('product_condition', $product->product_condition) == 'Dried' ? 'selected' : '' }}>Dried</option>
+                                <option value="Processed" {{ old('product_condition', $product->product_condition) == 'Processed' ? 'selected' : '' }}>Processed</option>
+                                <option value="Frozen" {{ old('product_condition', $product->product_condition) == 'Frozen' ? 'selected' : '' }}>Frozen</option>
+                            </select>
+                            @error('product_condition')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Location Information -->
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Location Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                        <label for="purok_street" class="block text-sm font-medium text-gray-700 mb-1">Purok/Street</label>
+                        <input type="text" name="purok_street" id="purok_street" value="{{ old('purok_street', $product->purok_street) }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('purok_street')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="barangay" class="block text-sm font-medium text-gray-700 mb-1">Barangay</label>
+                        <input type="text" name="barangay" id="barangay" value="{{ old('barangay', $product->barangay) }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('barangay')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="municipality_city" class="block text-sm font-medium text-gray-700 mb-1">Municipality/City</label>
+                        <input type="text" name="municipality_city" id="municipality_city" value="{{ old('municipality_city', $product->municipality_city) }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('municipality_city')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    
+                    <div>
+                        <label for="province" class="block text-sm font-medium text-gray-700 mb-1">Province</label>
+                        <input type="text" name="province" id="province" value="{{ old('province', $product->province) }}"
+                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('province')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Image -->
+            <div class="mt-8">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Product Image</h3>
+                <div>
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-1">Upload New Product Image (Optional)</label>
+                    <input type="file" name="image" id="image" accept="image/*"
+                           class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                    @if($product->image)
+                        <p class="mt-2 text-sm text-gray-600">Current image will be replaced if you upload a new one.</p>
+                    @endif
+                    @error('image')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
                             <input type="number" name="quantity" id="quantity" 
                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                    value="{{ old('quantity', $product->quantity) }}" min="1" required>
@@ -329,523 +475,3 @@
     </div>
 </div>
 @endsection
-<script>
-    // Check on page load
-    window.addEventListener('DOMContentLoaded', function() {
-        const sizesTableBody = document.getElementById('sizes-table-body');
-        const totalPriceDisplay = document.getElementById('total-price-display');
-        const quantityInput = document.getElementById('quantity');
-        const priceInput = document.getElementById('price');
-        const addSizeBtn = document.getElementById('add-size-btn');
-        
-        let sizeCounter = 0;
-        let totalTrays = 0;
-        let totalPrice = 0;
-        
-        // Size options
-        const sizeOptions = [
-            { value: 'small', label: 'Small' },
-            { value: 'medium', label: 'Medium' },
-            { value: 'large', label: 'Large' },
-            { value: 'extra_large', label: 'Extra Large' },
-            { value: 'jumbo', label: 'Jumbo' }
-        ];
-        
-        // Initialize with existing sizes
-        @foreach($product->sizes as $index => $size)
-            addSizeRow({
-                name: '{{ $size->size_name }}',
-                tray_count: {{ $size->tray_count }},
-                price_per_tray: {{ $size->price_per_tray }}
-            });
-        @endforeach
-        
-        // Ensure egg fields are visible on page load
-        const eggFieldsContainer = document.getElementById('egg-fields');
-        if (eggFieldsContainer) {
-            eggFieldsContainer.style.display = 'block';
-        }        
-        // Debug: Log the number of size rows added
-        console.log('Initialized with ' + sizeCounter + ' size rows');
-        
-        // Add size button click handler
-        if (addSizeBtn) {
-            addSizeBtn.addEventListener('click', function() {
-                addSizeRow();
-            });
-        }
-        
-        // Handle egg type change
-        const eggTypeSelect = document.getElementById('egg_type');
-        if (eggTypeSelect) {
-            eggTypeSelect.addEventListener('change', function() {
-                handleEggTypeChange();
-            });
-            
-            // Initialize form based on egg type
-            handleEggTypeChange();
-        }
-        
-        // Initialize quail unit options event listeners
-        setTimeout(initializeQuailUnitOptions, 100);
-        
-        // Initialize calculations
-        updateCalculations();
-        
-        // Function to add a new size row
-        function addSizeRow(sizeData = null) {
-            console.log('Adding size row with data:', sizeData);
-            const rowId = 'size-row-' + sizeCounter;
-            const sizeSelectId = 'size-name-' + sizeCounter;
-            const trayInputId = 'tray-count-' + sizeCounter;
-            const priceInputId = 'price-per-tray-' + sizeCounter;
-            const totalSpanId = 'total-' + sizeCounter;
-            const removeBtnId = 'remove-' + sizeCounter;
-            
-            const row = document.createElement('tr');
-            row.id = rowId;
-            row.className = 'size-row';
-            
-            // Size select - filter out already selected sizes
-            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select => select.value);
-            let sizeSelectOptions = '';
-            sizeOptions.forEach(option => {
-                // Skip if this size is already selected (unless it's the one we're editing)
-                if (existingSizes.includes(option.value) && !(sizeData && sizeData.name === option.value)) {
-                    return;
-                }
-                
-                const selected = sizeData && sizeData.name === option.value ? 'selected' : '';
-                sizeSelectOptions += `<option value="${option.value}" ${selected}>${option.label}</option>`;
-            });
-            
-            row.innerHTML = `
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                    <select name="sizes[${sizeCounter}][name]" id="${sizeSelectId}" class="rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                        ${sizeSelectOptions}
-                    </select>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <input type="number" name="sizes[${sizeCounter}][tray_count]" id="${trayInputId}" min="1" value="${sizeData ? sizeData.tray_count : ''}"
-                           class="w-24 rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <div class="flex items-center">
-                        <span class="mr-1">₱</span>
-                        <input type="number" name="sizes[${sizeCounter}][price_per_tray]" id="${priceInputId}" step="0.01" min="0" value="${sizeData ? sizeData.price_per_tray : ''}"
-                               class="w-24 rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                    </div>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <span id="${totalSpanId}">₱0.00</span>
-                </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <button type="button" id="${removeBtnId}" class="text-red-600 hover:text-red-900 remove-size-btn">Remove</button>
-                </td>
-            `;
-            
-            sizesTableBody.appendChild(row);
-            
-            // Add event listeners for the new inputs
-            const trayInput = document.getElementById(trayInputId);
-            const priceInput = document.getElementById(priceInputId);
-            const sizeSelect = document.getElementById(sizeSelectId);
-            const removeBtn = document.getElementById(removeBtnId);
-            
-            // Update calculations when inputs change
-            trayInput.addEventListener('input', updateCalculations);
-            priceInput.addEventListener('input', updateCalculations);
-            sizeSelect.addEventListener('change', function() {
-                updateCalculations();
-                
-                // Update options in other selects to prevent duplicates
-                updateSizeSelectOptions();
-            });
-            
-            // Remove button handler
-            removeBtn.addEventListener('click', function() {
-                row.remove();
-                updateCalculations();
-                
-                // Update options in other selects
-                updateSizeSelectOptions();
-            });
-            
-            sizeCounter++;
-            updateCalculations();
-            console.log('Added size row. Total rows:', sizeCounter);
-        }
-        
-        // Function to update size select options to prevent duplicates
-        function updateSizeSelectOptions() {
-            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select => select.value);
-            
-            document.querySelectorAll('select[name$="[name]"]').forEach(select => {
-                const currentValue = select.value;
-                
-                // Clear existing options
-                const selectedOption = select.options[select.selectedIndex];
-                const selectedText = selectedOption ? selectedOption.text : '';
-                
-                select.innerHTML = '';
-                
-                // Add options that are not already selected (or is the current selection)
-                sizeOptions.forEach(option => {
-                    if (!existingSizes.includes(option.value) || option.value === currentValue) {
-                        const optionElement = document.createElement('option');
-                        optionElement.value = option.value;
-                        optionElement.textContent = option.label;
-                        if (option.value === currentValue) {
-                            optionElement.selected = true;
-                        }
-                        select.appendChild(optionElement);
-                    }
-                });
-                
-                // If current value is not in sizeOptions, preserve it
-                if (currentValue && !sizeOptions.some(opt => opt.value === currentValue)) {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = currentValue;
-                    optionElement.textContent = selectedText || currentValue;
-                    optionElement.selected = true;
-                    select.appendChild(optionElement);
-                }
-            });
-        }
-        
-        // Function to update calculations
-        function updateCalculations() {
-            console.log('updateCalculations called');
-            totalTrays = 0;
-            totalPrice = 0;
-            
-            // Get all size rows
-            const rows = document.querySelectorAll('.size-row');
-            console.log('Found', rows.length, 'size rows');
-            
-            rows.forEach((row, index) => {
-                const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
-                const priceInput = row.querySelector(`input[name="sizes[${index}][price_per_tray]"]`);
-                const totalSpan = row.querySelector(`td:nth-child(4) span`);
-                
-                const trayCount = parseInt(trayInput.value) || 0;
-                const pricePerTray = parseFloat(priceInput.value) || 0;
-                const total = trayCount * pricePerTray;
-                
-                if (totalSpan) {
-                    totalSpan.textContent = '₱' + total.toFixed(2);
-                }
-                
-                totalTrays += trayCount;
-                totalPrice += total;
-            });
-            
-            // Update summary display
-            if (totalPriceDisplay) {
-                totalPriceDisplay.textContent = '₱' + totalPrice.toFixed(2);
-            }
-            
-            // Update form inputs
-            if (quantityInput) {
-                quantityInput.value = totalTrays;
-            }
-            if (priceInput) {
-                priceInput.value = totalPrice.toFixed(2);
-            }
-            
-            // Update hidden inputs
-            const totalPriceHidden = document.getElementById('total_price_hidden');
-            if (totalPriceHidden) {
-                totalPriceHidden.value = totalPrice.toFixed(2);
-            }
-            
-            // Update egg size hidden input
-            updateEggSizeHidden();
-        }
-        
-        // Function to update the hidden input with egg sizes and tray counts
-        function updateEggSizeHidden() {
-            const selectedValues = [];
-            const rows = document.querySelectorAll('.size-row');
-            
-            rows.forEach((row, index) => {
-                const sizeSelect = row.querySelector(`select[name="sizes[${index}][name]"]`);
-                const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
-                const priceInput = row.querySelector(`input[name="sizes[${index}][price_per_tray]"]`);
-                
-                const sizeValue = sizeSelect.value;
-                const trayCount = trayInput.value;
-                const priceValue = priceInput.value;
-                
-                // Find the label for the size
-                let sizeLabel = '';
-                sizeOptions.forEach(option => {
-                    if (option.value === sizeValue) {
-                        sizeLabel = option.label;
-                    }
-                });
-                
-                if (sizeValue && trayCount && priceValue) {
-                    selectedValues.push(`${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''}) @ ₱${parseFloat(priceValue).toFixed(2)}/tray`);
-                } else if (sizeValue && trayCount) {
-                    selectedValues.push(`${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
-                } else if (sizeValue) {
-                    selectedValues.push(sizeLabel);
-                }
-            });
-            
-            document.getElementById('egg_size_hidden').value = selectedValues.join(', ');
-        }
-        
-        // Handle quail unit option clicks
-        function initializeQuailUnitOptions() {
-            console.log('initializeQuailUnitOptions called');
-            if (document.querySelectorAll('.quail-unit-option').length > 0) {
-                console.log('Found', document.querySelectorAll('.quail-unit-option').length, 'quail unit options');
-                document.querySelectorAll('.quail-unit-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        // Remove active state from all options
-                        document.querySelectorAll('.quail-unit-option').forEach(opt => {
-                            opt.classList.remove('border-green-500', 'bg-green-50');
-                            opt.classList.add('border-gray-300');
-                        });
-                        
-                        // Add active state to clicked option
-                        this.classList.remove('border-gray-300');
-                        this.classList.add('border-green-500', 'bg-green-50');
-                        
-                        // Update hidden input
-                        document.getElementById('quail-unit-hidden').value = this.dataset.value;
-                    });
-                });
-                
-                // Add input event listeners for quail quantity and price fields
-                document.getElementById('quail_quantity_dozen').addEventListener('input', calculateQuailTotalPrice);
-                document.getElementById('quail_price_dozen').addEventListener('input', calculateQuailTotalPrice);
-                document.getElementById('quail_quantity_pack').addEventListener('input', calculateQuailTotalPrice);
-                document.getElementById('quail_price_pack').addEventListener('input', calculateQuailTotalPrice);
-                document.getElementById('quail_quantity_tray').addEventListener('input', calculateQuailTotalPrice);
-                document.getElementById('quail_price_tray').addEventListener('input', calculateQuailTotalPrice);
-            }
-        }
-        
-        // Function to calculate total price for quail eggs
-        function calculateQuailTotalPrice() {
-            let totalPrice = 0;
-            
-            // Calculate total for dozen
-            const qtyDozen = parseFloat(document.getElementById('quail_quantity_dozen').value) || 0;
-            const priceDozen = parseFloat(document.getElementById('quail_price_dozen').value) || 0;
-            totalPrice += qtyDozen * priceDozen;
-            
-            // Calculate total for pack
-            const qtyPack = parseFloat(document.getElementById('quail_quantity_pack').value) || 0;
-            const pricePack = parseFloat(document.getElementById('quail_price_pack').value) || 0;
-            totalPrice += qtyPack * pricePack;
-            
-            // Calculate total for tray
-            const qtyTray = parseFloat(document.getElementById('quail_quantity_tray').value) || 0;
-            const priceTray = parseFloat(document.getElementById('quail_price_tray').value) || 0;
-            totalPrice += qtyTray * priceTray;
-            
-            // Calculate total for trays
-            const qtyTrays = parseFloat(document.getElementById('quail_quantity_trays').value) || 0;
-            const priceTrays = parseFloat(document.getElementById('quail_price_trays').value) || 0;
-            totalPrice += qtyTrays * priceTrays;
-            
-            // Update display
-            document.getElementById('calculated-total-price').textContent = '₱' + totalPrice.toFixed(2);
-            document.getElementById('quail-total-price-display').classList.remove('hidden');
-            
-            // Update hidden inputs
-            document.getElementById('total_price_hidden').value = totalPrice.toFixed(2);
-            document.getElementById('quantity').value = qtyDozen + qtyPack + qtyTray + qtyTrays;
-            document.getElementById('price').value = totalPrice.toFixed(2);
-            
-            // Update unit field based on which option has values
-            if (qtyDozen > 0) {
-                document.getElementById('unit').value = 'dozen';
-            } else if (qtyPack > 0) {
-                document.getElementById('unit').value = 'pack_24';
-            } else if (qtyTray > 0) {
-                document.getElementById('unit').value = 'tray_36';
-            } else if (qtyTrays > 0) {
-                document.getElementById('unit').value = 'trays';
-            }
-        }
-        
-        // Function to handle egg type change
-        function handleEggTypeChange() {
-            console.log('handleEggTypeChange called with eggType:', document.getElementById('egg_type').value);
-            const eggType = document.getElementById('egg_type').value;
-            const eggFieldsContainer = document.getElementById('egg-fields');
-            const priceInput = document.getElementById('price');
-            const quantityInput = document.getElementById('quantity');
-            const eggCategoryField = document.getElementById('egg-category-field');
-            const unitSelectDiv = document.querySelector('label[for="unit"]').closest('div');
-            const quailUnitOptions = document.getElementById('quail-unit-options');
-            
-            if (eggType === '') {
-                console.log('Handling quail egg type');
-                // Show quail-specific unit options
-                quailUnitOptions.classList.remove('hidden');
-                
-                // Show main quantity and price fields for quail eggs (don't hide them)
-                quantityInput.closest('div').style.display = 'block';
-                priceInput.closest('div').style.display = 'block';
-                
-                // Hide unit of measure field for quail eggs
-                if (unitSelectDiv) {
-                    unitSelectDiv.style.display = 'none';
-                }
-                
-                // Show egg-specific details section for quail eggs
-                eggFieldsContainer.style.display = 'block';
-                
-                // Show egg sizes table for quail eggs but hide add size button
-                const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
-                if (eggSizesTable) {
-                    eggSizesTable.style.display = 'block';
-                    console.log('Found egg sizes table for quail');
-                    // Hide the add size button for quail eggs
-                    const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
-                    if (addSizeButton) {
-                        addSizeButton.style.display = 'none';
-                        console.log('Hid add size button for quail');
-                    }
-                }
-                
-                // Hide egg category field for quail eggs
-                eggCategoryField.style.display = 'none';
-            } else {
-                console.log('Handling non-quail egg type:', eggType);
-                // Hide quail-specific unit options
-                quailUnitOptions.classList.add('hidden');
-                
-                // Show main quantity and price fields for non-quail eggs
-                quantityInput.closest('div').style.display = 'block';
-                priceInput.closest('div').style.display = 'block';
-                
-                // Show unit of measure field for non-quail eggs
-                if (unitSelectDiv) {
-                    unitSelectDiv.style.display = 'block';
-                }
-                
-                // Show egg-specific details section and egg sizes table for non-quail eggs
-                eggFieldsContainer.style.display = 'block';
-                
-                // Show egg sizes table for non-quail eggs
-                const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
-                if (eggSizesTable) {
-                    eggSizesTable.style.display = 'block';
-                    console.log('Found egg sizes table for non-quail');
-                    // Show the add size button for non-quail eggs
-                    const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
-                    if (addSizeButton) {
-                        addSizeButton.style.display = 'inline-flex'; // Changed from 'block' to 'inline-flex' to match the original style
-                        console.log('Showed add size button for non-quail');
-                    }
-                }
-                
-                // Show egg category field for non-quail eggs
-                eggCategoryField.style.display = 'block';
-            }
-        }
-    });    
-    // Preview newly uploaded images
-    function previewImages(input) {
-        const previewContainer = document.getElementById('preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        
-        previewContainer.innerHTML = '';
-        
-        if (input.files && input.files.length > 0) {
-            let hasImages = false;
-            
-            for (let i = 0; i < input.files.length; i++) {
-                const file = input.files[i];
-                if (file.type.match('image.*')) {
-                    hasImages = true;
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'h-24 w-24 object-cover rounded-md border border-gray-200';
-                        img.alt = 'Preview';
-                        
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'relative group';
-                        wrapper.appendChild(img);
-                        
-                        // Add remove button
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity';
-                        removeBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                        removeBtn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            wrapper.remove();
-                            
-                            // Hide preview container if no images left
-                            if (previewContainer.children.length === 0) {
-                                imagePreview.classList.add('hidden');
-                            }
-                        });
-                        wrapper.appendChild(removeBtn);
-                        
-                        const badge = document.createElement('span');
-                        badge.className = 'absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br rounded-tl';
-                        badge.textContent = 'New';
-                        wrapper.appendChild(badge);
-                        
-                        previewContainer.appendChild(wrapper);
-                    };
-                    
-                    reader.readAsDataURL(file);
-                }
-            }
-            
-            if (hasImages) {
-                imagePreview.classList.remove('hidden');
-            } else {
-                imagePreview.classList.add('hidden');
-            }
-        } else {
-            imagePreview.classList.add('hidden');
-        }
-    }
-
-// Handle remove image button clicks
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.remove-image-btn')) {
-        e.preventDefault();
-        const button = e.target.closest('.remove-image-btn');
-        const imageId = button.getAttribute('data-image-id');
-        
-        if (confirm('Are you sure you want to remove this image?')) {
-            // Send AJAX request to remove image
-            fetch(`/farmer/products/remove-image/${imageId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the image element from DOM
-                    button.closest('.relative').remove();
-                } else {
-                    alert('Failed to remove image. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while removing the image.');
-            });
-        }
-    }
-});
-</script>

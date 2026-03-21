@@ -17,7 +17,7 @@
                         <div>
                             <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type</label>
                             <select name="egg_type" id="egg_type" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" >
                                 <option value="">Select Egg Type</option>
                                 <option value="chicken" {{ old('egg_type') == 'chicken' ? 'selected' : '' }}>Chicken</option>
                                 <option value="duck" {{ old('egg_type') == 'duck' ? 'selected' : '' }}>Duck</option>
@@ -33,7 +33,7 @@
                         <div id="egg-category-field">
                             <label for="egg_category" class="block text-sm font-medium text-gray-700 mb-1">Egg Category</label>
                             <select name="egg_category" id="egg_category" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2" >
                                 <option value="">Select Egg Category</option>
                                 <option value="white_egg" {{ old('egg_category') == 'white_egg' ? 'selected' : '' }}>White Egg</option>
                                 <option value="brown_egg" {{ old('egg_category') == 'brown_egg' ? 'selected' : '' }}>Brown Egg</option>
@@ -60,7 +60,7 @@
                         <div>
                             <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit of Measure</label>
                             <select name="unit" id="unit" 
-                                    class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    class="w-full rounded-lg border-gray-300  shadow-sm focus:border-green-500 focus:ring-green-500 p-2"
                                     required>
                                 <option value="trays" selected>Trays</option>
                                 <!-- <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces (pcs)</option> -->
@@ -106,7 +106,7 @@
                                     <label for="purok_street" class="block text-xs text-gray-500 mb-1">Purok/Street</label>
                                     <input type="text" name="purok_street" id="purok_street" 
                                            class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                           value="{{ old('purok_street') }}" placeholder="Enter purok or street">
+                                           value="{{ old('purok_street') }}" >
                                     @error('purok_street')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                     @enderror

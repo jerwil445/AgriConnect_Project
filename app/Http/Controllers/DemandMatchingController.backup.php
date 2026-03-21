@@ -514,6 +514,12 @@ class DemandMatchingController extends Controller
             return redirect()->route('farmer.messages', ['transaction_id' => $transaction->id]);
         }
     }
+
+    /**
+     * Send a message in a transaction
+     */
+    public function sendMessage(Request $request, Transaction $transaction)
+    {
         // Check if the authenticated user is involved in this transaction
         if (Auth::id() != $transaction->buyer_id && Auth::id() != $transaction->farmer_id) {
             abort(403);

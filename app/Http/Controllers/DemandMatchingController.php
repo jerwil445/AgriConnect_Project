@@ -15,6 +15,7 @@ use App\Services\MatchingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 
 class DemandMatchingController extends Controller
@@ -313,40 +314,40 @@ class DemandMatchingController extends Controller
                 $message = "{$buyerName} is interested in your product \"{$productName}\". Please review and accept the match to start negotiation.";
                 
                 $data = [
-                'message' => $message,
-                'transaction_id' => $demandMatch->id,
-                'product_name' => $productName,
-                'quantity' => $demandMatch->demand->quantity,
-                'total_amount' => $demandMatch->demand->quantity * $demandMatch->product->price
-            ];
-            $farmerUser->notify(new FarmerMatchNotification($data));
-        }
-    } else {
-        // Farmer is accepting the match
-        $demandMatch->update([
-            'status' => 'Matched'
-        ]);
-        
-        // Notify the buyer that the farmer has accepted the match
-        $buyerUser = $demandMatch->demand->buyer;
-        if ($buyerUser) {
-            $farmerName = $demandMatch->product->farmer->user->first_name . ' ' . $demandMatch->product->farmer->user->last_name;
-            $productName = $demandMatch->product->product_name;
-            $message = "{$farmerName} has accepted your demand for \"{$productName}\". You can now start a conversation to negotiate the details.";
-            
-            $data = [
-                'message' => $message,
-                'transaction_id' => $demandMatch->id,
-                'product_name' => $productName,
-                'quantity' => $demandMatch->demand->quantity,
-                'total_amount' => $demandMatch->demand->quantity * $demandMatch->product->price
-            ];
-            $buyerUser->notify(new BuyerFarmerAcceptNotification($data));
-        }
-    }
+                    'message' => $message,
+                    'transaction_id' => null,
+                    'product_name' => $productName,
+                    'quantity' => $demandMatch->demand->quantity,
+                    'total_amount' => $demandMatch->demand->quantity * $demandMatch->product->price
+                ];
+                $farmerUser->notify(new FarmerMatchNotification($data));
+            }
+        } else {
+            // Farmer is accepting the match
+            $demandMatch->update([
+                'status' => 'Matched'
+            ]);
 
-    return back()->with('success', 'Match accepted successfully.');
-}
+            // Notify the buyer that the farmer has accepted the match
+            $buyerUser = $demandMatch->demand->buyer;
+            if ($buyerUser) {
+                $farmerName = $demandMatch->product->farmer->user->first_name . ' ' . $demandMatch->product->farmer->user->last_name;
+                $productName = $demandMatch->product->product_name;
+                $message = "{$farmerName} has accepted your demand for \"{$productName}\". You can now start a conversation to negotiate the details.";
+
+                $data = [
+                    'message' => $message,
+                    'transaction_id' => null,
+                    'product_name' => $productName,
+                    'quantity' => $demandMatch->demand->quantity,
+                    'total_amount' => $demandMatch->demand->quantity * $demandMatch->product->price
+                ];
+                $buyerUser->notify(new BuyerFarmerAcceptNotification($data));
+            }
+        }
+
+        return back()->with('success', 'Match accepted successfully.');
+    }
 
 /**
  * Reject a match (by either buyer or farmer)
@@ -419,8 +420,8 @@ public function startConversation(DemandMatch $demandMatch)
     
     // Create or get conversation thread
     $conversationThread = ConversationThread::firstOrCreate([
-        'buyer_id' => min(Auth::id(), $farmerUser->id),
-        'farmer_id' => max(Auth::id(), $farmerUser->id)
+        'buyer_id' => Auth::id(),
+        'farmer_id' => $farmerUser->id
     ]);
     
     // Update the match status to 'Transaction Started'
@@ -454,7 +455,7 @@ public function startConversation(DemandMatch $demandMatch)
         'white' => 'White Eggs'
     ];
     $eggTypeName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: ₱" . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
+    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: PHP " . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
     Message::create([
         'transaction_id' => $transaction->id,
         'sender_id' => Auth::id(),
@@ -487,25 +488,17 @@ public function startTransaction(DemandMatch $demandMatch)
     }
     
     // Get the buyer user
-    $buyer = $demandMatch->demand->buyer;
-    
+    $buyerUser = $demandMatch->demand->buyer;
+
     // Check if buyer exists
-    if (!$buyer) {
+    if (!$buyerUser) {
         return redirect()->back()->with('error', 'Unable to start conversation: Buyer profile not found.');
     }
-    
-    // Get the user associated with the buyer
-    $buyerUser = $buyer->user;
-    
-    // Check if buyer user exists
-    if (!$buyerUser) {
-        return redirect()->back()->with('error', 'Unable to start conversation: Buyer account not found.');
-    }
-    
+
     // Create or get conversation thread
     $conversationThread = ConversationThread::firstOrCreate([
-        'buyer_id' => min($buyerUser->id, Auth::id()),
-        'farmer_id' => max($buyerUser->id, Auth::id())
+        'buyer_id' => $buyerUser->id,
+        'farmer_id' => Auth::id()
     ]);
     
     // Update the match status to 'Transaction Started'
@@ -539,7 +532,7 @@ public function startTransaction(DemandMatch $demandMatch)
         'white' => 'White Eggs'
     ];
     $eggTypeName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: ₱" . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
+    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: PHP " . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
     Message::create([
         'transaction_id' => $transaction->id,
         'sender_id' => Auth::id(),
@@ -809,10 +802,6 @@ public function loadTransactionDetails(Transaction $transaction)
  */
 public function placeOrder(Request $request, Transaction $transaction)
 {
-    // Log the incoming request data
-    \Log::info('PlaceOrder request data: ' . json_encode($request->all()));
-    \Log::info('PlaceOrder route params: ' . json_encode($request->route()->parameters()));
-    
     // Check if the authenticated user is the buyer in this transaction
     if (Auth::id() != $transaction->buyer_id) {
         return back()->with('error', 'Unauthorized access.');
@@ -831,19 +820,11 @@ public function placeOrder(Request $request, Transaction $transaction)
         'total_price' => 'required|numeric|min:0',
     ]);
     
-    // Log validated data
-    \Log::info('Validated data: ' . json_encode($validatedData));
-
     // Determine the ordered quantity
     $orderedQuantity = $validatedData['order_quantity'];
     
     // Get tray counts if provided
     $trayCounts = $request->input('tray_counts', []);
-    
-    // Log the tray counts for debugging
-    \Log::info('Tray counts received: ' . json_encode($trayCounts));
-    \Log::info('Tray counts type: ' . gettype($trayCounts));
-    \Log::info('Tray counts empty check: ' . (empty($trayCounts) ? 'true' : 'false'));
     
     // Validate ordered quantity
     if (!is_numeric($orderedQuantity) || $orderedQuantity <= 0) {
@@ -855,31 +836,25 @@ public function placeOrder(Request $request, Transaction $transaction)
     
     // If we have tray counts, recalculate the ordered quantity and total price based on them
     if (!empty($trayCounts)) {
-        \Log::info('Processing tray counts for recalculation');
         $orderedQuantity = 0;
         $totalPrice = 0;
         foreach ($trayCounts as $sizeId => $trayCount) {
-            \Log::info('Processing size ID: ' . $sizeId . ', tray count: ' . $trayCount);
             if ($trayCount > 0) {
                 $size = $transaction->product->sizes->find($sizeId);
-                \Log::info('Size lookup result: ' . ($size ? 'found' : 'not found'));
                 if ($size) {
                     $orderedQuantity += $trayCount;
                     $totalPrice += $trayCount * $size->price_per_tray;
-                    \Log::info('Added to totals - Quantity: ' . $trayCount . ', Price: ' . ($trayCount * $size->price_per_tray));
                 }
             }
         }
         // Update the validated data
         $validatedData['total_price'] = $totalPrice;
         $finalPrice = $totalPrice / $orderedQuantity;
-        \Log::info('Recalculated totals - Ordered Quantity: ' . $orderedQuantity . ', Total Price: ' . $totalPrice . ', Final Price: ' . $finalPrice);
     }
     
     // Prepare size details for storage
     $sizeDetails = [];
     if (!empty($trayCounts)) {
-        \Log::info('Preparing size details for storage');
         foreach ($trayCounts as $sizeId => $trayCount) {
             if ($trayCount > 0) {
                 $size = $transaction->product->sizes->find($sizeId);
@@ -891,32 +866,12 @@ public function placeOrder(Request $request, Transaction $transaction)
                         'price_per_tray' => $size->price_per_tray,
                         'total_price' => $trayCount * $size->price_per_tray
                     ];
-                    \Log::info('Added size detail: ' . json_encode(end($sizeDetails)));
                 }
             }
         }
     }
     
     // Create a new transaction instead of updating the existing one
-    \Log::info('Creating new transaction with data: ' . json_encode([
-        'buyer_id' => $transaction->buyer_id,
-        'farmer_id' => $transaction->farmer_id,
-        'product_id' => $transaction->product_id,
-        'demand_id' => $transaction->demand_id,
-        'conversation_thread_id' => $transaction->conversation_thread_id,
-        'buyer_name' => $validatedData['buyer_name'],
-        'buyer_email' => $validatedData['buyer_email'],
-        'buyer_phone' => $validatedData['buyer_phone'],
-        'buyer_address' => $validatedData['buyer_address'],
-        'payment_method' => $validatedData['payment_method'],
-        'status' => 'Ordered',
-        'final_quantity' => $orderedQuantity,
-        'final_price' => $finalPrice,
-        'total_amount' => $validatedData['total_price'],
-        'tray_counts' => !empty($trayCounts) ? json_encode($trayCounts) : null,
-        'size_details' => !empty($sizeDetails) ? json_encode($sizeDetails) : null
-    ]));
-    
     $newTransaction = Transaction::create([
         'buyer_id' => $transaction->buyer_id,
         'farmer_id' => $transaction->farmer_id,
@@ -936,8 +891,6 @@ public function placeOrder(Request $request, Transaction $transaction)
         'size_details' => !empty($sizeDetails) ? json_encode($sizeDetails) : null
     ]);
     
-    \Log::info('New transaction created with ID: ' . $newTransaction->id);
-    
     // Update the match status to 'Ordered' if there's a demand associated with this transaction
     if ($transaction->demand_id) {
         $demandMatch = DemandMatch::where('demand_id', $transaction->demand_id)
@@ -953,12 +906,10 @@ public function placeOrder(Request $request, Transaction $transaction)
 
     // Create size transaction records for each ordered size
     if (!empty($trayCounts)) {
-        \Log::info('Creating size transactions for transaction ID: ' . $newTransaction->id);
         foreach ($trayCounts as $sizeId => $trayCount) {
             if ($trayCount > 0) {
                 $size = $transaction->product->sizes->find($sizeId);
                 if ($size) {
-                    \Log::info('Creating size transaction for size ID: ' . $sizeId . ', tray count: ' . $trayCount);
                     try {
                         \App\Models\SizeTransaction::create([
                             'transaction_id' => $newTransaction->id,
@@ -968,9 +919,12 @@ public function placeOrder(Request $request, Transaction $transaction)
                             'price_per_tray' => $size->price_per_tray,
                             'total_price' => $trayCount * $size->price_per_tray
                         ]);
-                        \Log::info('Successfully created size transaction for size ID: ' . $sizeId);
                     } catch (\Exception $e) {
-                        \Log::error('Error creating size transaction for size ID: ' . $sizeId . '. Error: ' . $e->getMessage());
+                        Log::error('Failed to create size transaction record.', [
+                            'transaction_id' => $newTransaction->id,
+                            'size_id' => $size->id,
+                            'exception' => $e->getMessage(),
+                        ]);
                     }
                 }
             }
@@ -1510,6 +1464,10 @@ public function messageFarmer(Product $product)
     
     $userId = Auth::id();
     $farmerId = $product->farmer->user_id;
+
+    if ($userId == $farmerId) {
+        return back()->with('error', 'You cannot start a demand conversation with your own product.');
+    }
     
     // Check if there's already a transaction for this specific product with this farmer
     $existingTransaction = Transaction::where('buyer_id', $userId)
@@ -1521,8 +1479,8 @@ public function messageFarmer(Product $product)
     if (!$existingTransaction) {
         // Create or get conversation thread using the same logic as startTransaction
         $conversationThread = ConversationThread::firstOrCreate([
-            'buyer_id' => min($userId, $farmerId),
-            'farmer_id' => max($userId, $farmerId)
+            'buyer_id' => $userId,
+            'farmer_id' => $farmerId
         ]);
         
         // Calculate the available quantity for this buyer
@@ -1533,7 +1491,11 @@ public function messageFarmer(Product $product)
             ->sum('final_quantity');
         
         // Define available quantity as the product's quantity minus what this buyer has already ordered
-        $availableQuantity = $product->quantity - $orderedQuantity;
+        $availableQuantity = max(0, $product->quantity - $orderedQuantity);
+
+        if ($availableQuantity <= 0) {
+            return back()->with('error', 'This product has no remaining quantity available for a new order.');
+        }
         
         // Create a new transaction for this product conversation
         $transaction = Transaction::create([
@@ -1561,7 +1523,7 @@ public function messageFarmer(Product $product)
             'white' => 'White Eggs'
         ];
         $eggTypeName = $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type));
-        $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$product->quantity} {$product->unit}\nPrice: ₱" . number_format($product->price, 2) . "/{$product->unit}";
+        $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$product->quantity} {$product->unit}\nPrice: PHP " . number_format($product->price, 2) . "/{$product->unit}";
         Message::create([
             'transaction_id' => $transaction->id,
             'sender_id' => $userId,

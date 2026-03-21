@@ -42,9 +42,9 @@ class DemandMatchingController extends Controller
 
         // Determine the ordered quantity
         // If order_quantity is provided, use that, otherwise fall back to demand quantity or product quantity
-        $orderedQuantity = $validatedData['order_quantity'] ?? 
-                          ($transaction->demand ? $transaction->demand->quantity : $transaction->product->quantity);
-        
+        $orderedQuantity = $validatedData['order_quantity'] ??
+            ($transaction->demand ? $transaction->demand->quantity : $transaction->product->quantity);
+
         // Validate ordered quantity
         if (!is_numeric($orderedQuantity) || $orderedQuantity <= 0) {
             return back()->with('error', 'Invalid order quantity.');
@@ -65,12 +65,12 @@ class DemandMatchingController extends Controller
 
         // Deduct the ordered quantity from the product
         $product = $transaction->product;
-        
+
         // Check if ordered quantity exceeds available quantity
         if ($orderedQuantity > $product->quantity) {
             return back()->with('error', 'You cannot order more than the available quantity of ' . $product->quantity . ' ' . $product->unit . '.');
         }
-        
+
         // Check if there's enough quantity available
         if ($product->quantity >= $orderedQuantity) {
             // Deduct the quantity
@@ -78,22 +78,23 @@ class DemandMatchingController extends Controller
             $product->update([
                 'quantity' => $newQuantity
             ]);
-            
+
             // If the product quantity reaches 0, mark it as sold out
             if ($newQuantity <= 0) {
                 $product->update([
                     'status' => 'Sold Out'
                 ]);
             }
-            
+
             // Update the "Is this available?" message with the new quantity
             $this->updateAvailabilityMessage($transaction, $newQuantity);
-        } else {
+        }
+        else {
             // Not enough quantity available, rollback the order
             $transaction->update([
                 'status' => 'Active' // Reset status
             ]);
-            
+
             return back()->with('error', 'Not enough quantity available for this product. Only ' . $product->quantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
         }
 
@@ -102,7 +103,7 @@ class DemandMatchingController extends Controller
             $demandMatch = DemandMatch::where('demand_id', $transaction->demand_id)
                 ->where('product_id', $transaction->product_id)
                 ->first();
-                
+
             if ($demandMatch) {
                 $demandMatch->load(['demand', 'product']); // Load relationships for the match
                 $demandMatch->update([
@@ -125,7 +126,7 @@ class DemandMatchingController extends Controller
             ];
             $farmerUser->notify(new FarmerMatchNotification($data));
         }
-        
+
         // Send notification to buyer about their order
         $buyerUser = $transaction->buyer;
         if ($buyerUser && $transaction->product) {
@@ -144,5 +145,5 @@ class DemandMatchingController extends Controller
         return redirect()->back()->with('success', 'Order placed successfully! You can place another order for this product as long as there is quantity available. ' . $newQuantity . ' ' . $product->unit . ' remaining.');
     }
 
-    // ... (remaining methods omitted for brevity)
+// ... (remaining methods omitted for brevity)
 }

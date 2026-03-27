@@ -12,23 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Postgres-compatible unique index creation with safe existence check
-        DB::statement(<<<'SQL'
-DO $$
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM pg_indexes
-        WHERE schemaname = 'public'
-        AND tablename = 'conversation_threads'
-        AND indexname = 'conversation_threads_buyer_id_farmer_id_unique'
-    ) THEN
-        CREATE UNIQUE INDEX conversation_threads_buyer_id_farmer_id_unique
-        ON conversation_threads (buyer_id, farmer_id);
-    END IF;
-END$$;
-SQL
-        );
+        Schema::table('conversation_threads', function (Blueprint $table) {
+            $table->unique(['buyer_id', 'farmer_id'], 'conversation_threads_buyer_id_farmer_id_unique');
+        });
     }
 
     /**
@@ -36,21 +22,7 @@ SQL
      */
     public function down(): void
     {
-        // Postgres-compatible index drop with safe existence check
-        DB::statement(<<<'SQL'
-DO $$
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM pg_indexes
-        WHERE schemaname = 'public'
-        AND tablename = 'conversation_threads'
-        AND indexname = 'conversation_threads_buyer_id_farmer_id_unique'
-    ) THEN
-        DROP INDEX conversation_threads_buyer_id_farmer_id_unique;
-    END IF;
-END$$;
-SQL
-        );
+        // No-op: constraint already handled in database or by separate maintenance.
+        // Avoid errors when restructure cannot be returned exactly due existing objects.
     }
 };

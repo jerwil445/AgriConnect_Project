@@ -21,8 +21,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('product_name');
-        });
+        DB::statement('ALTER TABLE products ADD COLUMN IF NOT EXISTS product_name varchar(255)');
     }
 };

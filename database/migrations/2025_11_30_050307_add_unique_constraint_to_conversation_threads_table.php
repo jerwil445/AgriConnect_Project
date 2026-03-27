@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -11,17 +12,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('conversation_threads', function (Blueprint $table) {
-            // Check if the unique constraint already exists before adding it
-            $indexExists = \DB::select(
-                "SHOW KEYS FROM conversation_threads WHERE Key_name = 'conversation_threads_buyer_id_farmer_id_unique'"
-            );
-            
-            if (empty($indexExists)) {
-                // Add unique constraint to prevent duplicate conversation threads between the same buyer and farmer
-                $table->unique(['buyer_id', 'farmer_id'], 'conversation_threads_buyer_id_farmer_id_unique');
-            }
-        });
+        // Postgres-compatible unique index creation with safe existence check
+        DB::statement(<<<'SQL'
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+        AND tablename = 'conversation_threads'
+        AND indexname = 'conversation_threads_buyer_id_farmer_id_unique'
+    ) THEN
+        CREATE UNIQUE INDEX conversation_threads_buyer_id_farmer_id_unique
+        ON conversation_threads (buyer_id, farmer_id);
+    END IF;
+END$$;
+SQL
+        );
     }
 
     /**
@@ -29,16 +36,21 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('conversation_threads', function (Blueprint $table) {
-            // Check if the unique constraint exists before dropping it
-            $indexExists = \DB::select(
-                "SHOW KEYS FROM conversation_threads WHERE Key_name = 'conversation_threads_buyer_id_farmer_id_unique'"
-            );
-            
-            if (!empty($indexExists)) {
-                // Remove unique constraint
-                $table->dropUnique('conversation_threads_buyer_id_farmer_id_unique');
-            }
-        });
+        // Postgres-compatible index drop with safe existence check
+        DB::statement(<<<'SQL'
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM pg_indexes
+        WHERE schemaname = 'public'
+        AND tablename = 'conversation_threads'
+        AND indexname = 'conversation_threads_buyer_id_farmer_id_unique'
+    ) THEN
+        DROP INDEX conversation_threads_buyer_id_farmer_id_unique;
+    END IF;
+END$$;
+SQL
+        );
     }
 };

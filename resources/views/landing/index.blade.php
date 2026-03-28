@@ -48,8 +48,8 @@
         style="background-image: url('{{ asset('images/background_image.jpg') }}');">
         <div class="absolute inset-0 bg-black bg-opacity-50"></div> <!-- Optional dark overlay -->
 
-        <div class="relative z-10 max-w-4xl mx-auto pt-16">
-            <h2 class="text-4xl md:text-5xl font-bold mb-6">Welcome to ArgiConnect</h2>
+        <div class="relative z-10 max-w-6xl mx-auto pt-16">
+            <h1 class="text-8xl font-bold mb-6 ">Welcome to <span class="text-green-600">ArgiConnect</span></h1>
             <p class="text-lg md:text-xl mb-8 leading-relaxed max-w-2xl mx-auto">
                 A modern web-based platform connecting farmers directly with buyers, eliminating middlemen and ensuring fair trade.
             </p>
@@ -59,7 +59,7 @@
                     Learn More
                 </a>
                 <a href="{{ route('register') }}" 
-                   class="bg-transparent border-2 border-white text-white font-semibold px-8 py-3 rounded-md hover:bg-white hover:text-green-700 transition duration-300 transform hover:-translate-y-1">
+                    class="bg-transparent border-2 border-white text-white font-semibold px-8 py-3 rounded-md hover:bg-white hover:text-green-700 transition duration-300 transform hover:-translate-y-1">
                     Join Now
                 </a>
             </div>

@@ -2,18 +2,9 @@
     $farmerName = auth()->user()->first_name ?? 'Farmer';
 @endphp
 
-<header class="bg-white shadow-sm border-b border-gray-200 ml-60 ">
-    <div class="px-4 lg:px-8 py-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-500">Dashboard</p>
-                <h1 class="text-2xl font-semibold text-gray-900">Welcome back, {{ $farmerName }}</h1>
-                <p class="text-sm text-gray-400">Monitor your farm performance at a glance.</p>
-            </div>
-            <button id="menu-toggle" class="md:hidden text-gray-500">
-                <i class="fa-solid fa-bars text-xl"></i>
-            </button>
-        </div>
+<header class="bg-white shadow-sm border-b border-gray-200 ml-56 ">
+    <div class="px-4 lg:px-8 py-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-end">
+        
 
         <div class="flex items-center gap-3">
             
@@ -129,7 +120,7 @@
     </div>
 </header>
 
-<div class="container mx-auto px-4 py-2">
+<div class="container mx-auto px-4 ">
     @if(session('error'))
         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {{ session('error') }}

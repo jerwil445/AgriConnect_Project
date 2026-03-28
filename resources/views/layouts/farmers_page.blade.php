@@ -18,7 +18,7 @@
         <div class="flex-1 flex flex-col overflow-hidden">
             @include('partials.farmers.header')
 
-            <main class="flex-1 overflow-y-auto px-6 py-8 bg-gray-50">
+            <main class="flex-1 overflow-y-auto px-6 pb-8 bg-gray-50">
                 @yield('content')
             </main>
         </div>
@@ -29,7 +29,7 @@
             const menuToggle = document.getElementById('menu-toggle');
             const closeBtn = document.getElementById('close-btn');
             const sidebar = document.getElementById('sidebar');
-            
+
             // User dropdown functionality
             const userMenuButton = document.getElementById('user-menu-button');
             const userDropdown = document.getElementById('user-dropdown');
@@ -63,8 +63,9 @@
             document.addEventListener('click', function(event) {
                 const isClickInsideSidebar = sidebar && sidebar.contains(event.target);
                 const isClickOnMenuToggle = menuToggle && menuToggle.contains(event.target);
-                
-                if (!isClickInsideSidebar && !isClickOnMenuToggle && sidebar && !sidebar.classList.contains('-translate-x-full')) {
+
+                if (!isClickInsideSidebar && !isClickOnMenuToggle && sidebar && !sidebar.classList.contains(
+                        '-translate-x-full')) {
                     sidebar.classList.add('-translate-x-full');
                 }
             });

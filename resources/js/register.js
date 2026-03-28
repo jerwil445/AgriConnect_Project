@@ -227,8 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
         businessTypeSelect?.setAttribute("required", "required");
         syncRoleRequiredFields("buyer");
         applyRoleFieldState("buyer");
-        const businessField = fieldEntries.find((field) => field.name === "business_type");
-        businessField && handleValidation(businessField, { form, roleInput });
     }
 
     farmerBtn?.addEventListener("click", switchToFarmer);

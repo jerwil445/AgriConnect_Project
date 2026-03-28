@@ -1,5 +1,5 @@
 <header class="fixed w-full top-0 z-50 bg-white shadow-md">
-    <nav class="container mx-auto flex justify-between items-center p-4">
+    <nav class="container mx-auto flex justify-between items-center p-2">
         <h1 class="flex items-center gap-2 text-2xl font-bold text-green-700">
             <svg class="w-10 h-10 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor" stroke-width="2" aria-hidden="true">

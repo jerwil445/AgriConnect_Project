@@ -13,226 +13,73 @@
                 &larr; Back to Orders
             </a>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Order Information -->
-            <div class="bg-gray-50 rounded-lg p-6">
+            <div class="bg-gray-50 rounded-lg p-6 space-y-3">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Order Information</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Order ID:</span>
-                        <span class="font-medium">#{{ $order->id }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Order Date:</span>
-                        <span class="font-medium">{{ $order->created_at->format('M d, Y') }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Status:</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            @if($order->status == 'Ordered') bg-yellow-100 text-yellow-800
-                            @elseif($order->status == 'Accepted') bg-green-100 text-green-800
-                            @elseif($order->status == 'Rejected') bg-red-100 text-red-800
-                            @else bg-gray-100 text-gray-800
-                            @endif">
-                            {{ $order->status }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Payment Status:</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            @if($order->payment_status == 'Paid') bg-green-100 text-green-800
-                            @elseif($order->payment_status == 'Pending') bg-yellow-100 text-yellow-800
-                            @else bg-gray-100 text-gray-800
-                            @endif">
-                            {{ $order->payment_status }}
-                        </span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Delivery Status:</span>
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                            @if($order->delivery_status == 'Delivered') bg-green-100 text-green-800
-                            @elseif($order->delivery_status == 'Scheduled') bg-blue-100 text-blue-800
-                            @else bg-gray-100 text-gray-800
-                            @endif">
-                            {{ $order->delivery_status }}
-                        </span>
-                    </div>
-                </div>
+                <div class="flex justify-between"><span class="text-gray-600">Order ID:</span><span class="font-medium">#{{ $order->id }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Order Date:</span><span class="font-medium">{{ $order->created_at->format('M d, Y') }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Status:</span><span class="font-medium">{{ $order->status }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Payment Status:</span><span class="font-medium">{{ $order->payment_status }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Delivery Status:</span><span class="font-medium">{{ $order->delivery_status }}</span></div>
             </div>
-            
-            <!-- Product Information -->
-            <div class="bg-gray-50 rounded-lg p-6">
+
+            <div class="bg-gray-50 rounded-lg p-6 space-y-3">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Product Information</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Egg Type:</span>
-                        <span class="font-medium">{{ $order->product->egg_type }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Quantity:</span>
-                        <span class="font-medium">{{ $order->final_quantity }} {{ $order->product->unit }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Unit Price:</span>
-                        <span class="font-medium">₱{{ number_format($order->final_price, 2) }}/{{ $order->product->unit }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Total Amount:</span>
-                        <span class="font-bold text-green-600">₱{{ number_format($order->total_amount, 2) }}</span>
-                    </div>
-                </div>
+                <div class="flex justify-between"><span class="text-gray-600">Product:</span><span class="font-medium">{{ $order->product->product_name }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Variety/Size:</span><span class="font-medium">{{ $order->product->variety_size ?: 'N/A' }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Quantity:</span><span class="font-medium">{{ $order->final_quantity }} {{ $order->product->unit }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Price per Unit:</span><span class="font-medium">₱{{ number_format($order->final_price, 2) }}/{{ $order->product->unit }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Total Amount:</span><span class="font-bold text-green-600">₱{{ number_format($order->total_amount, 2) }}</span></div>
             </div>
-            
-            <!-- Egg Sizes Information -->
-            @if($order->sizeTransactions && $order->sizeTransactions->count() > 0)
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
-                <div class="space-y-3">
-                    @foreach($order->sizeTransactions as $sizeTransaction)
-                    <div class="flex justify-between items-center p-2 bg-white rounded border">
-                        <div>
-                            <span class="font-medium">{{ $sizeTransaction->size_name }}</span>
-                            <span class="text-gray-600 text-sm ml-2">({{ $sizeTransaction->tray_count }} trays)</span>
-                        </div>
-                        <div class="text-right">
-                            <div>₱{{ number_format($sizeTransaction->price_per_tray, 2) }}/tray</div>
-                            <div class="text-sm text-gray-600">Total: ₱{{ number_format($sizeTransaction->total_price, 2) }}</div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @elseif($order->tray_counts && is_array(json_decode($order->tray_counts, true)) && count(json_decode($order->tray_counts, true)) > 0)
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
-                <div class="space-y-3">
-                    @foreach(json_decode($order->tray_counts, true) as $sizeId => $trayCount)
-                        @php
-                            $size = $order->product->sizes->find($sizeId);
-                        @endphp
-                        @if($size && $trayCount > 0)
-                        <div class="flex justify-between items-center p-2 bg-white rounded border">
-                            <div>
-                                <span class="font-medium">{{ $size->size_name }}</span>
-                                <span class="text-gray-600 text-sm ml-2">({{ $trayCount }} trays)</span>
-                            </div>
-                            <div class="text-right">
-                                <div>₱{{ number_format($size->price_per_tray ?? 0, 2) }}/tray</div>
-                                <div class="text-sm text-gray-600">Total: ₱{{ number_format(($size->price_per_tray ?? 0) * $trayCount, 2) }}</div>
-                            </div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-            @elseif($order->product->sizes && $order->product->sizes->count() > 0)
-            <!-- Show product sizes when no specific tray counts were ordered -->
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-800 mb-4">Egg Sizes</h2>
-                <div class="space-y-3">
-                    @foreach($order->product->sizes as $size)
-                        @if($size->tray_count > 0)
-                        <div class="flex justify-between items-center p-2 bg-white rounded border">
-                            <div>
-                                <span class="font-medium">{{ $size->size_name }}</span>
-                                <span class="text-gray-600 text-sm ml-2">({{ $size->tray_count }} trays)</span>
-                            </div>
-                            <div class="text-right">
-                                <div>₱{{ number_format($size->price_per_tray ?? 0, 2) }}/tray</div>
-                                <div class="text-sm text-gray-600">Total: ₱{{ number_format(($size->price_per_tray ?? 0) * $size->tray_count, 2) }}</div>
-                            </div>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-            @endif
-            
-            <!-- Buyer Information -->
-            <div class="bg-gray-50 rounded-lg p-6">
+
+            <div class="bg-gray-50 rounded-lg p-6 space-y-3">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Buyer Information</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Name:</span>
-                        <span class="font-medium">{{ $order->buyer->first_name }} {{ $order->buyer->last_name }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Email:</span>
-                        <span class="font-medium">{{ $order->buyer->email }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Phone:</span>
-                        <span class="font-medium">{{ $order->buyer_phone ?? 'N/A' }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Address:</span>
-                        <span class="font-medium">{{ $order->buyer_address ?? 'N/A' }}</span>
-                    </div>
-                </div>
+                <div class="flex justify-between"><span class="text-gray-600">Name:</span><span class="font-medium">{{ $order->buyer->first_name }} {{ $order->buyer->last_name }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Email:</span><span class="font-medium">{{ $order->buyer->email }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Phone:</span><span class="font-medium">{{ $order->buyer_phone ?? 'N/A' }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Address:</span><span class="font-medium">{{ $order->buyer_address ?? 'N/A' }}</span></div>
             </div>
-            
-            <!-- Farmer Information -->
-            <div class="bg-gray-50 rounded-lg p-6">
+
+            <div class="bg-gray-50 rounded-lg p-6 space-y-3">
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Farmer Information</h2>
-                <div class="space-y-3">
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Name:</span>
-                        <span class="font-medium">{{ $order->farmer->first_name }} {{ $order->farmer->last_name }}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-600">Email:</span>
-                        <span class="font-medium">{{ $order->farmer->email }}</span>
-                    </div>
-                </div>
+                <div class="flex justify-between"><span class="text-gray-600">Name:</span><span class="font-medium">{{ $order->farmer->first_name }} {{ $order->farmer->last_name }}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">Email:</span><span class="font-medium">{{ $order->farmer->email }}</span></div>
             </div>
         </div>
-        
-        <!-- Action Buttons -->
+
         <div class="mt-8 flex flex-wrap gap-4">
             @if(auth()->user()->buyer && $order->status == 'Ordered')
-                <a href="{{ route('buyer.messages') }}?transaction_id={{ $order->id }}" 
-                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none">
+                <a href="{{ route('buyer.messages') }}?transaction_id={{ $order->id }}"
+                   class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
                     <i class="fas fa-comment mr-2"></i> Chat with Farmer
                 </a>
             @elseif(auth()->user()->farmer && $order->status == 'Ordered')
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none accept-order-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 accept-order-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-check mr-2"></i> Accept Order
                 </button>
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none reject-order-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 reject-order-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-times mr-2"></i> Reject Order
                 </button>
             @endif
-            
+
             @if(auth()->user()->buyer && $order->payment_status != 'Paid' && $order->status == 'Accepted')
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none mark-paid-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 mark-paid-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-money-bill mr-2"></i> Mark as Paid
                 </button>
             @endif
-            
+
             @if(auth()->user()->farmer && $order->status == 'Accepted')
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none mark-prepared-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 mark-prepared-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-box mr-2"></i> Mark as Prepared
                 </button>
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none assign-logistics-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 assign-logistics-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-truck mr-2"></i> Assign Logistics
                 </button>
             @endif
-            
+
             @if(auth()->user()->buyer && ($order->delivery_status == 'In Transit' || $order->delivery_status == 'Prepared'))
-                <button type="button" 
-                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none mark-delivered-by-buyer-btn"
-                        data-transaction-id="{{ $order->id }}">
+                <button type="button" class="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 mark-delivered-by-buyer-btn" data-transaction-id="{{ $order->id }}">
                     <i class="fas fa-truck mr-2"></i> Mark as Delivered
                 </button>
             @endif
@@ -242,211 +89,42 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // CSRF token for AJAX requests
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-    // Accept Order button functionality
-    document.querySelectorAll('.accept-order-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to accept this order?')) {
-                fetch(`/transactions/${transactionId}/accept`, {
+
+    function bindAction(selector, urlBuilder, successHandler, confirmMessage) {
+        document.querySelectorAll(selector).forEach(button => {
+            button.addEventListener('click', function() {
+                const transactionId = this.getAttribute('data-transaction-id');
+                if (!confirm(confirmMessage)) {
+                    return;
+                }
+
+                fetch(urlBuilder(transactionId), {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     }
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
-                        location.reload();
+                        successHandler(data);
                     } else {
                         alert('Error: ' + data.message);
                     }
                 })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
+                .catch(() => alert('An error occurred while processing your request.'));
+            });
         });
-    });
-    
-    // Reject Order button functionality
-    document.querySelectorAll('.reject-order-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to reject this order? This action cannot be undone.')) {
-                fetch(`/transactions/${transactionId}/reject`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        window.location.href = '{{ $isFarmer ? route('farmer.orders') : route('buyer.orders') }}';
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Mark Prepared button functionality
-    document.querySelectorAll('.mark-prepared-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to mark this order as prepared?')) {
-                fetch(`/transactions/${transactionId}/mark-prepared`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Assign Logistics button functionality
-    document.querySelectorAll('.assign-logistics-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to assign logistics for this order?')) {
-                fetch(`/transactions/${transactionId}/assign-logistics`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Mark Paid button functionality
-    document.querySelectorAll('.mark-paid-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to mark this order as paid?')) {
-                fetch(`/transactions/${transactionId}/mark-paid`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
-    
-    // Mark Delivered by Buyer button functionality
-    document.querySelectorAll('.mark-delivered-by-buyer-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const transactionId = this.getAttribute('data-transaction-id');
-            if (confirm('Are you sure you want to mark this order as delivered?')) {
-                fetch(`/transactions/${transactionId}/mark-delivered-by-buyer`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert('Error: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while processing your request.');
-                });
-            }
-        });
-    });
+    }
+
+    bindAction('.accept-order-btn', id => `/transactions/${id}/accept`, () => location.reload(), 'Are you sure you want to accept this order?');
+    bindAction('.reject-order-btn', id => `/transactions/${id}/reject`, () => window.location.href = '{{ $isFarmer ? route('farmer.orders') : route('buyer.orders') }}', 'Are you sure you want to reject this order? This action cannot be undone.');
+    bindAction('.mark-prepared-btn', id => `/transactions/${id}/mark-prepared`, () => location.reload(), 'Are you sure you want to mark this order as prepared?');
+    bindAction('.assign-logistics-btn', id => `/transactions/${id}/assign-logistics`, () => location.reload(), 'Are you sure you want to assign logistics for this order?');
+    bindAction('.mark-paid-btn', id => `/transactions/${id}/mark-paid`, () => location.reload(), 'Are you sure you want to mark this order as paid?');
+    bindAction('.mark-delivered-by-buyer-btn', id => `/transactions/${id}/mark-delivered-by-buyer`, () => location.reload(), 'Are you sure you want to mark this order as delivered?');
+});
 </script>
 @endsection

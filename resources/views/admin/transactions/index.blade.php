@@ -178,7 +178,7 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $transaction->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $transaction->product ? $transaction->product->egg_type : 'N/A' }}
+                                    {{ $transaction->product ? $transaction->product->product_name : 'N/A' }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $transaction->demand ? $transaction->demand->egg_type : 'N/A' }}

@@ -1,828 +1,392 @@
 @extends('layouts.farmers_page')
 
 @section('content')
-    <div class="">
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-64  ">
-            <div class="px-6 py-5 border-b border-gray-100">
-                <h2 class="text-lg font-semibold text-gray-900">Add New Product</h2>
-            </div>
+<div class="ml-64">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+        <div class="px-6 py-5 border-b border-gray-100">
+            <h2 class="text-lg font-semibold text-gray-900">Add New Product</h2>
+        </div>
 
-            <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="p-6">
-                @csrf
+        <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-8">
+            @csrf
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Left Column - Main Product Information -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="space-y-6">
                     <div>
-                        <div class="space-y-6">
-                            <div>
-                                <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Product
-                                    Name</label>
-                                <input type="text" name="product_name" id="product_name"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                    value="{{ old('product_name') }}" placeholder="Enter product name">
-                                @error('product_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
+                        <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                        <input type="text" name="product_name" id="product_name" value="{{ old('product_name') }}"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                        @error('product_name')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                            <div>
-                                <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Variety/Size
+                    <div>
+                        <label for="variety_size" class="block text-sm font-medium text-gray-700 mb-1">Variety/Size</label>
+                        <input type="text" name="variety_size" id="variety_size" value="{{ old('variety_size') }}"
+                            placeholder="Large, Medium, Grade A, Bundle, etc."
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                        @error('variety_size')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea name="description" id="description" rows="5"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                            placeholder="Describe the product quality, packaging, or harvest notes.">{{ old('description') }}</textarea>
+                        @error('description')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
+                        <div class="mt-2 rounded-2xl border border-gray-200 bg-gradient-to-br from-green-50 via-white to-emerald-50 p-4">
+                            <div id="image-upload-dropzone"
+                                class="relative overflow-hidden rounded-2xl border-2 border-dashed border-green-200 bg-white/90 p-6 transition duration-200 hover:border-green-400 hover:bg-green-50/60">
+                                <input type="file" name="images[]" id="images" multiple accept="image/*"
+                                    class="sr-only" onchange="previewImages(this)">
+
+                                <label for="images" class="block cursor-pointer">
+                                    <div class="mx-auto flex max-w-lg flex-col items-center text-center">
+                                        <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100 text-green-700 shadow-sm">
+                                            <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 15.75V16.5A2.25 2.25 0 005.25 18.75h13.5A2.25 2.25 0 0021 16.5v-.75M7.5 10.5L12 6m0 0l4.5 4.5M12 6v9"></path>
+                                            </svg>
+                                        </div>
+                                        <h3 class="mt-4 text-base font-semibold text-gray-900">Drop product images here</h3>
+                                        <p class="mt-1 text-sm text-gray-500">or click to browse from your device</p>
+                                        <div class="mt-4 inline-flex items-center rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm">
+                                            Choose Images
+                                        </div>
+                                        <div class="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-500">
+                                            <span class="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-gray-200">Up to 10 images</span>
+                                            <span class="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-gray-200">JPG, PNG, GIF</span>
+                                            <span class="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-gray-200">First image = cover</span>
+                                        </div>
+                                    </div>
                                 </label>
-                                <input type="text" name="product_name" id="product_name"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                    value="{{ old('product_name') }}"
-                                    placeholder="Enter variety/size (e.g. Large, Medium, Small, spinach, lettuce,etc.)">
-                                @error('product_name')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
                             </div>
 
-                            {{-- <div>
-                                <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type</label>
-                                <select name="egg_type" id="egg_type"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2">
-                                    <option value="">Select Egg Type</option>
-                                    <option value="chicken" {{ old('egg_type') == 'chicken' ? 'selected' : '' }}>Chicken
+                            <div id="image-selection-meta" class="mt-4 hidden items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3">
+                                <div>
+                                    <p id="selected-image-count" class="text-sm font-semibold text-gray-900">0 images selected</p>
+                                    <p id="image-limit-note" class="text-xs text-gray-500">Up to 10 images. First image becomes the cover.</p>
+                                </div>
+                                <button type="button" id="clear-selected-images"
+                                    class="inline-flex items-center rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                                    Clear All
+                                </button>
+                            </div>
+                        </div>
+                        @error('images')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                        @error('images.*')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+
+                        <div id="image-preview" class="mt-4 hidden">
+                            <div class="mb-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">Selected Images</p>
+                                    <p class="text-xs text-gray-500">Arrange by reselecting files. The first image will be used as the cover.</p>
+                                </div>
+                            </div>
+                            <div id="preview-container" class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                            <input type="number" name="quantity" id="quantity" value="{{ old('quantity') }}" min="1"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('quantity')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                            <select name="unit" id="unit"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                                @foreach (['pieces', 'trays', 'dozen', 'kilos', 'boxes', 'bunches', 'sacks'] as $unit)
+                                    <option value="{{ $unit }}" {{ old('unit') === $unit ? 'selected' : '' }}>
+                                        {{ ucfirst($unit) }}
                                     </option>
-                                    <option value="duck" {{ old('egg_type') == 'duck' ? 'selected' : '' }}>Duck</option>
-                                    <option value="quail" {{ old('egg_type') == 'quail' ? 'selected' : '' }}>Quail
-                                    </option>
-                                    <!-- <option value="native_chicken" {{ old('egg_type') == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option> -->
-
-                                </select>
-                                @error('egg_type')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div id="egg-category-field">
-                                <label for="egg_category" class="block text-sm font-medium text-gray-700 mb-1">Egg
-                                    Category</label>
-                                <select name="egg_category" id="egg_category"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 p-2">
-                                    <option value="">Select Egg Category</option>
-                                    <option value="white_egg" {{ old('egg_category') == 'white_egg' ? 'selected' : '' }}>
-                                        White Egg</option>
-                                    <option value="brown_egg" {{ old('egg_category') == 'brown_egg' ? 'selected' : '' }}>
-                                        Brown Egg</option>
-                                    <option value="free_range" {{ old('egg_category') == 'free_range' ? 'selected' : '' }}>
-                                        Free-Range</option>
-                                    <option value="organic" {{ old('egg_category') == 'organic' ? 'selected' : '' }}>
-                                        Organic</option>
-                                    <option value="salted_duck_egg"
-                                        {{ old('egg_category') == 'salted_duck_egg' ? 'selected' : '' }}>Salted Duck Egg
-                                    </option>
-                                </select>
-                                @error('egg_category')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div> --}}
-                            <div class="flex space-x-4 ">
-                                <div class="w-full">
-                                    <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity
-                                        Available</label>
-                                    <input type="number" name="quantity" id="quantity"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                        value="{{ old('quantity') }}" min="1" required>
-                                    <p class="mt-1 text-xs text-gray-500">Automatically calculated based on tray counts</p>
-                                    @error('quantity')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-                                <div class="w-full">
-                                    <label for="unit" class="block text-sm font-medium text-gray-700 mb-1">Unit of
-                                        Measure</label>
-                                    <select name="unit" id="unit"
-                                        class="w-full rounded-md border-gray-300  shadow-sm focus:border-green-500 focus:ring-green-500 p-2"
-                                        required>
-                                        <option value="trays" selected>Trays</option>
-                                        <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces (pcs)
-                                        </option>
-                                        <option value="dozen" {{ old('unit') == 'dozen' ? 'selected' : '' }}>Dozen</option>
-                                        <option value="kilos" {{ old('unit') == 'kilos' ? 'selected' : '' }}>Kilograms (kg)
-                                        </option>
-                                        <option value="boxes" {{ old('unit') == 'boxes' ? 'selected' : '' }}>Boxes
-                                        </option>
-
-                                    </select>
-                                    @error('unit')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="flex space-x-4">
-                                <div class="w-full">
-                                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1 ">Total Price
-                                        (₱)</label>
-                                    <input type="number" name="price" id="price" step="0.01" min="0"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                        value="{{ old('price') }}" required>
-                                    <p class="mt-1 text-xs text-gray-500">Automatically calculated based on size prices</p>
-                                    <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
-                                        <strong>Total Price: <span id="calculated-total-price">₱0.00</span></strong>
-                                    </div>
-                                    @error('price')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-
-
-                                <div class="w-full">
-                                    <label for="harvest_date" class="block text-sm font-medium text-gray-700 mb-1">Harvest
-                                        Date</label>
-                                    <input type="date" name="harvest_date" id="harvest_date"
-                                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                        value="{{ old('harvest_date') }}" required>
-                                    @error('harvest_date')
-                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="purok_street"
-                                            class="block text-xs text-gray-500 mb-1">Purok/Street</label>
-                                        <input type="text" name="purok_street" id="purok_street"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                            value="{{ old('purok_street') }}">
-                                        @error('purok_street')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="barangay" class="block text-xs text-gray-500 mb-1">Barangay</label>
-                                        <input type="text" name="barangay" id="barangay"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                            value="{{ old('barangay') }}" placeholder="Enter barangay">
-                                        @error('barangay')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="municipality_city"
-                                            class="block text-xs text-gray-500 mb-1">Municipality/City</label>
-                                        <input type="text" name="municipality_city" id="municipality_city"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                            value="{{ old('municipality_city') }}"
-                                            placeholder="Enter municipality or city">
-                                        @error('municipality_city')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="province" class="block text-xs text-gray-500 mb-1">Province</label>
-                                        <input type="text" name="province" id="province"
-                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                            value="{{ old('province') }}" placeholder="Enter province">
-                                        @error('province')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Egg-specific fields -->
-                            {{-- <div id="egg-fields">
-                                <div class="border-t border-gray-200 pt-6 mt-4">
-                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Egg-Specific Details</h3>
-
-                                    <div class="space-y-6">
-                                        <!-- Unit Selection for Quail Eggs -->
-                                        <div id="quail-unit-options" class="hidden">
-                                            <label class="block text-sm font-medium text-gray-700 mb-3">Unit / Selling
-                                                Option</label>
-                                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                <div class="border border-green-500 rounded-md p-4 bg-green-50 cursor-pointer quail-unit-option"
-                                                    data-value="dozen">
-                                                    <div class="font-medium">Per Dozen (12 pcs)</div>
-                                                    <div class="text-sm text-gray-500">Default selection</div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Quantity</label>
-                                                        <input type="number" name="quail_quantity_dozen"
-                                                            id="quail_quantity_dozen" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter quantity">
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Price per dozen
-                                                            (₱)</label>
-                                                        <input type="number" name="quail_price_dozen"
-                                                            id="quail_price_dozen" step="0.01" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter price">
-                                                    </div>
-                                                </div>
-                                                <div class="border border-gray-300 rounded-md p-4 hover:border-green-300 cursor-pointer quail-unit-option"
-                                                    data-value="pack_24">
-                                                    <div class="font-medium">Per 24 pcs pack</div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Quantity</label>
-                                                        <input type="number" name="quail_quantity_pack"
-                                                            id="quail_quantity_pack" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter quantity">
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Price per pack
-                                                            (₱)</label>
-                                                        <input type="number" name="quail_price_pack"
-                                                            id="quail_price_pack" step="0.01" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter price">
-                                                    </div>
-                                                </div>
-                                                <div class="border border-gray-300 rounded-md p-4 hover:border-green-300 cursor-pointer quail-unit-option"
-                                                    data-value="tray_36">
-                                                    <div class="font-medium">Per Tray (36 pcs)</div>
-                                                    <div class="text-sm text-gray-500">Optional</div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Quantity</label>
-                                                        <input type="number" name="quail_quantity_tray"
-                                                            id="quail_quantity_tray" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter quantity">
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <label class="block text-xs text-gray-600">Price per tray
-                                                            (₱)</label>
-                                                        <input type="number" name="quail_price_tray"
-                                                            id="quail_price_tray" step="0.01" min="0"
-                                                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                                            placeholder="Enter price">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <!-- <input type="hidden" name="unit" id="unit" value="{{ old('unit', 'trays') }}"> -->
-                                            <div id="quail-total-price-display" class="mt-2 text-sm text-gray-700 hidden">
-                                                <strong>Total Price: <span
-                                                        id="calculated-total-price">₱0.00</span></strong>
-                                            </div>
-                                        </div>
-
-                                        <!-- Egg Sizes Table -->
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-3">Sizes</label>
-
-                                            <div
-                                                class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-md">
-                                                <table class="min-w-full divide-y divide-gray-300">
-                                                    <thead class="bg-gray-50">
-                                                        <tr>
-                                                            <th scope="col"
-                                                                class="py-3 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                                                Size</th>
-                                                            <th scope="col"
-                                                                class="px-3 py-3 text-left text-sm font-semibold text-gray-900">
-                                                                Trays</th>
-                                                            <th scope="col"
-                                                                class="px-3 py-3 text-left text-sm font-semibold text-gray-900">
-                                                                Price per Tray</th>
-                                                            <th scope="col"
-                                                                class="px-3 py-3 text-left text-sm font-semibold text-gray-900">
-                                                                Total</th>
-                                                            <th scope="col" class="relative py-3 pl-3 pr-4 sm:pr-6">
-                                                                <span class="sr-only">Actions</span>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody class="divide-y divide-gray-200 bg-white"
-                                                        id="sizes-table-body">
-                                                        <!-- Size rows will be added here dynamically -->
-                                                    </tbody>
-                                                    <tfoot class="bg-gray-50">
-                                                        <tr>
-                                                            <td colspan="3"
-                                                                class="py-3 pl-4 pr-3 text-right text-sm font-medium text-gray-900 sm:pl-6">
-                                                                Totals:</td>
-                                                            <td
-                                                                class="px-3 py-3 text-left text-sm font-semibold text-gray-900">
-                                                                <span id="total-price-display">₱0.00</span>
-                                                            </td>
-                                                            <td class="relative py-3 pl-3 pr-4 sm:pr-6"></td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-
-                                            <!-- Add Size Button -->
-                                            <div class="mt-4">
-                                                <button type="button" id="add-size-btn"
-                                                    class="inline-flex items-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                                    Add Size
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> --}}
-                            <input type="hidden" name="egg_size" id="egg_size_hidden">
-                            <input type="hidden" name="total_price" id="total_price_hidden">
-                            @error('egg_size')
+                                @endforeach
+                            </select>
+                            @error('unit')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
 
-                    <!-- Right Column - Description and Images -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price per Unit (₱)</label>
+                            <input type="number" name="price" id="price" value="{{ old('price') }}" step="0.01" min="0"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('price')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="total_amount_display" class="block text-sm font-medium text-gray-700 mb-1">Total Amount (₱)</label>
+                            <input type="text" id="total_amount_display" value="0.00"
+                                class="w-full rounded-md border-gray-300 bg-gray-50 shadow-sm" readonly>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="harvest_date" class="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+                            <input type="date" name="harvest_date" id="harvest_date" value="{{ old('harvest_date') }}"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
+                            @error('harvest_date')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select name="status" id="status"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                @foreach (['Available', 'Pending', 'Sold Out'] as $status)
+                                    <option value="{{ $status }}" {{ old('status', 'Available') === $status ? 'selected' : '' }}>
+                                        {{ $status }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('status')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+
                     <div>
-                        <div class="space-y-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Address</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="description"
-                                    class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea name="description" id="description" rows="6"
-                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                    placeholder="Describe the quality, farming methods, etc.">{{ old('description') }}</textarea>
-                                @error('description')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
+                                <label for="purok_street" class="block text-xs text-gray-500 mb-1">Purok/Street</label>
+                                <input type="text" name="purok_street" id="purok_street" value="{{ old('purok_street') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                             </div>
-
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
-                                <div class="border-2 border-dashed border-gray-300 rounded-md p-6 text-center bg-gray-50 hover:border-green-400 transition-colors cursor-pointer"
-                                    onclick="document.getElementById('images').click()">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
-                                            viewBox="0 0 48 48" aria-hidden="true">
-                                            <path
-                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                        <div class="flex text-sm text-gray-600">
-                                            <label for="images"
-                                                class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500">
-                                                <span>Upload files</span>
-                                            </label>
-                                            <p class="pl-1">or drag and drop</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                                        <p class="text-xs text-gray-500 mt-1">You can select up to 10 images. The first
-                                            image will be used as the primary image.</p>
-                                    </div>
-                                    <input type="file" name="images[]" id="images" multiple class="sr-only"
-                                        accept="image/*" onchange="previewImages(this)">
-                                </div>
-                                <p class="mt-2 text-sm text-gray-500">Click or drag images to this area to upload</p>
-                                @error('images')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                @error('images.*')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-
-                                <!-- Preview of newly uploaded images -->
-                                <div id="image-preview" class="mt-4 flex flex-wrap gap-3 hidden">
-                                    <p class="text-sm text-gray-700 font-medium mb-2 w-full">Newly Uploaded Images:</p>
-                                    <div id="preview-container" class="flex flex-wrap gap-3"></div>
-                                </div>
+                                <label for="barangay" class="block text-xs text-gray-500 mb-1">Barangay</label>
+                                <input type="text" name="barangay" id="barangay" value="{{ old('barangay') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label for="municipality_city" class="block text-xs text-gray-500 mb-1">Municipality/City</label>
+                                <input type="text" name="municipality_city" id="municipality_city" value="{{ old('municipality_city') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                            </div>
+                            <div>
+                                <label for="province" class="block text-xs text-gray-500 mb-1">Province</label>
+                                <input type="text" name="province" id="province" value="{{ old('province') }}"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="mt-8 flex justify-end gap-3">
-                    <a href="{{ route('products.index') }}"
-                        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        Cancel
-                    </a>
-                    <button type="submit"
-                        class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                        Add Product
-                    </button>
-                </div>
-            </form>
-        </div>
+            <div class="flex justify-end gap-3 border-t border-gray-100 pt-6">
+                <a href="{{ route('products.index') }}"
+                    class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit"
+                    class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                    Add Product
+                </button>
+            </div>
+        </form>
     </div>
-@endsection
+</div>
+
 <script>
-    // Check on page load
-    window.addEventListener('DOMContentLoaded', function() {
-        const sizesTableBody = document.getElementById('sizes-table-body');
-        const totalPriceDisplay = document.getElementById('total-price-display');
-        const quantityInput = document.getElementById('quantity');
-        const priceInput = document.getElementById('price');
-        const addSizeBtn = document.getElementById('add-size-btn');
+    const productImageInput = document.getElementById('images');
+    const imageUploadDropzone = document.getElementById('image-upload-dropzone');
+    const imageSelectionMeta = document.getElementById('image-selection-meta');
+    const selectedImageCount = document.getElementById('selected-image-count');
+    const imageLimitNote = document.getElementById('image-limit-note');
+    const clearSelectedImagesButton = document.getElementById('clear-selected-images');
+    let selectedImageFiles = [];
+    let imageSelectionWasTrimmed = false;
 
-        let sizeCounter = 0;
-        let totalTrays = 0;
-        let totalPrice = 0;
+    function updateTotalAmount() {
+        const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        document.getElementById('total_amount_display').value = (quantity * price).toFixed(2);
+    }
 
-        // Size options
-        const sizeOptions = [{
-                value: 'small',
-                label: 'Small'
-            },
-            {
-                value: 'medium',
-                label: 'Medium'
-            },
-            {
-                value: 'large',
-                label: 'Large'
-            },
-            {
-                value: 'extra_large',
-                label: 'Extra Large'
-            },
-            {
-                value: 'jumbo',
-                label: 'Jumbo'
-            }
-        ];
+    function syncImageInput() {
+        const dataTransfer = new DataTransfer();
 
-        // Add size button click handler
-        addSizeBtn.addEventListener('click', function() {
-            addSizeRow();
+        selectedImageFiles.forEach((file) => {
+            dataTransfer.items.add(file);
         });
 
-        // Function to add a new size row
-        function addSizeRow(sizeData = null) {
-            const rowId = 'size-row-' + sizeCounter;
-            const sizeSelectId = 'size-name-' + sizeCounter;
-            const trayInputId = 'tray-count-' + sizeCounter;
-            const priceInputId = 'price-per-tray-' + sizeCounter;
-            const totalSpanId = 'total-' + sizeCounter;
-            const removeBtnId = 'remove-' + sizeCounter;
+        productImageInput.files = dataTransfer.files;
+    }
 
-            const row = document.createElement('tr');
-            row.id = rowId;
-            row.className = 'size-row';
-
-            // Size select - filter out already selected sizes
-            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select =>
-                select.value);
-            let sizeSelectOptions = '';
-            sizeOptions.forEach(option => {
-                // Skip if this size is already selected (unless it's the one we're editing)
-                if (existingSizes.includes(option.value) && !(sizeData && sizeData.name === option
-                        .value)) {
-                    return;
-                }
-
-                const selected = sizeData && sizeData.name === option.value ? 'selected' : '';
-                sizeSelectOptions +=
-                    `<option value="${option.value}" ${selected}>${option.label}</option>`;
-            });
-
-            row.innerHTML = `
-                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                    <select name="sizes[${sizeCounter}][name]" id="${sizeSelectId}" class="rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                        ${sizeSelectOptions}
-                    </select>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <input type="number" name="sizes[${sizeCounter}][tray_count]" id="${trayInputId}" min="1" value="${sizeData ? sizeData.tray_count : ''}"
-                           class="w-24 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <div class="flex items-center">
-                        <span class="mr-1">₱</span>
-                        <input type="number" name="sizes[${sizeCounter}][price_per_tray]" id="${priceInputId}" step="0.01" min="0" value="${sizeData ? sizeData.price_per_tray : ''}"
-                               class="w-24 rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                    </div>
-                </td>
-                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                    <span id="${totalSpanId}">₱0.00</span>
-                </td>
-                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                    <button type="button" id="${removeBtnId}" class="text-red-600 hover:text-red-900 remove-size-btn">Remove</button>
-                </td>
-            `;
-
-            sizesTableBody.appendChild(row);
-
-            // Add event listeners for the new inputs
-            const trayInput = document.getElementById(trayInputId);
-            const priceInput = document.getElementById(priceInputId);
-            const sizeSelect = document.getElementById(sizeSelectId);
-            const removeBtn = document.getElementById(removeBtnId);
-
-            // Update calculations when inputs change
-            trayInput.addEventListener('input', updateCalculations);
-            priceInput.addEventListener('input', updateCalculations);
-            sizeSelect.addEventListener('change', function() {
-                updateCalculations();
-
-                // Update options in other selects to prevent duplicates
-                updateSizeSelectOptions();
-            });
-
-            // Remove button handler
-            removeBtn.addEventListener('click', function() {
-                row.remove();
-                updateCalculations();
-
-                // Update options in other selects
-                updateSizeSelectOptions();
-            });
-
-            sizeCounter++;
-            updateCalculations();
+    function formatFileSize(bytes) {
+        if (bytes < 1024) {
+            return bytes + ' B';
         }
 
-        // Function to update size select options to prevent duplicates
-        function updateSizeSelectOptions() {
-            const existingSizes = Array.from(document.querySelectorAll('select[name$="[name]"]')).map(select =>
-                select.value);
-
-            document.querySelectorAll('select[name$="[name]"]').forEach(select => {
-                const currentValue = select.value;
-
-                // Clear existing options
-                const selectedOption = select.options[select.selectedIndex];
-                const selectedText = selectedOption ? selectedOption.text : '';
-
-                select.innerHTML = '';
-
-                // Add options that are not already selected (or is the current selection)
-                sizeOptions.forEach(option => {
-                    if (!existingSizes.includes(option.value) || option.value ===
-                        currentValue) {
-                        const optionElement = document.createElement('option');
-                        optionElement.value = option.value;
-                        optionElement.textContent = option.label;
-                        if (option.value === currentValue) {
-                            optionElement.selected = true;
-                        }
-                        select.appendChild(optionElement);
-                    }
-                });
-
-                // If current value is not in sizeOptions, preserve it
-                if (currentValue && !sizeOptions.some(opt => opt.value === currentValue)) {
-                    const optionElement = document.createElement('option');
-                    optionElement.value = currentValue;
-                    optionElement.textContent = selectedText || currentValue;
-                    optionElement.selected = true;
-                    select.appendChild(optionElement);
-                }
-            });
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + ' KB';
         }
 
-        // Function to update calculations
-        function updateCalculations() {
-            totalTrays = 0;
-            totalPrice = 0;
+        return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
 
-            // Get all size rows
-            const rows = document.querySelectorAll('.size-row');
-
-            rows.forEach((row, index) => {
-                const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
-                const priceInput = row.querySelector(`input[name="sizes[${index}][price_per_tray]"]`);
-                const totalSpan = row.querySelector(`td:nth-child(4) span`);
-
-                const trayCount = parseInt(trayInput.value) || 0;
-                const pricePerTray = parseFloat(priceInput.value) || 0;
-                const total = trayCount * pricePerTray;
-
-                totalSpan.textContent = '₱' + total.toFixed(2);
-
-                totalTrays += trayCount;
-                totalPrice += total;
-            });
-
-            // Update summary display
-            totalPriceDisplay.textContent = '₱' + totalPrice.toFixed(2);
-
-            // Update form inputs
-            quantityInput.value = totalTrays;
-            priceInput.value = totalPrice.toFixed(2);
-
-            // Update hidden inputs
-            document.getElementById('total_price_hidden').value = totalPrice.toFixed(2);
-
-            // Update egg size hidden input
-            updateEggSizeHidden();
+    function updateImageSelectionMeta() {
+        if (selectedImageFiles.length === 0) {
+            imageSelectionMeta.classList.add('hidden');
+            imageSelectionMeta.classList.remove('flex');
+            imageLimitNote.textContent = 'Up to 10 images. First image becomes the cover.';
+            return;
         }
 
-        // Function to update the hidden input with egg sizes and tray counts
-        function updateEggSizeHidden() {
-            const selectedValues = [];
-            const rows = document.querySelectorAll('.size-row');
+        imageSelectionMeta.classList.remove('hidden');
+        imageSelectionMeta.classList.add('flex');
+        selectedImageCount.textContent = `${selectedImageFiles.length} image${selectedImageFiles.length === 1 ? '' : 's'} selected`;
+        imageLimitNote.textContent = imageSelectionWasTrimmed
+            ? 'Only the first 10 images were kept. Cover image is highlighted in green.'
+            : 'Cover image is highlighted in green. Remove any image before saving if needed.';
+    }
 
-            rows.forEach((row, index) => {
-                const sizeSelect = row.querySelector(`select[name="sizes[${index}][name]"]`);
-                const trayInput = row.querySelector(`input[name="sizes[${index}][tray_count]"]`);
-                const priceInput = row.querySelector(`input[name="sizes[${index}][price_per_tray]"]`);
+    function setDropzoneActive(isActive) {
+        imageUploadDropzone.classList.toggle('border-green-500', isActive);
+        imageUploadDropzone.classList.toggle('bg-green-50', isActive);
+        imageUploadDropzone.classList.toggle('shadow-inner', isActive);
+    }
 
-                const sizeValue = sizeSelect.value;
-                const trayCount = trayInput.value;
-                const priceValue = priceInput.value;
+    function renderImagePreviews() {
+        const imagePreview = document.getElementById('image-preview');
+        const previewContainer = document.getElementById('preview-container');
+        previewContainer.innerHTML = '';
+        updateImageSelectionMeta();
 
-                // Find the label for the size
-                let sizeLabel = '';
-                sizeOptions.forEach(option => {
-                    if (option.value === sizeValue) {
-                        sizeLabel = option.label;
-                    }
-                });
-
-                if (sizeValue && trayCount && priceValue) {
-                    selectedValues.push(
-                        `${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''}) @ ₱${parseFloat(priceValue).toFixed(2)}/tray`
-                    );
-                } else if (sizeValue && trayCount) {
-                    selectedValues.push(`${sizeLabel} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
-                } else if (sizeValue) {
-                    selectedValues.push(sizeLabel);
-                }
-            });
-
-            document.getElementById('egg_size_hidden').value = selectedValues.join(', ');
+        if (selectedImageFiles.length === 0) {
+            imagePreview.classList.add('hidden');
+            productImageInput.value = '';
+            return;
         }
 
-        // Initialize with one empty row
-        addSizeRow();
+        selectedImageFiles.forEach((file, index) => {
+            const previewCard = document.createElement('div');
+            previewCard.className = 'group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm';
 
-        // Handle egg type change
-        const eggTypeSelect = document.getElementById('egg_type');
-        eggTypeSelect.addEventListener('change', function() {
-            handleEggTypeChange();
+            const imageWrapper = document.createElement('div');
+            imageWrapper.className = 'relative h-44 overflow-hidden bg-gray-100';
+
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.className = 'h-full w-full object-cover transition duration-300 group-hover:scale-105';
+            img.alt = 'Preview';
+            img.onload = function() {
+                URL.revokeObjectURL(img.src);
+            };
+
+            const removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-base font-bold text-red-600 shadow-md transition hover:bg-red-600 hover:text-white';
+            removeButton.setAttribute('aria-label', `Remove ${file.name}`);
+            removeButton.innerHTML = '&times;';
+            removeButton.addEventListener('click', function() {
+                selectedImageFiles = selectedImageFiles.filter((_, fileIndex) => fileIndex !== index);
+                syncImageInput();
+                renderImagePreviews();
+            });
+
+            imageWrapper.appendChild(img);
+            imageWrapper.appendChild(removeButton);
+
+            if (index === 0) {
+                const coverBadge = document.createElement('span');
+                coverBadge.className = 'absolute bottom-2 left-2 rounded-full bg-green-600 px-3 py-1 text-xs font-semibold text-white shadow';
+                coverBadge.textContent = 'Cover';
+                imageWrapper.appendChild(coverBadge);
+            }
+
+            const details = document.createElement('div');
+            details.className = 'border-t border-gray-100 p-3';
+
+            const fileName = document.createElement('p');
+            fileName.className = 'truncate text-sm font-semibold text-gray-800';
+            fileName.textContent = file.name;
+
+            const fileSize = document.createElement('p');
+            fileSize.className = 'mt-1 text-xs text-gray-500';
+            fileSize.textContent = formatFileSize(file.size);
+
+            details.appendChild(fileName);
+            details.appendChild(fileSize);
+
+            previewCard.appendChild(imageWrapper);
+            previewCard.appendChild(details);
+            previewContainer.appendChild(previewCard);
         });
 
-        // Initialize form based on egg type
-        handleEggTypeChange();
+        imagePreview.classList.remove('hidden');
+    }
 
-        // Handle quail unit option clicks
-        setTimeout(function() {
-            if (document.querySelectorAll('.quail-unit-option').length > 0) {
-                document.querySelectorAll('.quail-unit-option').forEach(option => {
-                    option.addEventListener('click', function() {
-                        // Remove active state from all options
-                        document.querySelectorAll('.quail-unit-option').forEach(opt => {
-                            opt.classList.remove('border-green-500',
-                                'bg-green-50');
-                            opt.classList.add('border-gray-300');
-                        });
+    function handleSelectedFiles(files) {
+        const imageFiles = Array.from(files).filter((file) => file.type.match('image.*'));
 
-                        // Add active state to clicked option
-                        this.classList.remove('border-gray-300');
-                        this.classList.add('border-green-500', 'bg-green-50');
+        imageSelectionWasTrimmed = imageFiles.length > 10;
+        selectedImageFiles = imageFiles.slice(0, 10);
 
-                        // Update hidden input
-                        document.getElementById('unit').value = this.dataset.unit;
-                    });
-                });
+        syncImageInput();
+        renderImagePreviews();
+    }
 
-                // Add input event listeners for quail quantity and price fields
-                document.getElementById('quail_quantity_dozen').addEventListener('input',
-                    calculateQuailTotalPrice);
-                document.getElementById('quail_price_dozen').addEventListener('input',
-                    calculateQuailTotalPrice);
-                document.getElementById('quail_quantity_pack').addEventListener('input',
-                    calculateQuailTotalPrice);
-                document.getElementById('quail_price_pack').addEventListener('input',
-                    calculateQuailTotalPrice);
-                document.getElementById('quail_quantity_tray').addEventListener('input',
-                    calculateQuailTotalPrice);
-                document.getElementById('quail_price_tray').addEventListener('input',
-                    calculateQuailTotalPrice);
-            }
-        }, 100);
+    function previewImages(input) {
+        handleSelectedFiles(input.files);
+    }
+
+    if (clearSelectedImagesButton) {
+        clearSelectedImagesButton.addEventListener('click', function() {
+            selectedImageFiles = [];
+            imageSelectionWasTrimmed = false;
+            syncImageInput();
+            renderImagePreviews();
+        });
+    }
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+        imageUploadDropzone.addEventListener(eventName, function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            setDropzoneActive(true);
+        });
     });
 
-    // Function to calculate total price for quail eggs
-    function calculateQuailTotalPrice() {
-        let totalPrice = 0;
+    ['dragleave', 'drop'].forEach((eventName) => {
+        imageUploadDropzone.addEventListener(eventName, function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            setDropzoneActive(false);
+        });
+    });
 
-        // Calculate total for dozen
-        const qtyDozen = parseFloat(document.getElementById('quail_quantity_dozen').value) || 0;
-        const priceDozen = parseFloat(document.getElementById('quail_price_dozen').value) || 0;
-        totalPrice += qtyDozen * priceDozen;
+    imageUploadDropzone.addEventListener('drop', function(event) {
+        handleSelectedFiles(event.dataTransfer.files);
+    });
 
-        // Calculate total for pack
-        const qtyPack = parseFloat(document.getElementById('quail_quantity_pack').value) || 0;
-        const pricePack = parseFloat(document.getElementById('quail_price_pack').value) || 0;
-        totalPrice += qtyPack * pricePack;
-
-        // Calculate total for tray
-        const qtyTray = parseFloat(document.getElementById('quail_quantity_tray').value) || 0;
-        const priceTray = parseFloat(document.getElementById('quail_price_tray').value) || 0;
-        totalPrice += qtyTray * priceTray;
-
-        // Update display
-        document.getElementById('calculated-total-price').textContent = '₱' + totalPrice.toFixed(2);
-        document.getElementById('quail-total-price-display').classList.remove('hidden');
-
-        // Update hidden inputs
-        document.getElementById('total_price_hidden').value = totalPrice.toFixed(2);
-        document.getElementById('quantity').value = qtyDozen + qtyPack + qtyTray;
-        document.getElementById('price').value = totalPrice.toFixed(2);
-
-        // Update unit field based on which option has values
-        if (qtyDozen > 0) {
-            document.getElementById('unit').value = 'dozen';
-        } else if (qtyPack > 0) {
-            document.getElementById('unit').value = 'pack_24';
-        } else if (qtyTray > 0) {
-            document.getElementById('unit').value = 'tray_36';
-        }
-    }
-
-    // Function to handle egg type change
-    function handleEggTypeChange() {
-        const eggType = document.getElementById('egg_type').value;
-        const eggFieldsContainer = document.getElementById('egg-fields');
-        const priceInput = document.getElementById('price');
-        const quantityInput = document.getElementById('quantity');
-        const eggCategoryField = document.getElementById('egg-category-field');
-        const unitSelectDiv = document.querySelector('label[for="unit"]').closest('div');
-
-        // Show main quantity and price fields
-        quantityInput.closest('div').style.display = 'block';
-        priceInput.closest('div').style.display = 'block';
-
-        // Show unit of measure field
-        if (unitSelectDiv) {
-            unitSelectDiv.style.display = 'block';
-        }
-
-        // Show egg-specific details section and egg sizes table
-        eggFieldsContainer.style.display = 'block';
-
-        // Show egg sizes table
-        const eggSizesTable = eggFieldsContainer.querySelector('.space-y-6 > div:nth-child(2)');
-        if (eggSizesTable) {
-            eggSizesTable.style.display = 'block';
-            // Show the add size button
-            const addSizeButton = eggSizesTable.querySelector('#add-size-btn');
-            if (addSizeButton) {
-                addSizeButton.style.display = 'inline-flex';
-            }
-        }
-
-        // Show egg category field
-        eggCategoryField.style.display = 'block';
-    }
-
-    // Preview newly uploaded images
-    function previewImages(input) {
-        const previewContainer = document.getElementById('preview-container');
-        const imagePreview = document.getElementById('image-preview');
-
-        previewContainer.innerHTML = '';
-
-        if (input.files && input.files.length > 0) {
-            let hasImages = false;
-
-            for (let i = 0; i < input.files.length; i++) {
-                const file = input.files[i];
-                if (file.type.match('image.*')) {
-                    hasImages = true;
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'h-24 w-24 object-cover rounded-md border border-gray-200';
-                        img.alt = 'Preview';
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'relative group';
-                        wrapper.appendChild(img);
-
-                        // Add remove button
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className =
-                            'absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity';
-                        removeBtn.innerHTML =
-                            '<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
-                        removeBtn.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            wrapper.remove();
-
-                            // Hide preview container if no images left
-                            if (previewContainer.children.length === 0) {
-                                imagePreview.classList.add('hidden');
-                            }
-                        });
-                        wrapper.appendChild(removeBtn);
-
-                        const badge = document.createElement('span');
-                        badge.className =
-                            'absolute top-0 left-0 bg-blue-500 text-white text-xs px-1 rounded-br rounded-tl';
-                        badge.textContent = 'New';
-                        wrapper.appendChild(badge);
-
-                        previewContainer.appendChild(wrapper);
-                    };
-
-                    reader.readAsDataURL(file);
-                }
-            }
-
-            if (hasImages) {
-                imagePreview.classList.remove('hidden');
-            } else {
-                imagePreview.classList.add('hidden');
-            }
-        } else {
-            imagePreview.classList.add('hidden');
-        }
-    }
+    document.getElementById('quantity').addEventListener('input', updateTotalAmount);
+    document.getElementById('price').addEventListener('input', updateTotalAmount);
+    updateTotalAmount();
 </script>
+@endsection

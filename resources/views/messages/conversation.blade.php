@@ -3,20 +3,10 @@
     <div class="flex justify-between items-start">
         <div>
             <h2 class="text-lg font-bold text-gray-900">
-                @php
-                    $eggTypes = [
-                        'chicken' => 'Chicken Eggs',
-                        'duck' => 'Duck Eggs',
-                        'quail' => 'Quail Eggs',
-                        'native_chicken' => 'Native Chicken Eggs',
-                        'brown' => 'Brown Eggs',
-                        'white' => 'White Eggs'
-                    ];
-                    $displayName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-                @endphp
-                {{ $displayName }}
+                {{ $transaction->product->product_name }}
             </h2>
-            <div class="product-egg-type hidden">{{ $displayName }}</div>
+            <div class="product-display-name hidden">{{ $transaction->product->product_name }}</div>
+            <div class="product-variety hidden">{{ $transaction->product->variety_size }}</div>
             <p class="text-sm text-gray-600 mt-1">
                 with 
                 @if(Auth::id() == $transaction->buyer_id)

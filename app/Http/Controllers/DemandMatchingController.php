@@ -11,12 +11,9 @@ use App\Models\ConversationThread;
 use App\Notifications\BuyerFarmerAcceptNotification;
 use App\Notifications\FarmerMatchNotification;
 use App\Notifications\OrderAcceptedNotification;
-use App\Services\MatchingService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Schema;
 
 class DemandMatchingController extends Controller
 {
@@ -53,61 +50,29 @@ class DemandMatchingController extends Controller
             return redirect()->route('buyer.dashboard')->with('error', 'You must have a buyer profile to create demands.');
         }
         
-        // Process egg sizes if they come from checkboxes
-        $eggSize = $request->input('egg_size');
-        if ($request->has('egg_sizes')) {
-            $eggSizes = $request->input('egg_sizes');
-            $processedSizes = [];
-            
-            foreach ($eggSizes as $size) {
-                $trayCount = null;
-                
-                switch ($size) {
-                    case 'small':
-                        $trayCount = $request->input('small_trays');
-                        break;
-                    case 'medium':
-                        $trayCount = $request->input('medium_trays');
-                        break;
-                    case 'large':
-                        $trayCount = $request->input('large_trays');
-                        break;
-                    case 'extra_large':
-                        $trayCount = $request->input('extra_large_trays');
-                        break;
-                    case 'jumbo':
-                        $trayCount = $request->input('jumbo_trays');
-                        break;
-                }
-                
-                if ($trayCount) {
-                    $processedSizes[] = "{$size} ({$trayCount} tray" . ($trayCount > 1 ? 's' : '') . ')';
-                } else {
-                    $processedSizes[] = $size;
-                }
-            }
-            
-            $eggSize = implode(', ', $processedSizes);
-        }
-
         $validatedData = $request->validate([
-            'egg_type' => 'required|string|max:50',
-            'egg_size' => 'nullable|string|max:255', // Increased max length for comma-separated values
+            'product_name' => 'nullable|string|max:255|required_without:egg_type',
+            'variety_size' => 'nullable|string|max:255',
+            'egg_type' => 'nullable|string|max:50|required_without:product_name',
+            'egg_size' => 'nullable|string|max:255',
             'quantity' => 'required|integer|min:1',
             'purok_street' => 'nullable|string|max:255',
             'barangay' => 'nullable|string|max:255',
             'municipality_city' => 'nullable|string|max:255',
             'province' => 'nullable|string|max:255',
             'delivery_date' => 'required|date|after_or_equal:today',
-            'small_trays' => 'nullable|integer|min:1', // Tray count for small eggs
-            'medium_trays' => 'nullable|integer|min:1', // Tray count for medium eggs
-            'large_trays' => 'nullable|integer|min:1', // Tray count for large eggs
-            'extra_large_trays' => 'nullable|integer|min:1', // Tray count for extra large eggs
-            'jumbo_trays' => 'nullable|integer|min:1', // Tray count for jumbo eggs
         ]);
 
+        $legacyEggSize = $this->buildLegacyEggSizeString($request);
+        $productName = $validatedData['product_name'] ?? $this->mapEggTypeToProductName($validatedData['egg_type'] ?? null);
+        $varietySize = $validatedData['variety_size'] ?? $legacyEggSize ?? ($validatedData['egg_size'] ?? null);
+
         $validatedData['buyer_id'] = Auth::id();
-        $validatedData['egg_size'] = $eggSize; // Set the processed egg size
+        $validatedData['product_name'] = $productName;
+        $validatedData['egg_size'] = $varietySize;
+        $validatedData['status'] = 'Available';
+        $validatedData['egg_type'] = $validatedData['egg_type'] ?? $this->mapProductNameToEggType($productName);
+        unset($validatedData['variety_size']);
         
         $demand = Demand::create($validatedData);
 
@@ -141,7 +106,7 @@ class DemandMatchingController extends Controller
             abort(403);
         }
 
-        $demand->load('matches.product.farmer.user');
+        $demand->load('matches.product.images', 'matches.product.remainingInventory', 'matches.product.farmer.user');
 
         return view('buyers.demands.show', compact('demand'));
     }
@@ -151,12 +116,19 @@ class DemandMatchingController extends Controller
      */
     public function destroy(Demand $demand)
     {
+        $request = request();
+
         // Check if the user has a buyer profile
         if (!Auth::user() || !Auth::user()->buyer) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You must have a buyer profile to delete demands.'
-            ]);
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must have a buyer profile to delete demands.'
+                ]);
+            }
+
+            return redirect()->route('buyer.dashboard')
+                ->with('error', 'You must have a buyer profile to delete demands.');
         }
         
         // Ensure the demand belongs to the authenticated user
@@ -166,10 +138,15 @@ class DemandMatchingController extends Controller
 
         $demand->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Demand deleted successfully.'
-        ]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Demand deleted successfully.'
+            ]);
+        }
+
+        return redirect()->route('demands.index')
+            ->with('success', 'Demand deleted successfully.');
     }
 
     /**
@@ -211,11 +188,28 @@ class DemandMatchingController extends Controller
      */
     public function runMatchingEngine(Demand $demand)
     {
-        // Find products that match the demand criteria
-        // Match based on egg type and sufficient remaining quantity
-        // Location matching is now based on address fields (Province, City/Municipality, Barangay)
-        $matchingProducts = Product::where('egg_type', $demand->egg_type)
-            ->where('status', 'Available')
+        $demandProductName = $demand->product_name ?: $this->mapEggTypeToProductName($demand->egg_type);
+        $hasDemandStatus = Schema::hasColumn('demands', 'status');
+
+        if (!$demandProductName && !$demand->egg_type) {
+            return;
+        }
+
+        $matchingProducts = Product::where(function ($query) use ($demandProductName, $demand) {
+                if ($demandProductName) {
+                    $query->where('product_name', $demandProductName);
+                }
+
+                if ($demand->egg_type) {
+                    $query->orWhere('product_name', $this->mapEggTypeToProductName($demand->egg_type));
+                }
+            });
+
+        if ($hasDemandStatus) {
+            $matchingProducts->where('status', 'Available');
+        }
+
+        $matchingProducts = $matchingProducts
             ->where(function($query) use ($demand) {
                 // Check if product has remaining inventory and sufficient quantity
                 $query->whereHas('remainingInventory', function($subQuery) use ($demand) {
@@ -385,7 +379,7 @@ public function destroyMatch(DemandMatch $demandMatch)
 /**
  * Start a conversation with a matched farmer
  */
-public function startConversation(DemandMatch $demandMatch)
+    public function startConversation(DemandMatch $demandMatch)
 {
     // Check if the authenticated user is the buyer who made the demand
     if (Auth::id() != $demandMatch->demand->buyer_id) {
@@ -445,17 +439,7 @@ public function startConversation(DemandMatch $demandMatch)
         'conversation_thread_id' => $conversationThread->id
     ]);
     
-    // Send a welcome message
-    $eggTypes = [
-        'chicken' => 'Chicken Eggs',
-        'duck' => 'Duck Eggs',
-        'quail' => 'Quail Eggs',
-        'native_chicken' => 'Native Chicken Eggs',
-        'brown' => 'Brown Eggs',
-        'white' => 'White Eggs'
-    ];
-    $eggTypeName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: PHP " . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
+    $messageText = $this->buildInquiryMessage($transaction->product);
     Message::create([
         'transaction_id' => $transaction->id,
         'sender_id' => Auth::id(),
@@ -522,17 +506,7 @@ public function startTransaction(DemandMatch $demandMatch)
         'conversation_thread_id' => $conversationThread->id
     ]);
     
-    // Send a welcome message
-    $eggTypes = [
-        'chicken' => 'Chicken Eggs',
-        'duck' => 'Duck Eggs',
-        'quail' => 'Quail Eggs',
-        'native_chicken' => 'Native Chicken Eggs',
-        'brown' => 'Brown Eggs',
-        'white' => 'White Eggs'
-    ];
-    $eggTypeName = $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type));
-    $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$transaction->product->quantity} {$transaction->product->unit}\nPrice: PHP " . number_format($transaction->product->price, 2) . "/{$transaction->product->unit}";
+    $messageText = $this->buildInquiryMessage($transaction->product);
     Message::create([
         'transaction_id' => $transaction->id,
         'sender_id' => Auth::id(),
@@ -642,7 +616,7 @@ public function showOrder(Transaction $transaction)
     }
     
     // Load related data
-    $transaction->load('product.sizes', 'demand', 'buyer', 'farmer', 'sizeTransactions');
+    $transaction->load('product', 'demand', 'buyer', 'farmer');
     
     // Pass the transaction as 'order' to match the view expectation
     $order = $transaction;
@@ -792,7 +766,7 @@ public function loadTransactionDetails(Transaction $transaction)
     }
         
     // Load related data
-    $transaction->load('product.sizes', 'demand', 'buyer', 'farmer', 'sizeTransactions');
+    $transaction->load('product', 'demand', 'buyer', 'farmer');
         
     return view('messages.transaction-details', compact('transaction'));
 }
@@ -815,63 +789,22 @@ public function placeOrder(Request $request, Transaction $transaction)
         'buyer_address' => 'required|string|max:500',
         'payment_method' => 'required|string|in:cash_on_delivery,bank_transfer,credit_card,e_wallet',
         'order_quantity' => 'required|integer|min:1',
-        'tray_counts' => 'sometimes|array',
-        'tray_counts.*' => 'integer|min:0',
-        'total_price' => 'required|numeric|min:0',
     ]);
     
-    // Determine the ordered quantity
     $orderedQuantity = $validatedData['order_quantity'];
-    
-    // Get tray counts if provided
-    $trayCounts = $request->input('tray_counts', []);
-    
-    // Validate ordered quantity
     if (!is_numeric($orderedQuantity) || $orderedQuantity <= 0) {
         return back()->with('error', 'Invalid order quantity.');
     }
 
-    // Calculate final price based on size-based ordering or fallback to product price
-    $finalPrice = $validatedData['total_price'] > 0 ? ($validatedData['total_price'] / $orderedQuantity) : $transaction->product->price;
-    
-    // If we have tray counts, recalculate the ordered quantity and total price based on them
-    if (!empty($trayCounts)) {
-        $orderedQuantity = 0;
-        $totalPrice = 0;
-        foreach ($trayCounts as $sizeId => $trayCount) {
-            if ($trayCount > 0) {
-                $size = $transaction->product->sizes->find($sizeId);
-                if ($size) {
-                    $orderedQuantity += $trayCount;
-                    $totalPrice += $trayCount * $size->price_per_tray;
-                }
-            }
-        }
-        // Update the validated data
-        $validatedData['total_price'] = $totalPrice;
-        $finalPrice = $totalPrice / $orderedQuantity;
+    $product = $transaction->product;
+    $availableQuantity = $this->getAvailableQuantity($product);
+    if ($availableQuantity < $orderedQuantity) {
+        return back()->with('error', 'Not enough quantity available for this product. Only ' . $availableQuantity . ' ' . $product->unit . ' remaining.');
     }
+
+    $finalPrice = (float) $product->price;
+    $totalAmount = $orderedQuantity * $finalPrice;
     
-    // Prepare size details for storage
-    $sizeDetails = [];
-    if (!empty($trayCounts)) {
-        foreach ($trayCounts as $sizeId => $trayCount) {
-            if ($trayCount > 0) {
-                $size = $transaction->product->sizes->find($sizeId);
-                if ($size) {
-                    $sizeDetails[] = [
-                        'size_id' => $size->id,
-                        'size_name' => $size->size_name,
-                        'tray_count' => $trayCount,
-                        'price_per_tray' => $size->price_per_tray,
-                        'total_price' => $trayCount * $size->price_per_tray
-                    ];
-                }
-            }
-        }
-    }
-    
-    // Create a new transaction instead of updating the existing one
     $newTransaction = Transaction::create([
         'buyer_id' => $transaction->buyer_id,
         'farmer_id' => $transaction->farmer_id,
@@ -886,9 +819,7 @@ public function placeOrder(Request $request, Transaction $transaction)
         'status' => 'Ordered',
         'final_quantity' => $orderedQuantity,
         'final_price' => $finalPrice,
-        'total_amount' => $validatedData['total_price'],
-        'tray_counts' => !empty($trayCounts) ? json_encode($trayCounts) : null,
-        'size_details' => !empty($sizeDetails) ? json_encode($sizeDetails) : null
+        'total_amount' => $totalAmount
     ]);
     
     // Update the match status to 'Ordered' if there's a demand associated with this transaction
@@ -904,141 +835,39 @@ public function placeOrder(Request $request, Transaction $transaction)
         }
     }
 
-    // Create size transaction records for each ordered size
-    if (!empty($trayCounts)) {
-        foreach ($trayCounts as $sizeId => $trayCount) {
-            if ($trayCount > 0) {
-                $size = $transaction->product->sizes->find($sizeId);
-                if ($size) {
-                    try {
-                        \App\Models\SizeTransaction::create([
-                            'transaction_id' => $newTransaction->id,
-                            'size_id' => $size->id,
-                            'size_name' => $size->size_name,
-                            'tray_count' => $trayCount,
-                            'price_per_tray' => $size->price_per_tray,
-                            'total_price' => $trayCount * $size->price_per_tray
-                        ]);
-                    } catch (\Exception $e) {
-                        Log::error('Failed to create size transaction record.', [
-                            'transaction_id' => $newTransaction->id,
-                            'size_id' => $size->id,
-                            'exception' => $e->getMessage(),
-                        ]);
-                    }
-                }
-            }
-        }
-    };
+    $this->updateRemainingInventoryForOrder($product, $orderedQuantity);
 
-    // Deduct the ordered quantity from the product
-    $product = $transaction->product;
-    
-    // Handle size-based deductions if tray counts are provided
-    if (!empty($trayCounts)) {
-        // Check if there's enough quantity available BEFORE making deductions
-        // Load remaining inventory to check actual available quantity
-        $product->load('remainingInventory');
-        $availableQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
-        
-        if ($availableQuantity < $orderedQuantity) {
-            // Rollback the newly created transaction
-            $newTransaction->delete();
-            return back()->with('error', 'Not enough quantity available for this product. Only ' . $availableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
-        }
-    }
-    
-    // Check if there's enough quantity available for non-size-based orders
-    // Load remaining inventory to check actual available quantity
-    $product->load('remainingInventory');
-    $availableQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
-    
-    if (empty($trayCounts) && $availableQuantity < $orderedQuantity) {
-        // Rollback the newly created transaction
-        $newTransaction->delete();
-        return back()->with('error', 'Not enough quantity available for this product. Only ' . $availableQuantity . ' ' . $product->unit . ' remaining. You cannot place any more orders for this product as it is now sold out.');
-    }
-    
-    // Update remaining inventory tracking only (don't modify product table)
-    if (!empty($trayCounts)) {
-        $this->updateRemainingInventoryForOrder($product, $trayCounts, 0);
-    } else {
-        $this->updateRemainingInventoryForOrder($product, [], $orderedQuantity);
-    }
-    
-    // Check if product should be marked as sold out based on remaining inventory
-    $product->load('remainingInventory');
-    if ($product->remainingInventory && $product->remainingInventory->remaining_quantity <= 0) {
-        // Don't update the product status, just handle it in the UI
-    }
-
-    // Send notification to farmer about the order
     $farmerUser = $transaction->farmer;
     if ($farmerUser && $transaction->product) {
         $productName = $transaction->product->product_name;
         $message = "A buyer has placed an order for your product \"{$productName}\". Please check the order details.";
-        
-        // Add size information to the notification if applicable
-        if (!empty($trayCounts)) {
-            $sizeDetails = [];
-            foreach ($trayCounts as $sizeId => $trayCount) {
-                if ($trayCount > 0) {
-                    $size = $transaction->product->sizes->find($sizeId);
-                    if ($size) {
-                        $sizeDetails[] = "{$size->size_name}: {$trayCount} trays";
-                    }
-                }
-            }
-            if (!empty($sizeDetails)) {
-                $message .= " Size details: " . implode(', ', $sizeDetails) . ".";
-            }
-        }
-        
+
         $data = [
             'message' => $message,
             'transaction_id' => $newTransaction->id,
             'product_name' => $productName,
             'quantity' => $orderedQuantity,
-            'total_amount' => $validatedData['total_price']
+            'total_amount' => $totalAmount
         ];
         $farmerUser->notify(new OrderAcceptedNotification($data));
     }
     
-    // Send notification to buyer about their order
     $buyerUser = $transaction->buyer;
     if ($buyerUser && $transaction->product) {
         $productName = $transaction->product->product_name;
         $message = "You have placed an order for \"{$productName}\". The farmer will review your order shortly.";
-        
-        // Add size information to the notification if applicable
-        if (!empty($trayCounts)) {
-            $sizeDetails = [];
-            foreach ($trayCounts as $sizeId => $trayCount) {
-                if ($trayCount > 0) {
-                    $size = $transaction->product->sizes->find($sizeId);
-                    if ($size) {
-                        $sizeDetails[] = "{$size->size_name}: {$trayCount} trays";
-                    }
-                }
-            }
-            if (!empty($sizeDetails)) {
-                $message .= " Size details: " . implode(', ', $sizeDetails) . ".";
-            }
-        }
-        
+
         $data = [
             'message' => $message,
             'transaction_id' => $newTransaction->id,
             'product_name' => $productName,
             'quantity' => $orderedQuantity,
-            'total_amount' => $validatedData['total_price']
+            'total_amount' => $totalAmount
         ];
         $buyerUser->notify(new OrderAcceptedNotification($data));
     }
 
-    // Get remaining quantity from remaining inventory tracking
-    $product->load('remainingInventory');
-    $remainingQuantity = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
+    $remainingQuantity = $this->getAvailableQuantity($product->fresh('remainingInventory'));
     return back()->with('success', 'Order placed successfully! You can place another order for this product as long as there is quantity available. ' . $remainingQuantity . ' ' . $product->unit . ' remaining.');
 }
 
@@ -1047,161 +876,32 @@ public function placeOrder(Request $request, Transaction $transaction)
 /**
  * Update remaining inventory tracking for an order without modifying the product table
  */
-protected function updateRemainingInventoryForOrder(Product $product, array $trayCounts = [], int $orderedQuantity = 0)
+protected function updateRemainingInventoryForOrder(Product $product, int $orderedQuantity = 0)
 {
-    // Load the remaining inventory record
-    $product->load('remainingInventory', 'sizes');
-    
-    // If no remaining inventory record exists, create one with original values
+    $product->load('remainingInventory');
+
     if (!$product->remainingInventory) {
-        $perSizeRemaining = [];
-        foreach ($product->sizes as $size) {
-            $perSizeRemaining[] = [
-                'size_id' => $size->id,
-                'size_name' => $size->size_name,
-                'original_tray_count' => $size->tray_count,
-                'remaining_tray_count' => $size->tray_count,
-                'original_price_per_tray' => $size->price_per_tray,
-                'remaining_price_per_tray' => $size->price_per_tray,
-                'original_total_price' => $size->total_price,
-                'remaining_total_price' => $size->total_price
-            ];
-        }
-        
         $remainingInventory = \App\Models\RemainingInventory::create([
             'product_id' => $product->id,
             'original_quantity' => $product->quantity,
-            'original_price' => $product->price,
-            'original_total_trays' => $product->sizes->sum('tray_count'),
+            'original_price' => $product->total_amount ?? ($product->quantity * $product->price),
+            'original_total_trays' => $product->quantity,
             'remaining_quantity' => $product->quantity,
-            'remaining_price' => $product->price,
-            'remaining_total_trays' => $product->sizes->sum('tray_count'),
-            'per_size_remaining' => $perSizeRemaining,
+            'remaining_price' => $product->total_amount ?? ($product->quantity * $product->price),
+            'remaining_total_trays' => $product->quantity,
+            'per_size_remaining' => null,
             'last_updated' => now()
         ]);
-        
+
         $product->setRelation('remainingInventory', $remainingInventory);
     }
-    
-    // Update remaining inventory based on the order
-    $perSizeRemaining = [];
-    $totalQuantityToDeduct = 0; // Will calculate total quantity to deduct
-    $newRemainingPrice = 0; // Will be calculated from size-specific values
-    $newRemainingTotalTrays = 0; // Will be calculated from size-specific values
-    
-    // Handle size-based orders
-    if (!empty($trayCounts)) {
-        foreach ($product->sizes as $size) {
-            // Find the original values for this size
-            $originalTrayCount = $size->tray_count;
-            $originalPricePerTray = $size->price_per_tray;
-            $originalTotalPrice = $size->total_price;
-            
-            // Get current remaining values from the existing record
-            $remainingTrayCount = $originalTrayCount; // Default to original
-            $remainingTotalPrice = $originalTotalPrice; // Default to original
-            
-            // Find existing remaining values
-            foreach ($product->remainingInventory->per_size_remaining ?? [] as $existingSize) {
-                if ($existingSize['size_id'] == $size->id) {
-                    $originalTrayCount = $existingSize['original_tray_count'];
-                    $originalPricePerTray = $existingSize['original_price_per_tray'];
-                    $originalTotalPrice = $existingSize['original_total_price'];
-                    $remainingTrayCount = $existingSize['remaining_tray_count'];
-                    $remainingTotalPrice = $existingSize['remaining_total_price'];
-                    break;
-                }
-            }
-            
-            // Deduct ordered quantity for this size
-            $orderedTrayCount = $trayCounts[$size->id] ?? 0;
-            $newRemainingTrayCount = max(0, $remainingTrayCount - $orderedTrayCount);
-            $newRemainingTotalPrice = $newRemainingTrayCount * $originalPricePerTray;
-            
-            // Update totals
-            $newRemainingTotalTrays += $newRemainingTrayCount;
-            $newRemainingPrice += $newRemainingTotalPrice;
-            $totalQuantityToDeduct += $orderedTrayCount;
-            
-            $perSizeRemaining[] = [
-                'size_id' => $size->id,
-                'size_name' => $size->size_name,
-                'original_tray_count' => $originalTrayCount,
-                'remaining_tray_count' => $newRemainingTrayCount,
-                'original_price_per_tray' => $originalPricePerTray,
-                'remaining_price_per_tray' => $originalPricePerTray,
-                'original_total_price' => $originalTotalPrice,
-                'remaining_total_price' => $newRemainingTotalPrice
-            ];
-        }
-    } else {
-        // Handle non-size-based orders
-        // Distribute the ordered quantity proportionally across sizes
-        $totalOriginalTrays = $product->remainingInventory->original_total_trays;
-        
-        foreach ($product->sizes as $size) {
-            // Find the original values for this size
-            $originalTrayCount = $size->tray_count;
-            $originalPricePerTray = $size->price_per_tray;
-            $originalTotalPrice = $size->total_price;
-            
-            // Get current remaining values from the existing record
-            $remainingTrayCount = $originalTrayCount; // Default to original
-            $remainingTotalPrice = $originalTotalPrice; // Default to original
-            
-            // Find existing remaining values
-            foreach ($product->remainingInventory->per_size_remaining ?? [] as $existingSize) {
-                if ($existingSize['size_id'] == $size->id) {
-                    $originalTrayCount = $existingSize['original_tray_count'];
-                    $originalPricePerTray = $existingSize['original_price_per_tray'];
-                    $originalTotalPrice = $existingSize['original_total_price'];
-                    $remainingTrayCount = $existingSize['remaining_tray_count'];
-                    $remainingTotalPrice = $existingSize['remaining_total_price'];
-                    break;
-                }
-            }
-            
-            // Calculate proportional deduction
-            if ($totalOriginalTrays > 0) {
-                $proportionalOrder = ($originalTrayCount / $totalOriginalTrays) * $orderedQuantity;
-                $orderedTrayCount = round($proportionalOrder);
-            } else {
-                $orderedTrayCount = 0;
-            }
-            
-            $newRemainingTrayCount = max(0, $remainingTrayCount - $orderedTrayCount);
-            $newRemainingTotalPrice = $newRemainingTrayCount * $originalPricePerTray;
-            
-            // Update totals
-            $newRemainingTotalTrays += $newRemainingTrayCount;
-            $newRemainingPrice += $newRemainingTotalPrice;
-            $totalQuantityToDeduct += $orderedTrayCount;
-            
-            $perSizeRemaining[] = [
-                'size_id' => $size->id,
-                'size_name' => $size->size_name,
-                'original_tray_count' => $originalTrayCount,
-                'remaining_tray_count' => $newRemainingTrayCount,
-                'original_price_per_tray' => $originalPricePerTray,
-                'remaining_price_per_tray' => $originalPricePerTray,
-                'original_total_price' => $originalTotalPrice,
-                'remaining_total_price' => $newRemainingTotalPrice
-            ];
-        }
-    }
-    
-    // Calculate new remaining quantity
-    $newRemainingQuantity = max(0, $product->remainingInventory->remaining_quantity - $totalQuantityToDeduct);
-    
-    // Ensure we don't go below zero
-    $newRemainingPrice = max(0, $newRemainingPrice);
-    $newRemainingTotalTrays = max(0, $newRemainingTotalTrays);
-    
+
+    $newRemainingQuantity = max(0, $product->remainingInventory->remaining_quantity - $orderedQuantity);
     $product->remainingInventory->update([
         'remaining_quantity' => $newRemainingQuantity,
-        'remaining_price' => $newRemainingPrice,
-        'remaining_total_trays' => $newRemainingTotalTrays,
-        'per_size_remaining' => $perSizeRemaining,
+        'remaining_price' => $newRemainingQuantity * (float) $product->price,
+        'remaining_total_trays' => $newRemainingQuantity,
+        'per_size_remaining' => null,
         'last_updated' => now()
     ]);
     
@@ -1311,13 +1011,7 @@ public function rejectOrder(Transaction $transaction)
         'status' => 'Rejected'
     ]);
     
-    // Return the quantity to the product
-    $product = $transaction->product;
-    $product->quantity += $transaction->final_quantity;
-    if ($product->quantity > 0 && $product->status == 'Sold Out') {
-        $product->status = 'Available';
-    }
-    $product->save();
+    $this->restoreRemainingInventoryForOrder($transaction->product, (int) $transaction->final_quantity);
     
     // Notify buyer
     $buyerUser = $transaction->buyer;
@@ -1491,7 +1185,7 @@ public function messageFarmer(Product $product)
             ->sum('final_quantity');
         
         // Define available quantity as the product's quantity minus what this buyer has already ordered
-        $availableQuantity = max(0, $product->quantity - $orderedQuantity);
+        $availableQuantity = max(0, $this->getAvailableQuantity($product) - $orderedQuantity);
 
         if ($availableQuantity <= 0) {
             return back()->with('error', 'This product has no remaining quantity available for a new order.');
@@ -1513,17 +1207,7 @@ public function messageFarmer(Product $product)
             'conversation_thread_id' => $conversationThread->id
         ]);
         
-        // Send an automatic "Is this available?" message with product details
-        $eggTypes = [
-            'chicken' => 'Chicken Eggs',
-            'duck' => 'Duck Eggs',
-            'quail' => 'Quail Eggs',
-            'native_chicken' => 'Native Chicken Eggs',
-            'brown' => 'Brown Eggs',
-            'white' => 'White Eggs'
-        ];
-        $eggTypeName = $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type));
-        $messageText = "Is this available?\n\nEgg Type: {$eggTypeName}\nQuantity: {$product->quantity} {$product->unit}\nPrice: PHP " . number_format($product->price, 2) . "/{$product->unit}";
+        $messageText = $this->buildInquiryMessage($product);
         Message::create([
             'transaction_id' => $transaction->id,
             'sender_id' => $userId,
@@ -1538,5 +1222,118 @@ public function messageFarmer(Product $product)
     
     // Redirect to the messages page with the transaction selected
     return redirect()->route('buyer.messages', ['transaction_id' => $transaction->id]);
+}
+
+protected function restoreRemainingInventoryForOrder(Product $product, int $quantity): void
+{
+    $product->load('remainingInventory');
+
+    if (!$product->remainingInventory) {
+        return;
+    }
+
+    $restoredQuantity = min(
+        (int) $product->remainingInventory->original_quantity,
+        (int) $product->remainingInventory->remaining_quantity + $quantity
+    );
+
+    $product->remainingInventory->update([
+        'remaining_quantity' => $restoredQuantity,
+        'remaining_price' => $restoredQuantity * (float) $product->price,
+        'remaining_total_trays' => $restoredQuantity,
+        'per_size_remaining' => null,
+        'last_updated' => now(),
+    ]);
+
+    if ($restoredQuantity > 0 && $product->status === 'Sold Out') {
+        $product->update(['status' => 'Available']);
+    }
+}
+
+protected function getAvailableQuantity(Product $product): int
+{
+    $product->loadMissing('remainingInventory');
+
+    return (int) ($product->remainingInventory->remaining_quantity ?? $product->quantity);
+}
+
+protected function buildInquiryMessage(Product $product): string
+{
+    $lines = [
+        'Is this available?',
+        '',
+        'Product: ' . $product->product_name,
+    ];
+
+    if (!empty($product->variety_size)) {
+        $lines[] = 'Variety/Size: ' . $product->variety_size;
+    }
+
+    $lines[] = 'Quantity: ' . $product->quantity . ' ' . $product->unit;
+    $lines[] = 'Price per Unit: PHP ' . number_format((float) $product->price, 2) . '/' . $product->unit;
+
+    return implode("\n", $lines);
+}
+
+protected function mapEggTypeToProductName(?string $eggType): ?string
+{
+    if (!$eggType) {
+        return null;
+    }
+
+    return match ($eggType) {
+        'chicken' => 'Chicken Eggs',
+        'duck' => 'Duck Eggs',
+        'quail' => 'Quail Eggs',
+        'native_chicken' => 'Native Chicken Eggs',
+        'brown' => 'Brown Eggs',
+        'white' => 'White Eggs',
+        default => ucwords(str_replace('_', ' ', $eggType)),
+    };
+}
+
+protected function mapProductNameToEggType(?string $productName): ?string
+{
+    if (!$productName) {
+        return null;
+    }
+
+    return match (strtolower(trim($productName))) {
+        'chicken eggs' => 'chicken',
+        'duck eggs' => 'duck',
+        'quail eggs' => 'quail',
+        'native chicken eggs' => 'native_chicken',
+        'brown eggs' => 'brown',
+        'white eggs' => 'white',
+        default => null,
+    };
+}
+
+protected function buildLegacyEggSizeString(Request $request): ?string
+{
+    if (!$request->has('egg_sizes')) {
+        return $request->input('egg_size');
+    }
+
+    $processedSizes = [];
+
+    foreach ($request->input('egg_sizes', []) as $size) {
+        $trayCount = match ($size) {
+            'small' => $request->input('small_trays'),
+            'medium' => $request->input('medium_trays'),
+            'large' => $request->input('large_trays'),
+            'extra_large' => $request->input('extra_large_trays'),
+            'jumbo' => $request->input('jumbo_trays'),
+            default => null,
+        };
+
+        if ($trayCount) {
+            $processedSizes[] = "{$size} ({$trayCount} tray" . ($trayCount > 1 ? 's' : '') . ')';
+        } else {
+            $processedSizes[] = $size;
+        }
+    }
+
+    return empty($processedSizes) ? null : implode(', ', $processedSizes);
 }
 }

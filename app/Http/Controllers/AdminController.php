@@ -23,7 +23,7 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $totalFarmers = User::where('role', 'farmer')->count();
         $totalBuyers = User::where('role', 'buyer')->count();
-        $totalProducts = Product::where('status', 'available')->count();
+        $totalProducts = Product::where('status', 'Available')->count();
         $totalDemands = Demand::count();
         $totalMatches = DemandMatch::count();
         $totalTransactions = Transaction::count();
@@ -40,8 +40,8 @@ class AdminController extends Controller
         
         // Product Popularity (top 5 products by transaction count)
         $productPopularity = Transaction::join('products', 'transactions.product_id', '=', 'products.id')
-            ->selectRaw('products.egg_type, COUNT(transactions.id) as transaction_count')
-            ->groupBy('products.egg_type')
+            ->selectRaw('products.product_name, COUNT(transactions.id) as transaction_count')
+            ->groupBy('products.product_name')
             ->orderBy('transaction_count', 'desc')
             ->limit(5)
             ->get();
@@ -99,7 +99,10 @@ class AdminController extends Controller
         
         // Apply search filter
         if ($search) {
-            $productsQuery->where('egg_type', 'LIKE', "%{$search}%");
+            $productsQuery->where(function ($query) use ($search) {
+                $query->where('product_name', 'LIKE', "%{$search}%")
+                    ->orWhere('variety_size', 'LIKE', "%{$search}%");
+            });
         }
         
         // Apply farmer filter
@@ -144,7 +147,7 @@ class AdminController extends Controller
      */
     public function viewProduct(Product $product)
     {
-        $product->load('sizes');
+        $product->load('farmer.user', 'images', 'remainingInventory');
         return view('admin.products.show', compact('product'));
     }
     
@@ -162,29 +165,54 @@ class AdminController extends Controller
     public function updateProduct(Request $request, Product $product)
     {
         $request->validate([
-            'egg_type' => 'required|string|max:255',
+            'product_name' => 'required|string|max:255',
+            'variety_size' => 'nullable|string|max:255',
             'description' => 'nullable|string',
-            'category' => 'nullable|string|max:255',
-            'quantity' => 'required|numeric|min:0',
+            'quantity' => 'required|integer|min:1',
             'unit' => 'required|string|max:50',
             'price' => 'required|numeric|min:0',
-            'status' => 'required|in:available,sold,unavailable',
+            'status' => 'required|in:Available,Pending,Sold Out',
             'harvest_date' => 'nullable|date',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
+            'images' => 'nullable|array|max:10',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         
-        $productData = $request->except(['_token', '_method', 'image']);
+        $productData = $request->except(['_token', '_method', 'images']);
+        $productData['total_amount'] = number_format(
+            ((float) $request->input('quantity')) * ((float) $request->input('price')),
+            2,
+            '.',
+            ''
+        );
         
-        // Handle image upload
-        if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image) {
-                \Storage::delete($product->image);
+        if ($request->hasFile('images')) {
+            foreach ($product->images as $image) {
+                \Storage::disk('public')->delete($image->image_path);
             }
-            
-            // Store new image
-            $imagePath = $request->file('image')->store('product_images', 'public');
-            $productData['image'] = $imagePath;
+
+            $product->images()->delete();
+
+            foreach ($request->file('images') as $index => $image) {
+                if (!$image || !$image->isValid()) {
+                    continue;
+                }
+
+                $imagePath = $image->store('products', 'public');
+
+                \App\Models\ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'is_primary' => $index === 0,
+                ]);
+
+                if ($index === 0) {
+                    $productData['image'] = $imagePath;
+                }
+            }
         }
         
         $product->update($productData);
@@ -197,7 +225,7 @@ class AdminController extends Controller
      */
     public function approveProduct(Product $product)
     {
-        $product->update(['status' => 'available']);
+        $product->update(['status' => 'Available']);
         
         return redirect()->route('admin.products.index')->with('success', 'Product approved successfully.');
     }
@@ -207,7 +235,7 @@ class AdminController extends Controller
      */
     public function rejectProduct(Product $product)
     {
-        $product->update(['status' => 'unavailable']);
+        $product->update(['status' => 'Pending']);
         
         return redirect()->route('admin.products.index')->with('success', 'Product rejected successfully.');
     }
@@ -386,9 +414,10 @@ class AdminController extends Controller
         // Apply search filter
         if ($search) {
             $matchesQuery->whereHas('product', function ($query) use ($search) {
-                $query->where('egg_type', 'LIKE', "%{$search}%");
+                $query->where('product_name', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
-                $query->where('egg_type', 'LIKE', "%{$search}%");
+                $query->where('product_name', 'LIKE', "%{$search}%")
+                      ->orWhere('egg_type', 'LIKE', "%{$search}%");
             });
         }
         
@@ -472,9 +501,10 @@ class AdminController extends Controller
         // Apply search filter
         if ($search) {
             $transactionsQuery->whereHas('product', function ($query) use ($search) {
-                $query->where('egg_type', 'LIKE', "%{$search}%");
+                $query->where('product_name', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
-                $query->where('egg_type', 'LIKE', "%{$search}%");
+                $query->where('product_name', 'LIKE', "%{$search}%")
+                      ->orWhere('egg_type', 'LIKE', "%{$search}%");
             })->orWhereHas('buyer', function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
                       ->orWhere('last_name', 'LIKE', "%{$search}%");
@@ -750,24 +780,22 @@ class AdminController extends Controller
 
         $buyer = Buyer::where('user_id', $user->id)->first();
         if ($buyer) {
-            $buyer->update($request->only([
-                'company_name',
-                'business_type',
-                'preferred_products',
-                'buyer_address',
-                'verified'
-            ]));
+            $buyer->update([
+                'company_name' => $request->input('company_name'),
+                'business_type' => $request->input('business_type'),
+                'preferred_products' => $request->input('preferred_products'),
+                'address' => $request->input('buyer_address'),
+                'verified' => $request->boolean('verified'),
+            ]);
         } else {
-            Buyer::create(array_merge(
-                $request->only([
-                    'company_name',
-                    'business_type',
-                    'preferred_products',
-                    'buyer_address',
-                    'verified'
-                ]),
-                ['user_id' => $user->id]
-            ));
+            Buyer::create([
+                'user_id' => $user->id,
+                'company_name' => $request->input('company_name'),
+                'business_type' => $request->input('business_type'),
+                'preferred_products' => $request->input('preferred_products'),
+                'address' => $request->input('buyer_address'),
+                'verified' => $request->boolean('verified'),
+            ]);
         }
     }
 

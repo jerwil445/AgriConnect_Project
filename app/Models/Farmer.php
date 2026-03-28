@@ -26,8 +26,4 @@ class Farmer extends Model
     public function products() {
         return $this->hasMany(Product::class);
     }
-    
-    public function sizes() {
-        return $this->hasMany(Size::class);
-    }
 }

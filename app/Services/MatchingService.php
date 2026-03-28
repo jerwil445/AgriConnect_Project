@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Product;
 use App\Models\Demand;
 use App\Models\DemandMatch;
+use Illuminate\Support\Facades\Schema;
 
 class MatchingService
 {
@@ -13,11 +14,37 @@ class MatchingService
      */
     public function matchNewProductWithZeroMatchDemands(Product $product)
     {
-        // Find demands that match the product criteria and have zero matches
-        // Match based on egg type and sufficient remaining quantity
-        // Location matching is now based on address fields (Province, City/Municipality, Barangay)
-        $matchingDemands = Demand::where('egg_type', $product->egg_type)
-            ->where('status', 'Available')
+        $productName = $product->product_name;
+        $legacyEggType = $product->getRawOriginal('egg_type');
+        $hasDemandProductName = Schema::hasColumn('demands', 'product_name');
+        $hasDemandStatus = Schema::hasColumn('demands', 'status');
+
+        if ((!$hasDemandProductName || !$productName) && !$legacyEggType) {
+            return;
+        }
+
+        $matchingDemands = Demand::where(function ($query) use ($productName, $legacyEggType, $hasDemandProductName) {
+                $hasCondition = false;
+
+                if ($hasDemandProductName && $productName) {
+                    $query->where('product_name', $productName);
+                    $hasCondition = true;
+                }
+
+                if ($legacyEggType) {
+                    if ($hasCondition) {
+                        $query->orWhere('egg_type', $legacyEggType);
+                    } else {
+                        $query->where('egg_type', $legacyEggType);
+                    }
+                }
+            });
+
+        if ($hasDemandStatus) {
+            $matchingDemands->where('status', 'Available');
+        }
+
+        $matchingDemands = $matchingDemands
             ->whereDoesntHave('matches') // Only demands with zero matches
             ->where(function($query) use ($product) {
                 // Check if product has remaining inventory and sufficient quantity
@@ -57,19 +84,32 @@ class MatchingService
                     }
                 })->orWhereHas('buyer', function($subQuery) use ($province, $municipalityCity, $barangay) {
                     $subQuery->where(function($buyerSubQuery) use ($province, $municipalityCity, $barangay) {
-                        // Match province if provided
+                        // Match buyer address stored on the users table
                         if (!empty($province)) {
-                            $buyerSubQuery->where('buyer_address', 'LIKE', '%' . $province . '%');
+                            $buyerSubQuery->where('address', 'LIKE', '%' . $province . '%');
                         }
-                        
-                        // Match municipality/city if provided
+
                         if (!empty($municipalityCity)) {
-                            $buyerSubQuery->orWhere('buyer_address', 'LIKE', '%' . $municipalityCity . '%');
+                            $buyerSubQuery->orWhere('address', 'LIKE', '%' . $municipalityCity . '%');
                         }
-                        
-                        // Match barangay if provided
+
                         if (!empty($barangay)) {
-                            $buyerSubQuery->orWhere('buyer_address', 'LIKE', '%' . $barangay . '%');
+                            $buyerSubQuery->orWhere('address', 'LIKE', '%' . $barangay . '%');
+                        }
+                    });
+                })->orWhereHas('buyer.buyer', function($subQuery) use ($province, $municipalityCity, $barangay) {
+                    $subQuery->where(function($buyerProfileQuery) use ($province, $municipalityCity, $barangay) {
+                        // Match buyer profile address stored on the buyers table
+                        if (!empty($province)) {
+                            $buyerProfileQuery->where('address', 'LIKE', '%' . $province . '%');
+                        }
+
+                        if (!empty($municipalityCity)) {
+                            $buyerProfileQuery->orWhere('address', 'LIKE', '%' . $municipalityCity . '%');
+                        }
+
+                        if (!empty($barangay)) {
+                            $buyerProfileQuery->orWhere('address', 'LIKE', '%' . $barangay . '%');
                         }
                     });
                 });

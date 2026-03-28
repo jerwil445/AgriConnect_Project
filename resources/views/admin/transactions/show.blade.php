@@ -87,7 +87,7 @@
                         <div class="space-y-3">
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Egg Type:</span>
-                                <span class="font-medium">{{ $transaction->product->egg_type }}</span>
+                                <span class="font-medium">{{ $transaction->product->product_name }}</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">Category:</span>

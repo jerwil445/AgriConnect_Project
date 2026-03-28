@@ -32,12 +32,17 @@ class ProductFactory extends Factory
             'Olives', 'Pumpkins', 'Sweet Potatoes', 'Radishes', 'Peas'
         ];
 
+        $quantity = $this->faker->numberBetween(10, 2000);
+        $price = $this->faker->randomFloat(2, 10, 2000);
+
         return [
             'farmer_id' => Farmer::factory(), // Add farmer_id
             'product_name' => $this->faker->randomElement($productNames),
-            'quantity' => $this->faker->numberBetween(10, 2000),
+            'variety_size' => $this->faker->randomElement(['Large', 'Medium', 'Small', 'Premium', 'Fresh']) . ' ' . $this->faker->optional()->randomElement(['Grade A', 'Pack', 'Bundle']),
+            'quantity' => $quantity,
             'unit' => $this->faker->randomElement(['kilos', 'pieces', 'bunches', 'boxes', 'tons', 'liters', 'grams']),
-            'price' => $this->faker->randomFloat(2, 10, 2000),
+            'price' => $price,
+            'total_amount' => round($quantity * $price, 2),
             'harvest_date' => $this->faker->dateTimeBetween('-2 weeks', '+2 weeks'),
             'status' => $this->faker->randomElement(['Available', 'Available', 'Available', 'Sold Out', 'Pending']), // More available products
             'image' => null,

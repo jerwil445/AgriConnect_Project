@@ -53,19 +53,7 @@
                                                 {{ $transaction->updated_at->format('M d') }}
                                             </span>
                                         </div>
-                                        <p class="text-sm text-gray-600 truncate">
-                                            @php
-                                                $eggTypes = [
-                                                    'chicken' => 'Chicken',
-                                                    'duck' => 'Duck',
-                                                    'quail' => 'Quail',
-                                                    'native_chicken' => 'Native Chicken',
-                                                    'brown' => 'Brown Egg',
-                                                    'white' => 'White Egg'
-                                                ];
-                                            @endphp
-                                            {{ $eggTypes[$transaction->product->egg_type] ?? ucfirst(str_replace('_', ' ', $transaction->product->egg_type)) }}
-                                        </p>
+                                        <p class="text-sm text-gray-600 truncate">{{ $transaction->product->product_name }}</p>
                                         <div class="flex justify-between items-center mt-1">
                                             <!-- <span class="text-xs text-gray-500">
                                                 #{{ $transaction->id }}
@@ -341,6 +329,8 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    window.initializeMessaging = initializeMessaging;
     
     // Function to send automatic follow-up message
     function sendFollowUpMessage(transactionId) {
@@ -355,21 +345,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Get egg type display name
-        let eggTypeName = 'Eggs';
-        const eggTypes = {
-            'chicken': 'Chicken Eggs',
-            'duck': 'Duck Eggs',
-            'quail': 'Quail Eggs',
-            'native_chicken': 'Native Chicken Eggs',
-            'brown': 'Brown Eggs',
-            'white': 'White Eggs'
-        };
-        
+        let productVariety = '';
+
         if (conversationHeader) {
-            const productElement = conversationHeader.querySelector('.product-egg-type');
+            const productElement = conversationHeader.querySelector('.product-variety');
             if (productElement) {
-                eggTypeName = productElement.textContent.trim();
+                productVariety = productElement.textContent.trim();
             }
         }
         
@@ -398,14 +379,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Build message text with available information
         let messageLines = ['Is this available?'];
-        if (eggTypeName && eggTypeName !== 'Eggs') {
-            messageLines.push(`Egg Type: ${eggTypeName}`);
+        if (productName) {
+            messageLines.push(`Product: ${productName}`);
+        }
+        if (productVariety) {
+            messageLines.push(`Variety/Size: ${productVariety}`);
         }
         if (quantity && unit) {
             messageLines.push(`Quantity: ${quantity} ${unit}`);
         }
         if (price && unit) {
-            messageLines.push(`Price: ₱${price}/${unit}`);
+            messageLines.push(`Price per Unit: ₱${price}/${unit}`);
         }
         
         const messageText = messageLines.join('\n');

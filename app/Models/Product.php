@@ -12,13 +12,13 @@ class Product extends Model
     
     protected $fillable = [
         'farmer_id',
-        'egg_type',
-        'egg_category',
-        'jumbo',
+        'product_name',
+        'variety_size',
         'description',
         'quantity',
         'unit',
         'price',
+        'total_amount',
         'harvest_date',
         'purok_street',
         'barangay',
@@ -31,7 +31,7 @@ class Product extends Model
     protected $casts = [
         'harvest_date' => 'date',
         'price' => 'decimal:2',
-        'jumbo' => 'boolean',
+        'total_amount' => 'decimal:2',
     ];
     
     // Boot the model
@@ -64,13 +64,23 @@ class Product extends Model
         return $this->hasMany(DemandMatch::class, 'product_id');
     }
     
-    public function sizes()
-    {
-        return $this->hasMany(Size::class);
-    }
-    
     public function remainingInventory()
     {
         return $this->hasOne(RemainingInventory::class);
+    }
+
+    public function getEggTypeAttribute($value)
+    {
+        return $value ?? ($this->attributes['product_name'] ?? null);
+    }
+
+    public function getEggSizeAttribute($value)
+    {
+        return $value ?? ($this->attributes['variety_size'] ?? null);
+    }
+
+    public function getSizesAttribute($value)
+    {
+        return collect();
     }
 }

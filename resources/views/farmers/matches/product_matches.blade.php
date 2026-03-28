@@ -5,17 +5,7 @@
     <div class="shadow-sm  ml-64">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Matches for 
-                                        @php
-                                            $eggTypes = [
-                                                'chicken' => 'Chicken',
-                                                'duck' => 'Duck',
-                                                'quail' => 'Quail',
-                                                'native_chicken' => 'Native Chicken',
-                                                'brown' => 'Brown Egg',
-                                                'white' => 'White Egg'
-                                            ];
-                                        @endphp
-                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                        {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
                                     </h1>
             <a href="{{ route('farmer.matches') }}" class="text-indigo-600 hover:text-indigo-800">
                 &larr; Back to All Matches
@@ -53,17 +43,7 @@
                     <div class="bg-white shadow-md rounded-lg p-5 sticky top-6">
                         <div class="flex justify-between items-start mb-4">
                             <h2 class="text-xl font-bold text-gray-800">
-                                                        @php
-                                                            $eggTypes = [
-                                                                'chicken' => 'Chicken',
-                                                                'duck' => 'Duck',
-                                                                'quail' => 'Quail',
-                                                                'native_chicken' => 'Native Chicken',
-                                                                'brown' => 'Brown Egg',
-                                                                'white' => 'White Egg'
-                                                            ];
-                                                        @endphp
-                                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                        {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
                                                     </h2>
                             <span class="px-2 py-1 rounded-full text-xs font-medium 
                                 @if($product->status == 'Available') bg-green-100 text-green-800
@@ -92,52 +72,28 @@
                                 <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-gray-700">Original Price: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
+                                <span class="text-gray-700">Price per Unit: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
+                            </div>
+                            @if($product->variety_size)
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 12h10M7 17h6"></path>
+                                </svg>
+                                <span class="text-gray-700">Variety/Size: <span class="font-medium">{{ $product->variety_size }}</span></span>
+                            </div>
+                            @endif
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span class="text-gray-700">Total Amount: <span class="font-medium">₱{{ number_format((float) ($product->total_amount ?? 0), 2) }}</span></span>
                             </div>
                             @if($product->remainingInventory)
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span class="text-gray-700">Remaining Price: <span class="font-medium text-green-600">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}/{{ $product->unit }}</span></span>
-                            </div>
-                            @endif
-                            
-                            <!-- Egg Sizes -->
-                            @if($product->sizes && $product->sizes->count() > 0)
-                            <div class="mt-2">
-                                <p class="text-gray-500 text-sm mb-1">Egg Sizes:</p>
-                                <div class="flex flex-wrap gap-1">
-                                    @foreach($product->sizes as $size)
-                                        @php
-                                            $sizeLabels = [
-                                                'small' => 'Small',
-                                                'medium' => 'Medium',
-                                                'large' => 'Large',
-                                                'extra_large' => 'Extra Large',
-                                                'jumbo' => 'Jumbo'
-                                            ];
-                                            
-                                            // Get remaining tray count for this size
-                                            $remainingTrays = $size->tray_count;
-                                            if($product->remainingInventory) {
-                                                foreach($product->remainingInventory->per_size_remaining ?? [] as $remainingSize) {
-                                                    if(isset($remainingSize['size_id']) && $remainingSize['size_id'] == $size->id) {
-                                                        $remainingTrays = $remainingSize['remaining_tray_count'];
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                        @endphp
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                            {{ $sizeLabels[$size->size_name] ?? ucfirst(str_replace('_', ' ', $size->size_name)) }}: 
-                                            <span class="font-medium">{{ $size->tray_count }}</span>
-                                            @if($remainingTrays != $size->tray_count)
-                                            <span class="ml-1 text-green-600 font-semibold">({{ $remainingTrays }} left)</span>
-                                            @endif
-                                        </span>
-                                    @endforeach
-                                </div>
+                                <span class="text-gray-700">Remaining Total Amount: <span class="font-medium text-green-600">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</span></span>
                             </div>
                             @endif
                             

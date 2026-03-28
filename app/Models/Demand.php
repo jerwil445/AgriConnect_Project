@@ -11,6 +11,7 @@ class Demand extends Model
     
     protected $fillable = [
         'buyer_id',
+        'product_name',
         'egg_type',
         'egg_category',
         'egg_size',
@@ -20,7 +21,8 @@ class Demand extends Model
         'barangay',
         'municipality_city',
         'province',
-        'delivery_date'
+        'delivery_date',
+        'status',
     ];
     
     protected $casts = [

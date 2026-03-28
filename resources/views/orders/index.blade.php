@@ -22,19 +22,7 @@
                         @foreach($orders as $order)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $order->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    @php
-                                                                        $eggTypes = [
-                                                                            'chicken' => 'Chicken',
-                                                                            'duck' => 'Duck',
-                                                                            'quail' => 'Quail',
-                                                                            'native_chicken' => 'Native Chicken',
-                                                                            'brown' => 'Brown Egg',
-                                                                            'white' => 'White Egg'
-                                                                        ];
-                                                                    @endphp
-                                                                    {{ $eggTypes[$order->product->egg_type] ?? ucfirst(str_replace('_', ' ', $order->product->egg_type)) }}
-                                                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->product->product_name }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->final_quantity }} {{ $order->product->unit }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₱{{ number_format($order->total_amount, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">

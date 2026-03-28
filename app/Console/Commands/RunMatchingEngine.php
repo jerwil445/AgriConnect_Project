@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Demand;
 use App\Models\Product;
 use App\Models\DemandMatch;
+use Illuminate\Support\Facades\Schema;
 
 class RunMatchingEngine extends Command
 {
@@ -66,9 +67,18 @@ class RunMatchingEngine extends Command
      */
     private function matchDemand(Demand $demand)
     {
+        $productNames = array_values(array_unique(array_filter([
+            $demand->product_name,
+            $this->mapEggTypeToProductName($demand->egg_type),
+        ])));
+
+        if (empty($productNames)) {
+            return;
+        }
+
         // Find products that match the demand criteria
-        // Match based on egg type, location (partial match), and sufficient remaining quantity
-        $matchingProducts = Product::where('egg_type', $demand->egg_type)
+        // Match based on product name, location (partial match), and sufficient remaining quantity
+        $matchingProducts = Product::whereIn('product_name', $productNames)
             ->where('status', 'Available')
             ->where(function($query) use ($demand) {
                 // Check if product has remaining inventory and sufficient quantity
@@ -125,11 +135,43 @@ class RunMatchingEngine extends Command
      */
     private function matchProduct(Product $product)
     {
+        $legacyEggType = $product->getRawOriginal('egg_type');
+        $hasDemandProductName = Schema::hasColumn('demands', 'product_name');
+        $hasDemandStatus = Schema::hasColumn('demands', 'status');
+        $productNames = array_values(array_unique(array_filter([
+            $product->product_name,
+            $this->mapEggTypeToProductName($legacyEggType),
+        ])));
+
+        if ((empty($productNames) || !$hasDemandProductName) && !$legacyEggType) {
+            return;
+        }
+
         // Find demands that match the product criteria
         // Only match with products that are available
-        // Match based on egg type, location (partial match), and sufficient remaining quantity
-        $matchingDemands = Demand::where('egg_type', $product->egg_type)
-            ->where('status', 'Available')
+        // Match based on product name, location (partial match), and sufficient remaining quantity
+        $matchingDemands = Demand::where(function ($query) use ($productNames, $legacyEggType, $hasDemandProductName) {
+                $hasCondition = false;
+
+                if ($hasDemandProductName && !empty($productNames)) {
+                    $query->whereIn('product_name', $productNames);
+                    $hasCondition = true;
+                }
+
+                if ($legacyEggType) {
+                    if ($hasCondition) {
+                        $query->orWhere('egg_type', $legacyEggType);
+                    } else {
+                        $query->where('egg_type', $legacyEggType);
+                    }
+                }
+            });
+
+        if ($hasDemandStatus) {
+            $matchingDemands->where('status', 'Available');
+        }
+
+        $matchingDemands = $matchingDemands
             ->where(function($query) use ($product) {
                 // Check if product has remaining inventory and sufficient quantity
                 if ($product->remainingInventory) {
@@ -154,7 +196,15 @@ class RunMatchingEngine extends Command
                     $subQuery->where(function($buyerSubQuery) use ($addressTerms) {
                         foreach ($addressTerms as $term) {
                             if (strlen($term) > 2) { // Only match terms with more than 2 characters
-                                $buyerSubQuery->where('buyer_address', 'LIKE', '%' . $term . '%');
+                                $buyerSubQuery->where('address', 'LIKE', '%' . $term . '%');
+                            }
+                        }
+                    });
+                })->orWhereHas('buyer.buyer', function($subQuery) use ($addressTerms) {
+                    $subQuery->where(function($buyerProfileSubQuery) use ($addressTerms) {
+                        foreach ($addressTerms as $term) {
+                            if (strlen($term) > 2) { // Only match terms with more than 2 characters
+                                $buyerProfileSubQuery->where('address', 'LIKE', '%' . $term . '%');
                             }
                         }
                     });
@@ -178,5 +228,22 @@ class RunMatchingEngine extends Command
                 ]);
             }
         }
+    }
+
+    private function mapEggTypeToProductName(?string $eggType): ?string
+    {
+        if (!$eggType) {
+            return null;
+        }
+
+        return match ($eggType) {
+            'chicken' => 'Chicken Eggs',
+            'duck' => 'Duck Eggs',
+            'quail' => 'Quail Eggs',
+            'native_chicken' => 'Native Chicken Eggs',
+            'brown' => 'Brown Eggs',
+            'white' => 'White Eggs',
+            default => ucwords(str_replace('_', ' ', $eggType)),
+        };
     }
 }

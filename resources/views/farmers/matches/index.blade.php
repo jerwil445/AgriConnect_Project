@@ -50,19 +50,14 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h2 class="text-xl font-bold text-gray-800">
-                                                                @php
-                                                                    $eggTypes = [
-                                                                        'chicken' => 'Chicken',
-                                                                        'duck' => 'Duck',
-                                                                        'quail' => 'Quail',
-                                                                        'native_chicken' => 'Native Chicken',
-                                                                        'brown' => 'Brown Egg',
-                                                                        'white' => 'White Egg'
-                                                                    ];
-                                                                @endphp
-                                                                {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                                {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
                                                             </h2>
                                 <div class="flex flex-wrap gap-2 mt-2">
+                                    @if($product->variety_size)
+                                    <span class="bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded">
+                                        {{ $product->variety_size }}
+                                    </span>
+                                    @endif
                                     <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
                                         {{ $product->quantity }} {{ $product->unit }} available
                                     </span>

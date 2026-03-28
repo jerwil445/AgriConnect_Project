@@ -167,23 +167,31 @@
                                     </svg>
                                 </button>
                             </form>
-                            
+
+                            @php
+                                $matchProductImage = $match->product->images->first()?->image_path ?: $match->product->image;
+                            @endphp
+
+                            <div class="mb-4">
+                                @if($matchProductImage)
+                                    <img src="{{ asset('storage/' . $matchProductImage) }}" alt="{{ $match->product->product_name }}"
+                                        class="h-44 w-full rounded-lg object-cover border border-gray-200">
+                                @else
+                                    <div class="flex h-44 w-full items-center justify-center rounded-lg border border-gray-200 bg-gradient-to-br from-green-100 to-green-200">
+                                        <i class="fas fa-image text-4xl text-green-500"></i>
+                                    </div>
+                                @endif
+                            </div>
+
                             <div class="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 class="font-bold text-lg text-gray-900">
-                                                                        @php
-                                                                            $eggTypes = [
-                                                                                'chicken' => 'Chicken',
-                                                                                'duck' => 'Duck',
-                                                                                'quail' => 'Quail',
-                                                                                'native_chicken' => 'Native Chicken',
-                                                                                'brown' => 'Brown Egg',
-                                                                                'white' => 'White Egg'
-                                                                            ];
-                                                                        @endphp
-                                                                        {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                                                        {{ $match->product->product_name ?: $match->product->egg_type ?: 'N/A' }}
                                                                     </h3>
                                     <p class="text-gray-600 text-sm">{{ $match->product->farmer->user->first_name ?? '' }} {{ $match->product->farmer->user->last_name ?? '' }}</p>
+                                    @if($match->product->variety_size)
+                                        <p class="text-gray-500 text-xs">{{ $match->product->variety_size }}</p>
+                                    @endif
                                 </div>
                                 <span class="px-2 py-1 rounded-full text-xs font-medium 
                                     @if($match->status == 'Matched') bg-green-100 text-green-800
@@ -202,6 +210,10 @@
                                     <span class="text-gray-500 text-sm">Original Quantity:</span>
                                     <span class="font-medium">{{ $match->product->quantity }} {{ $match->product->unit }}</span>
                                 </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500 text-sm">Total Amount:</span>
+                                    <span class="font-medium">PHP {{ number_format((float) ($match->product->total_amount ?? 0), 2) }}</span>
+                                </div>
                                 @if($match->product->remainingInventory)
                                 <div class="flex justify-between">
                                     <span class="text-gray-500 text-sm">Remaining Quantity:</span>
@@ -209,12 +221,12 @@
                                 </div>
                                 @endif
                                 <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Original Price:</span>
+                                    <span class="text-gray-500 text-sm">Price per Unit:</span>
                                     <span class="font-medium text-green-600">₱{{ number_format($match->product->price, 2) }}/{{ $match->product->unit }}</span>
                                 </div>
                                 @if($match->product->remainingInventory)
                                 <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Remaining Price:</span>
+                                    <span class="text-gray-500 text-sm">Remaining Total Amount:</span>
                                     <span class="font-medium text-green-600">₱{{ number_format($match->product->remainingInventory->remaining_price, 2) }}/{{ $match->product->unit }}</span>
                                 </div>
                                 @endif
@@ -224,7 +236,7 @@
                                 </div>
                                 
                                 <!-- Egg-specific information for matched product -->
-                                @if($match->product->egg_type || $match->product->egg_size)
+                                @if(false)
                                 <div class="flex justify-between">
                                     <span class="text-gray-500 text-sm">Egg Details:</span>
                                     <span class="font-medium">
@@ -242,11 +254,11 @@
                                 @endif
                                 
                                 <!-- Egg Sizes -->
-                                @if($match->product->sizes && $match->product->sizes->count() > 0)
+                                @if(false)
                                 <div class="mt-2">
                                     <p class="text-gray-500 text-sm mb-1">Egg Sizes:</p>
                                     <div class="flex flex-wrap gap-1">
-                                        @foreach($match->product->sizes as $size)
+                                        @foreach([] as $size)
                                             @php
                                                 $sizeLabels = [
                                                     'small' => 'Small',

@@ -25,7 +25,10 @@
                         @foreach($orders as $order)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ $order->id }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->product->egg_type ?? 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <div>{{ $order->product->product_name ?? 'N/A' }}</div>
+                                    <div class="text-xs text-gray-400">{{ $order->product->variety_size ?? 'No variety/size' }}</div>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $order->final_quantity }} {{ $order->product->unit ?? '' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">₱{{ number_format($order->total_amount, 2) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">

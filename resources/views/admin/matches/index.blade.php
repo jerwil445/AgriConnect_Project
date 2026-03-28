@@ -138,17 +138,10 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $match->id }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @php
-                                        $eggTypes = [
-                                            'chicken' => 'Chicken',
-                                            'duck' => 'Duck',
-                                            'quail' => 'Quail',
-                                            'native_chicken' => 'Native Chicken',
-                                            'brown' => 'Brown Egg',
-                                            'white' => 'White Egg'
-                                        ];
-                                    @endphp
-                                    {{ $eggTypes[$match->product->egg_type] ?? ucfirst(str_replace('_', ' ', $match->product->egg_type)) }}
+                                    <div>{{ $match->product->product_name ?: $match->product->egg_type ?: 'N/A' }}</div>
+                                    @if($match->product->variety_size)
+                                        <div class="text-xs text-gray-400">{{ $match->product->variety_size }}</div>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     @php

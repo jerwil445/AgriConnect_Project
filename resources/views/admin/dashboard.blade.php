@@ -219,7 +219,7 @@
         const productPopularityData = [
             @foreach ($productPopularity as $product)
                 {
-                    name: '{{ $product->egg_type }}',
+                    name: '{{ $product->product_name }}',
                     count: {{ $product->transaction_count }}
                 },
             @endforeach

@@ -86,102 +86,204 @@
     @endphp
 
     @if(Auth::id() == $transaction->buyer_id && $availableQuantity > 0 && $transaction->product->status != 'Sold Out')
-        <div class="mb-4">
-            <button id="confirmOrderBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+        <div class="mb-6 flex justify-end">
+            <button id="confirmOrderBtn" class="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-bold text-white transition-all duration-200 bg-green-600 border border-transparent rounded-xl shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 overflow-hidden">
+                <span class="absolute w-0 h-0 transition-all duration-500 ease-out bg-white rounded-full group-hover:w-56 group-hover:h-56 opacity-10"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2 -ml-1 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
                 Confirm Order
             </button>
         </div>
 
-        <div id="orderModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
-            <div class="relative top-10 mx-auto p-5 border shadow-lg rounded-md bg-white max-w-3xl w-full">
-                <div class="mt-3">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Confirm Order</h3>
-                        <button id="closeModal" class="text-gray-400 hover:text-gray-500">
-                            <i class="fas fa-times"></i>
+        <div id="orderModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            {{-- Backdrop --}}
+            <div id="orderModalBackdrop" class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"></div>
+            
+            {{-- Modal Panel --}}
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-modal-in z-10">
+                
+                {{-- Header --}}
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center relative overflow-hidden">
+                    <div class="absolute left-0 top-0 w-2 h-full bg-green-500"></div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2" id="modal-title">
+                            <span class="p-1.5 rounded-lg bg-green-100 text-green-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </span>
+                            Complete Your Order
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1 pl-10">Please verify your details below</p>
+                    </div>
+                    <button type="button" id="closeModal" class="rounded-full p-2 bg-white text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none transition-colors shadow-sm border border-gray-200">
+                        <span class="sr-only">Close</span>
+                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Form Content --}}
+                <form id="orderForm" action="{{ route('transactions.order', $transaction->id) }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
+                    @csrf
+                    
+                    <div class="flex-1 overflow-y-auto px-6 py-5">
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                            
+                            {{-- Left Column: User Details --}}
+                            <div class="lg:col-span-7 space-y-5">
+                                <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    Delivery Details
+                                </h4>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_name">Full Name</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-user text-xs"></i>
+                                            </div>
+                                            <input class="block w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                                id="buyer_name" name="buyer_name" type="text" value="{{ Auth::user()->first_name ?? '' }} {{ Auth::user()->last_name ?? '' }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_phone">Phone Number</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-phone-alt text-xs"></i>
+                                            </div>
+                                            <input class="block w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                                id="buyer_phone" name="buyer_phone" type="text" required placeholder="e.g. 09123456789">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_email">Email Address</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fas fa-envelope text-xs"></i>
+                                            </div>
+                                            <input class="block w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-green-500 focus:border-green-500 transition-colors" 
+                                                id="buyer_email" name="buyer_email" type="email" value="{{ Auth::user()->email ?? '' }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_address">Full Delivery Address</label>
+                                        <textarea class="block w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-green-500 focus:border-green-500 transition-colors resize-none" 
+                                            id="buyer_address" name="buyer_address" rows="3" required placeholder="Street, Barangay, Municipality, Province..."></textarea>
+                                    </div>
+                                </div>
+                                
+                                <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide border-b border-gray-100 pb-2 mt-6 mb-4 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                    Payment
+                                </h4>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="payment_method">Preferred Payment Method</label>
+                                    <div class="relative">
+                                        <select class="appearance-none block w-full pl-3 pr-10 py-3 bg-white border border-gray-300 hover:border-gray-400 rounded-xl text-gray-900 font-medium focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors" 
+                                            id="payment_method" name="payment_method" required>
+                                            <option value="" disabled selected>Select an option...</option>
+                                            <option value="cash_on_delivery">Cash on Delivery (COD)</option>
+                                            <option value="bank_transfer">Bank Transfer</option>
+                                            <option value="e_wallet">E-Wallet (GCash, PayMaya)</option>
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Right Column: Order Summary --}}
+                            <div class="lg:col-span-5 flex flex-col h-full relative">
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200 p-6 shadow-sm flex-1 flex flex-col justify-between relative overflow-hidden">
+                                    {{-- Sub-decorative --}}
+                                    <svg class="absolute -right-6 -bottom-6 w-32 h-32 text-green-200/50 transform -rotate-12" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                    </svg>
+                                    
+                                    <div>
+                                        <h4 class="text-xs font-bold text-green-600 uppercase tracking-widest mb-4">Order Summary</h4>
+                                        
+                                        <div class="bg-white rounded-xl p-4 shadow-sm border border-green-100 mb-5">
+                                            <div class="flex items-start gap-3">
+                                                <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 text-green-600">
+                                                    <i class="fas fa-box-open text-xl"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="font-bold text-gray-900 leading-tight">{{ $transaction->product->product_name }}</h5>
+                                                    <p class="text-xs font-medium text-gray-500 mt-0.5">{{ $transaction->product->variety_size ?: 'Standard' }}</p>
+                                                    <p class="text-xs font-semibold text-indigo-600 mt-1">Available: {{ $availableQuantity }} {{ $transaction->product->unit }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="space-y-4 mb-4">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 mb-1.5" for="order_quantity_simple">Quantity ({{ $transaction->product->unit }})</label>
+                                                <div class="flex items-center">
+                                                    <input class="block w-full px-4 py-2.5 bg-white border border-green-200 rounded-lg text-lg font-bold text-center text-gray-900 focus:ring-green-500 focus:border-green-500"
+                                                        id="order_quantity_simple"
+                                                        name="order_quantity"
+                                                        type="number"
+                                                        min="1"
+                                                        max="{{ $availableQuantity }}"
+                                                        value="{{ $transaction->demand ? min($transaction->demand->quantity, $availableQuantity) : 1 }}"
+                                                        data-price-per-unit="{{ $transaction->product->price }}"
+                                                        required>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-center text-sm">
+                                                <span class="text-gray-600 font-medium">Unit Price</span>
+                                                <span class="font-bold text-gray-900" id="price_per_unit_value">₱{{ number_format($transaction->product->price, 2) }}</span>
+                                            </div>
+                                            
+                                            <div class="flex justify-between items-center text-sm border-t border-green-200/60 pt-3">
+                                                <span class="text-gray-600 font-medium">Delivery</span>
+                                                <span class="text-gray-500 italic text-xs">Calculated Later</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mt-4 pt-4 border-t-2 border-green-200 relative z-10">
+                                        <div class="flex justify-between items-end">
+                                            <span class="text-sm font-bold text-gray-700 uppercase">Estimated Total</span>
+                                            <span id="order-total-preview" class="text-3xl font-black text-green-700 tracking-tight">₱{{ number_format($transaction->product->price, 2) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{-- Footer Actions --}}
+                    <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                        <button type="button" id="cancelOrder" class="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            Back
+                        </button>
+                        <button type="submit" class="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-white bg-green-600 rounded-xl shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-600 transition-colors flex items-center justify-center gap-2">
+                            <span>Place Order Now</span>
+                            <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            </svg>
                         </button>
                     </div>
-
-                    <form id="orderForm" action="{{ route('transactions.order', $transaction->id) }}" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        @csrf
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="buyer_name">Full Name</label>
-                                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" id="buyer_name" name="buyer_name" type="text"
-                                    value="{{ Auth::user()->first_name ?? '' }} {{ Auth::user()->last_name ?? '' }}" required>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="buyer_email">Email</label>
-                                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" id="buyer_email" name="buyer_email" type="email"
-                                    value="{{ Auth::user()->email ?? '' }}" required>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="buyer_phone">Phone Number</label>
-                                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" id="buyer_phone" name="buyer_phone" type="text" required>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="buyer_address">Delivery Address</label>
-                                <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" id="buyer_address" name="buyer_address" required></textarea>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="payment_method">Payment Method</label>
-                                <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700" id="payment_method" name="payment_method" required>
-                                    <option value="">Select Payment Method</option>
-                                    <option value="cash_on_delivery">Cash on Delivery</option>
-                                    <option value="bank_transfer">Bank Transfer</option>
-                                    <option value="credit_card">Credit Card</option>
-                                    <option value="e_wallet">E-Wallet</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div class="rounded-lg border border-gray-200 p-4 bg-gray-50">
-                                <h4 class="font-semibold text-gray-900">{{ $transaction->product->product_name }}</h4>
-                                <p class="text-sm text-gray-500">{{ $transaction->product->variety_size ?: 'No variety/size specified' }}</p>
-                            </div>
-
-                            <div>
-                                <label class="block text-gray-700 text-sm font-bold mb-2" for="order_quantity_simple">Quantity to Order</label>
-                                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700"
-                                    id="order_quantity_simple"
-                                    name="order_quantity"
-                                    type="number"
-                                    min="1"
-                                    max="{{ $availableQuantity }}"
-                                    value="{{ $transaction->demand ? min($transaction->demand->quantity, $availableQuantity) : 1 }}"
-                                    data-price-per-unit="{{ $transaction->product->price }}"
-                                    required>
-                                <p class="text-gray-600 text-xs mt-1">Available: {{ $availableQuantity }} {{ $transaction->product->unit }}</p>
-                            </div>
-
-                            <div class="rounded-lg border border-gray-200 p-4">
-                                <div class="flex justify-between text-sm mb-2">
-                                    <span class="text-gray-600">Price per Unit</span>
-                                    <span id="price_per_unit_value">₱{{ number_format($transaction->product->price, 2) }}/{{ $transaction->product->unit }}</span>
-                                </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-600">Estimated Total</span>
-                                    <span id="order-total-preview" class="font-semibold text-green-600">₱{{ number_format($transaction->product->price, 2) }}</span>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center justify-between mt-6">
-                                <button type="button" id="cancelOrder" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
-                                    Cancel
-                                </button>
-                                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                                    Place Order
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
     @endif

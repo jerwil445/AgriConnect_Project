@@ -159,7 +159,6 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const notificationButton = document.getElementById("notification-button");
-        console.log("Notification button: " + notificationButton);
         const notificationDropdown = document.getElementById("notification-dropdown");
 
         if (notificationButton && notificationDropdown) {

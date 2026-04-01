@@ -1,190 +1,264 @@
 @extends('layouts.farmers_page')
 
-@section('title', 'Edit Farmer Profile • AgriConnect')
+@section('title', 'Refine Farmer Profile • AgriConnect')
 
 @section('content')
-<div class="shadow-sm ml-64">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="px-6 py-5 border-b border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-900">Edit Your Profile</h2>
-            <p class="text-sm text-gray-500 mt-1">Update your account information</p>
+    <div class="ml-64 p-12 max-w-6xl mx-auto">
+        {{-- Header Section --}}
+        <div class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">Farm Biography Refinement</h1>
+                <p class="text-gray-500 font-medium mt-1">Enhance your farm's identity to attract more high-volume matches.
+                </p>
+            </div>
+            <a href="{{ route('farmer.profile') }}"
+                class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-emerald-600 transition-colors group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform text-xs"></i>
+                Discard and Return
+            </a>
         </div>
 
-        <div class="p-6">
-            @if(session('success'))
-                <div class="mb-4 rounded-md bg-green-50 p-4">
-                    <div class="flex">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-                            </svg>
+        @if(session('success'))
+            <div
+                class="mb-8 p-4 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-3 text-emerald-700 animate-fade-in-down">
+                <div class="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                    <i class="fas fa-check text-xs"></i>
+                </div>
+                <p class="text-sm font-bold">{{ session('success') }}</p>
+            </div>
+        @endif
+
+        <form action="{{ route('farmer.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {{-- Left: Avatar Selection --}}
+                <div class="lg:col-span-1 text-center">
+                    <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm  group">
+                        <div class="relative inline-block mb-8">
+                            <div
+                                class="p-1 rounded-[3rem] border-2 border-dashed border-gray-200 group-hover:border-emerald-400 transition-colors">
+                                <img id="profile-preview"
+                                    src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}"
+                                    alt="Profile"
+                                    class="w-40 h-40 rounded-[2.8rem] object-cover shadow-2xl group-hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <label for="profile_picture"
+                                class="absolute -bottom-2 -right-2 bg-emerald-600 text-white w-12 h-12 rounded-[1.2rem] border-4 border-white flex items-center justify-center cursor-pointer hover:bg-emerald-700 hover:scale-110 transition-all shadow-lg shadow-emerald-200">
+                                <i class="fas fa-camera text-sm"></i>
+                            </label>
+                            <input type="file" name="profile_picture" id="profile_picture" class="hidden" accept="image/*">
                         </div>
-                        <div class="ml-3">
-                            <p class="text-sm font-medium text-green-800">
-                                {{ session('success') }}
+                        <h3 class="text-xl font-black text-gray-900 tracking-tight leading-none">
+                            {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h3>
+                        <div
+                            class="mt-2 text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full inline-block">
+                            Registered Producer</div>
+
+                        <div class="mt-10 pt-10 border-t border-gray-50 space-y-4">
+                            <button type="submit"
+                                class="w-full bg-emerald-600 text-white px-8 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 active:scale-95">
+                                Commit Bio Updates
+                            </button>
+                            <p class="text-[10px] text-gray-400 font-bold px-4 leading-relaxed line-clamp-2">
+                                Your updated farm bio will be synchronized across our directory instantly.
                             </p>
                         </div>
                     </div>
                 </div>
-            @endif
 
-            <form action="{{ route('farmer.profile.update') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="md:col-span-1">
-                        <div class="bg-gray-50 rounded-lg p-6 text-center">
-                            <div class="relative inline-block">
-                                <img id="profile-preview" src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}" 
-                                     alt="Profile" class="w-24 h-24 rounded-full mx-auto object-cover">
-                                <label for="profile_picture" class="absolute bottom-0 right-0 bg-green-500 rounded-full p-1 cursor-pointer">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                </label>
-                                <input type="file" name="profile_picture" id="profile_picture" class="hidden" accept="image/*">
+                {{-- Right: Form Data --}}
+                <div class="lg:col-span-2 space-y-8">
+                    {{-- Personal Identity Card --}}
+                    <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                    <i class="fas fa-fingerprint text-sm"></i>
+                                </div>
+                                <h3 class="font-black text-gray-900 tracking-tight uppercase text-xs tracking-[0.2em]">
+                                    Personal Identity</h3>
                             </div>
-                            <h3 class="text-lg font-medium text-gray-900 mt-4">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</h3>
-                            <p class="text-gray-500 text-sm">Farmer</p>
+                        </div>
+                        <div class="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-3">
+                                <label for="first_name"
+                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">First
+                                    Identification</label>
+                                <input type="text" name="first_name" id="first_name"
+                                    value="{{ old('first_name', Auth::user()->first_name) }}"
+                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                @error('first_name')
+                                    <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-3">
+                                <label for="last_name"
+                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Family/Business
+                                    Name</label>
+                                <input type="text" name="last_name" id="last_name"
+                                    value="{{ old('last_name', Auth::user()->last_name) }}"
+                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                @error('last_name')
+                                    <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-3">
+                                <label for="email"
+                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Sourcing
+                                    Email</label>
+                                <input type="email" name="email" id="email" value="{{ old('email', Auth::user()->email) }}"
+                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                @error('email')
+                                    <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-3">
+                                <label for="phone_number"
+                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Mobile
+                                    Connectivity</label>
+                                <input type="text" name="phone_number" id="phone_number"
+                                    value="{{ old('phone_number', Auth::user()->phone_number) }}"
+                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                @error('phone_number')
+                                    <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
-                    <div class="md:col-span-2">
-                        <div class="space-y-6">
-                            <div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                        <input type="text" name="first_name" id="first_name" 
-                                               value="{{ old('first_name', Auth::user()->first_name) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('first_name')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
+                    {{-- Farm Operations Card --}}
+                    @if(Auth::user()->farmer)
+                        <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                            <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between bg-emerald-50/20">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                        <i class="fas fa-tractor text-sm"></i>
                                     </div>
-                                    <div>
-                                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                        <input type="text" name="last_name" id="last_name" 
-                                               value="{{ old('last_name', Auth::user()->last_name) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('last_name')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                        <input type="email" name="email" id="email" 
-                                               value="{{ old('email', Auth::user()->email) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('email')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                        <input type="text" name="phone_number" id="phone_number" 
-                                               value="{{ old('phone_number', Auth::user()->phone_number) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('phone_number')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+                                    <h3 class="font-black text-gray-900 tracking-tight uppercase text-xs tracking-[0.2em]">
+                                        Operational Specifications</h3>
                                 </div>
                             </div>
-
-                            @if(Auth::user()->farmer)
-                            <div>
-                                <h3 class="text-lg font-medium text-gray-900 mb-4">Farmer Information</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="farm_name" class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
-                                        <input type="text" name="farm_name" id="farm_name" 
-                                               value="{{ old('farm_name', Auth::user()->farmer->farm_name) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <div class="p-10 space-y-8">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-3">
+                                        <label for="farm_name"
+                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Farm
+                                            Operational Name</label>
+                                        <input type="text" name="farm_name" id="farm_name"
+                                            value="{{ old('farm_name', Auth::user()->farmer->farm_name) }}"
+                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none border-emerald-100/30">
                                         @error('farm_name')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div>
-                                        <label for="farm_size" class="block text-sm font-medium text-gray-700 mb-1">Farm Size</label>
-                                        <input type="text" name="farm_size" id="farm_size" 
-                                               value="{{ old('farm_size', Auth::user()->farmer->farm_size) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                                    <div class="space-y-3">
+                                        <label for="farm_size"
+                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Land
+                                            Area Size (Hectares/m²)</label>
+                                        <input type="text" name="farm_size" id="farm_size"
+                                            value="{{ old('farm_size', Auth::user()->farmer->farm_size) }}"
+                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none border-emerald-100/30">
                                         @error('farm_size')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="product_type" class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                                        <input type="text" name="product_type" id="product_type" 
-                                               value="{{ old('product_type', Auth::user()->farmer->product_type) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('product_type')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="experience_years" class="block text-sm font-medium text-gray-700 mb-1">Experience (Years)</label>
-                                        <input type="number" name="experience_years" id="experience_years" 
-                                               value="{{ old('experience_years', Auth::user()->farmer->experience_years) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('experience_years')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div>
-                                        <label for="certification" class="block text-sm font-medium text-gray-700 mb-1">Certification</label>
-                                        <input type="text" name="certification" id="certification" 
-                                               value="{{ old('certification', Auth::user()->farmer->certification) }}"
-                                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                                        @error('certification')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                        @enderror
-                                    </div>
-                                    <div class="md:col-span-2">
-                                        <label for="farm_address" class="block text-sm font-medium text-gray-700 mb-1">Farm Address</label>
-                                        <textarea name="farm_address" id="farm_address" rows="3"
-                                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">{{ old('farm_address', Auth::user()->farmer->farm_address) }}</textarea>
-                                        @error('farm_address')
-                                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                            <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
-                            @endif
-
-                            <div class="flex justify-end space-x-3">
-                                <a href="{{ route('farmer.dashboard') }}" 
-                                   class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                    Cancel
-                                </a>
-                                <button type="submit" 
-                                        class="rounded-lg border border-transparent bg-green-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                                    Save Changes
-                                </button>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-3">
+                                        <label for="product_type"
+                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Crop/Product
+                                            Core Category</label>
+                                        <input type="text" name="product_type" id="product_type"
+                                            value="{{ old('product_type', Auth::user()->farmer->product_type) }}"
+                                            placeholder="e.g. Fruits, Grains"
+                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                        @error('product_type')
+                                            <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                    <div class="space-y-3">
+                                        <label for="experience_years"
+                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Years of
+                                            Agri Experience</label>
+                                        <input type="number" name="experience_years" id="experience_years"
+                                            value="{{ old('experience_years', Auth::user()->farmer->experience_years) }}"
+                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                        @error('experience_years')
+                                            <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <label for="certification"
+                                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Agricultural
+                                        Certifications (GAP, Organic, etc.)</label>
+                                    <input type="text" name="certification" id="certification"
+                                        value="{{ old('certification', Auth::user()->farmer->certification) }}"
+                                        class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                    @error('certification')
+                                        <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="space-y-3">
+                                    <label for="farm_address"
+                                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Physical
+                                        Location/Farm Hub</label>
+                                    <textarea name="farm_address" id="farm_address" rows="3"
+                                        class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none min-h-[120px]">{{ old('farm_address', Auth::user()->farmer->farm_address) }}</textarea>
+                                    @error('farm_address')
+                                        <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
-</div>
 
-<script>
-    // Preview profile picture
-    document.getElementById('profile_picture').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('profile-preview').src = e.target.result;
+    <script>
+        // Premium Profile Preview with smooth scaling
+        document.getElementById('profile_picture').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                const preview = document.getElementById('profile-preview');
+                reader.onload = function (e) {
+                    preview.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+                    preview.style.transform = 'scale(0.8)';
+                    preview.style.opacity = '0.5';
+
+                    setTimeout(() => {
+                        preview.src = e.target.result;
+                        preview.style.transform = 'scale(1)';
+                        preview.style.opacity = '1';
+                    }, 300);
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
+        });
+    </script>
+
+    <style>
+        .animate-fade-in-down {
+            animation: fadeInDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-    });
-</script>
+
+        @keyframes fadeInDown {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 @endsection

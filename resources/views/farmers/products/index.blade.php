@@ -3,160 +3,176 @@
 @section('title', 'Product Listings • AgriConnect')
 
 @section('content')
-<div class="ml-60">
-    @php
-        $hasFilters = $search !== '' || $statusFilter !== '' || $sort !== 'latest' || $perPage !== 10;
-    @endphp
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
-            <h1 class="text-3xl font-bold text-green-700">My Product Listings</h1>
-            <a href="{{ route('products.create') }}"
-                class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 relative ml-64">
+        <div
+            class="px-4 lg:px-6 py-4 lg:py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900">My Product Listings</h2>
+                <p class="text-sm text-gray-500 mt-1">Manage your agricultural products</p>
+            </div>
+            <a href="{{ route('farmer.products.create') }}"
+                class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition w-fit">
                 <i class="fas fa-plus"></i>
-                Add New Product
+                <span class="hidden sm:inline">Add New Product</span>
+                <span class="sm:hidden">Add</span>
             </a>
         </div>
 
-        @if(session('success'))
-            <div class="bg-green-50 border-l-4 border-green-500 p-4 text-sm text-green-700">
-                {{ session('success') }}
+        @if (session('success'))
+            <div class="bg-green-50 border-l-4 border-green-500 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">
+                            {{ session('success') }}
+                        </p>
+                    </div>
+                </div>
             </div>
         @endif
 
-        <div class="px-6 py-5 border-b border-gray-100 bg-gray-50/70">
-            <form method="GET" action="{{ route('products.index') }}" class="space-y-4">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
-                    <div>
-                        <label for="search" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">Search</label>
-                        <input type="text" name="search" id="search" value="{{ $search }}"
-                            placeholder="Search product name, variety, description, or unit"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
+        {{-- Search, Filter, and Show Entries Controls --}}
+        <div class="px-4 lg:px-6 py-4 border-b border-gray-100 bg-gray-50">
+            <form method="GET" action="{{ route('farmer.products.index') }}" class="space-y-4">
+                <div class="flex flex-wrap items-end gap-2 lg:gap-4">
+                    {{-- Search Box --}}
+                    <div class="flex-1 min-w-[150px] lg:min-w-[200px]">
+                        <label for="search" class="block text-xs font-medium text-gray-700 mb-1">Search</label>
+                        <input type="text" name="search" id="search" placeholder="Search by product name..."
+                            value="{{ request('search') }}"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
                     </div>
 
-                    <div>
-                        <label for="per_page" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">Show Entries</label>
+                    {{-- Status Filter --}}
+                    <div class="w-32 lg:w-40">
+                        <label for="status" class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                        <select name="status" id="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="">All Status</option>
+                            <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available
+                            </option>
+                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Sold Out" {{ request('status') == 'Sold Out' ? 'selected' : '' }}>Sold Out
+                            </option>
+                        </select>
+                    </div>
+
+                    {{-- Show Entries Dropdown --}}
+                    <div class="w-24 lg:w-32">
+                        <label for="per_page" class="block text-xs font-medium text-gray-700 mb-1">Show</label>
                         <select name="per_page" id="per_page" onchange="this.form.submit()"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
-                            @foreach([5, 10, 25, 50] as $entries)
-                                <option value="{{ $entries }}" {{ $perPage === $entries ? 'selected' : '' }}>{{ $entries }}</option>
-                            @endforeach
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                            <option value="10" {{ request('per_page') == '10' || !request('per_page') ? 'selected' : '' }}>10
+                            </option>
+                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
                         </select>
                     </div>
 
-                    <div>
-                        <label for="status" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">Status</label>
-                        <select name="status" id="status" onchange="this.form.submit()"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
-                            <option value="">All Statuses</option>
-                            @foreach(['Available', 'Pending', 'Sold Out'] as $statusOption)
-                                <option value="{{ $statusOption }}" {{ $statusFilter === $statusOption ? 'selected' : '' }}>
-                                    {{ $statusOption }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="sort" class="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500">Sort By</label>
-                        <select name="sort" id="sort" onchange="this.form.submit()"
-                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
-                            <option value="latest" {{ $sort === 'latest' ? 'selected' : '' }}>Newest First</option>
-                            <option value="oldest" {{ $sort === 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                            <option value="name_asc" {{ $sort === 'name_asc' ? 'selected' : '' }}>Name A-Z</option>
-                            <option value="price_high" {{ $sort === 'price_high' ? 'selected' : '' }}>Price High-Low</option>
-                            <option value="price_low" {{ $sort === 'price_low' ? 'selected' : '' }}>Price Low-High</option>
-                        </select>
-                    </div>
-
-                    <div class="flex items-end gap-2">
+                    {{-- Search and Filter Buttons --}}
+                    <div class="flex gap-2">
                         <button type="submit"
-                            class="inline-flex items-center justify-center rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-500 transition">
-                            Search
+                            class="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-500 transition">
+                            <i class="fas fa-search"></i>
+                            <span class="hidden sm:inline">Search</span>
                         </button>
-                        @if($hasFilters)
-                            <a href="{{ route('products.index') }}"
-                                class="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition">
-                                Reset
-                            </a>
-                        @endif
+                        <a href="{{ route('farmer.products.index') }}"
+                            class="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-400 transition">
+                            <i class="fas fa-redo"></i>
+                            <span class="hidden sm:inline">Clear</span>
+                        </a>
                     </div>
                 </div>
             </form>
-
-            <div class="mt-4 flex flex-col gap-2 text-sm text-gray-500 md:flex-row md:items-center md:justify-between">
-                <p>
-                    Showing
-                    <span class="font-semibold text-gray-700">{{ $products->firstItem() ?? 0 }}</span>
-                    to
-                    <span class="font-semibold text-gray-700">{{ $products->lastItem() ?? 0 }}</span>
-                    of
-                    <span class="font-semibold text-gray-700">{{ $products->total() }}</span>
-                    entries
-                </p>
-                @if($hasFilters)
-                    <p class="text-xs text-gray-400">Search and dropdown filters stay applied while changing pages.</p>
-                @endif
-            </div>
         </div>
+
+
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variety/Size</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price per Unit</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harvest Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Egg Type
+                        </th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                            Details
+                        </th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Price
+                        </th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                            Harvest
+                            Date</th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col"
+                            class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($products as $product)
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    @if($product->image)
-                                        <img class="h-10 w-10 rounded-md object-cover" src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}">
+                                    @if ($product->image)
+                                        <img class="h-10 w-10 rounded-md object-cover"
+                                            src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}">
                                     @else
                                         <div class="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
                                             <i class="fas fa-image text-gray-400"></i>
                                         </div>
                                     @endif
-                                    <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ $product->product_name }}</div>
-                                        @if($product->description)
-                                            <div class="text-xs text-gray-500 truncate max-w-xs">{{ $product->description }}</div>
-                                        @endif
+                                    <div class="ml-3 lg:ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            @php
+                                                $eggTypes = [
+                                                    'chicken' => 'Chicken',
+                                                    'duck' => 'Duck',
+                                                    'quail' => 'Quail',
+                                                    'native_chicken' => 'Native Chicken',
+                                                    'brown' => 'Brown Egg',
+                                                    'white' => 'White Egg',
+                                                ];
+                                            @endphp
+                                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                        </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->variety_size ?: 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
                                 <div>{{ $product->quantity }} {{ $product->unit }}</div>
-                                @if($product->remainingInventory)
-                                    <div class="text-xs text-green-600">{{ $product->remainingInventory->remaining_quantity }} remaining</div>
-                                @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ number_format($product->price, 2) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ number_format($product->total_amount ?? ($product->quantity * $product->price), 2) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ optional($product->harvest_date)->format('M d, Y') ?? 'N/A' }}
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                ₱{{ number_format($product->price, 2) }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                    @if ($product->status == 'Available') bg-green-100 text-green-800
-                                    @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
-                                    @else bg-yellow-100 text-yellow-800 @endif">
-                                    {{ $product->status }}
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
+                                {{ \Carbon\Carbon::parse($product->harvest_date)->format('M d, Y') }}
+                            </td>
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                                <span
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                                                                            @if ($product->status == 'Available') bg-green-100 text-green-800
+                                                                                                            @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
+                                                                                                            @else bg-yellow-100 text-yellow-800 @endif">
+                                    {{ ucfirst(str_replace('_', ' ', $product->status)) }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
                                 <div class="relative inline-block text-left">
                                     <button type="button"
-                                        class="inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                        class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
                                         id="product-actions-menu-{{ $product->id }}">
                                         Actions
                                         <i class="fas fa-chevron-down ml-2"></i>
@@ -164,29 +180,48 @@
 
                                     <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10"
                                         id="dropdown-menu-{{ $product->id }}">
-                                        <div class="py-1">
-                                            <a href="{{ route('products.show', $product) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        <div class="py-1" role="menu">
+                                            <a href="{{ route('farmer.products.show', $product) }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                                                 <i class="fas fa-eye mr-2"></i> View
                                             </a>
-                                            <a href="{{ route('products.edit', $product) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                            <a href="{{ route('farmer.products.edit', $product) }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
                                                 <i class="fas fa-edit mr-2"></i> Edit
                                             </a>
-                                            <form action="{{ route('products.destroy', $product) }}" method="POST"
+                                            <a href="{{ route('farmer.products.orders', $product) }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                                <i class="fas fa-users mr-2"></i> View Orders
+                                            </a>
+                                            <form action="{{ route('farmer.products.destroy', $product) }}" method="POST"
                                                 onsubmit="return confirm('Are you sure you want to delete this product?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                <button type="submit"
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    role="menuitem">
                                                     <i class="fas fa-trash mr-2"></i> Delete
                                                 </button>
                                             </form>
                                             <div class="border-t border-gray-100"></div>
-                                            @foreach(['Available', 'Pending', 'Sold Out'] as $status)
-                                                <a href="#"
-                                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, '{{ $status }}');">
-                                                    {{ $status }}
+                                            <div class="py-1">
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    role="menuitem"
+                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Available');">
+                                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> Mark as
+                                                    Available
                                                 </a>
-                                            @endforeach
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    role="menuitem"
+                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Pending');">
+                                                    <i class="fas fa-clock mr-2 text-yellow-500"></i> Mark as Pending
+                                                </a>
+                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    role="menuitem"
+                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Sold Out');">
+                                                    <i class="fas fa-times-circle mr-2 text-red-500"></i> Mark as Sold Out
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -194,24 +229,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="px-6 py-12 text-center text-sm text-gray-500">
-                                <div class="flex flex-col items-center justify-center">
+                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                                <div class="flex flex-col items-center justify-center py-12">
                                     <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
                                     <h3 class="text-lg font-medium text-gray-900 mb-1">No products found</h3>
-                                    @if($hasFilters)
-                                        <p class="text-gray-500 mb-4">No products matched your current search or dropdown filters.</p>
-                                        <a href="{{ route('products.index') }}"
-                                            class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 transition">
-                                            Clear Filters
-                                        </a>
-                                    @else
-                                        <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
-                                        <a href="{{ route('products.create') }}"
-                                            class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition">
-                                            <i class="fas fa-plus"></i>
-                                            Add New Product
-                                        </a>
-                                    @endif
+                                    <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
+                                    <a href="{{ route('farmer.products.create') }}"
+                                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition">
+                                        <i class="fas fa-plus"></i>
+                                        Add New Product
+                                    </a>
                                 </div>
                             </td>
                         </tr>
@@ -220,75 +247,96 @@
             </table>
         </div>
 
-        @if($products->hasPages())
-            <div class="px-6 py-4 border-t border-gray-100 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <p class="text-sm text-gray-500">
-                    Page {{ $products->currentPage() }} of {{ $products->lastPage() }}
-                </p>
-                {{ $products->links() }}
-            </div>
-        @endif
+        <div
+            class="px-4 lg:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 rounded-b-xl">
+            <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+                @if ($products->total() > 0)
+                    Showing <span class="text-gray-900">{{ $products->firstItem() }}</span> to <span
+                        class="text-gray-900">{{ $products->lastItem() }}</span> of <span
+                        class="text-gray-900">{{ $products->total() }}</span> Products
+                @else
+                    Showing <span class="text-gray-900">0</span> Products
+                @endif
+            </p>
+            @if ($products->hasPages())
+                <div class="bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
+                    {{ $products->appends(request()->query())->links() }}
+                </div>
+            @endif
+        </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener('click', function(event) {
-        const dropdownButtons = document.querySelectorAll('[id^="product-actions-menu-"]');
-
-        dropdownButtons.forEach(button => {
-            if (button.contains(event.target)) {
-                const productId = button.id.replace('product-actions-menu-', '');
-                const dropdown = document.getElementById('dropdown-menu-' + productId);
-                dropdown.classList.toggle('hidden');
-                event.stopPropagation();
-            }
-        });
-
-        document.querySelectorAll('[id^="dropdown-menu-"]').forEach(dropdown => {
-            if (!dropdown.classList.contains('hidden') && !dropdown.contains(event.target)) {
-                let isClickOnButton = false;
-                dropdownButtons.forEach(button => {
-                    if (button.contains(event.target)) {
-                        isClickOnButton = true;
-                    }
-                });
-
-                if (!isClickOnButton) {
-                    dropdown.classList.add('hidden');
+    <script>
+        // Toggle dropdown visibility
+        document.addEventListener('click', function (event) {
+            // Handle dropdown toggles
+            const dropdownButtons = document.querySelectorAll('[id^="product-actions-menu-"]');
+            dropdownButtons.forEach(button => {
+                if (button.contains(event.target)) {
+                    const productId = button.id.replace('product-actions-menu-', '');
+                    const dropdown = document.getElementById('dropdown-menu-' + productId);
+                    dropdown.classList.toggle('hidden');
+                    event.stopPropagation();
                 }
-            }
-        });
-    });
-
-    function changeProductStatus(productId, status) {
-        const dropdown = document.getElementById('dropdown-menu-' + productId);
-        if (dropdown) {
-            dropdown.classList.add('hidden');
-        }
-
-        if (confirm('Are you sure you want to change the status of this product to ' + status + '?')) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]');
-
-            fetch('/farmer/products/' + productId + '/status', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
-                },
-                body: JSON.stringify({ status: status })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Failed to update status: ' + data.message);
-                }
-            })
-            .catch(() => {
-                alert('Failed to update status. Please try again.');
             });
+
+            // Close all dropdowns when clicking outside
+            const dropdowns = document.querySelectorAll('[id^="dropdown-menu-"]');
+            dropdowns.forEach(dropdown => {
+                if (!dropdown.classList.contains('hidden') && !dropdown.contains(event.target)) {
+                    // Check if click was on a dropdown button
+                    let isClickOnButton = false;
+                    dropdownButtons.forEach(button => {
+                        if (button.contains(event.target)) {
+                            isClickOnButton = true;
+                        }
+                    });
+
+                    if (!isClickOnButton) {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+            });
+        });
+
+        // Change product status
+        function changeProductStatus(productId, status) {
+            // Close the dropdown
+            const dropdown = document.getElementById('dropdown-menu-' + productId);
+            if (dropdown) {
+                dropdown.classList.add('hidden');
+            }
+
+            // Show confirmation
+            if (confirm('Are you sure you want to change the status of this product to ' + status + '?')) {
+                // Get CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+                // Make AJAX request
+                fetch('/farmer/products/' + productId + '/status', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken ? csrfToken.getAttribute('content') : ''
+                    },
+                    body: JSON.stringify({
+                        status: status
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Reload the page to show updated status
+                            location.reload();
+                        } else {
+                            alert('Failed to update status: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to update status. Please try again.');
+                    });
+            }
         }
-    }
-</script>
+    </script>
 @endsection

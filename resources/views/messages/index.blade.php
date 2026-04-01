@@ -443,5 +443,135 @@ document.addEventListener('DOMContentLoaded', function() {
     // Periodically refresh message counts (every 30 seconds)
     setInterval(refreshUnreadCounts, 30000);
 });
+
+/* ── Product Details Modal (global – works after innerHTML injection) ── */
+function openProductDetailsModal(btn) {
+    const modal = document.getElementById('productDetailsModal');
+    if (!modal) return;
+
+    const d = btn.dataset;
+
+    // Right panel — name & title
+    const titleEl = document.getElementById('pdm-title');
+    if (titleEl) titleEl.textContent = d.productName;
+
+    // Price card
+    const priceEl = document.getElementById('pdm-price');
+    const priceUnit = document.getElementById('pdm-price-unit');
+    if (priceEl) priceEl.textContent = '₱' + d.price;
+    if (priceUnit) priceUnit.textContent = ' / ' + d.unit;
+
+    // Stat chips
+    const varietyEl = document.getElementById('pdm-variety');
+    const harvestEl  = document.getElementById('pdm-harvest');
+    const qtyEl     = document.getElementById('pdm-quantity');
+    if (varietyEl) varietyEl.textContent = d.variety;
+    if (harvestEl)  harvestEl.textContent  = d.harvest || 'N/A';
+    if (qtyEl)     qtyEl.textContent     = d.quantity + ' ' + d.unit;
+
+    // Farm location
+    const locEl = document.getElementById('pdm-location');
+    if (locEl) locEl.textContent = d.location || 'Location not specified';
+
+    // About the Farmer
+    const farmerNameEl  = document.getElementById('pdm-farmer-name');
+    const farmNameEl    = document.getElementById('pdm-farm-name');
+    const farmerPhoneEl = document.getElementById('pdm-farmer-phone');
+    const farmAddrEl    = document.getElementById('pdm-farm-address');
+    if (farmerNameEl)  farmerNameEl.textContent  = d.farmer;
+    if (farmNameEl)    farmNameEl.textContent    = d.farmName || '';
+    if (farmerPhoneEl) farmerPhoneEl.textContent = d.farmerPhone || 'N/A';
+    if (farmAddrEl)    farmAddrEl.textContent    = d.farmAddress || 'N/A';
+
+    // Status badge
+    const statusText  = document.getElementById('pdm-status-text');
+    const statusBadge = document.getElementById('pdm-status-badge');
+    const status = d.status || 'Available';
+    if (statusText) statusText.textContent = status;
+    if (statusBadge) {
+        const dot = statusBadge.querySelector('span');
+        if (status === 'Available') {
+            statusBadge.className = 'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white text-green-700 shadow-sm';
+            if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-green-500 inline-block';
+        } else {
+            statusBadge.className = 'inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-white text-red-600 shadow-sm';
+            if (dot) dot.className = 'w-1.5 h-1.5 rounded-full bg-red-500 inline-block';
+        }
+    }
+
+    // Product image
+    const img     = document.getElementById('pdm-product-img');
+    const noImage = document.getElementById('pdm-no-image');
+    if (img && noImage) {
+        if (d.image) {
+            img.src = d.image;
+            img.classList.remove('hidden');
+            noImage.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            noImage.classList.remove('hidden');
+        }
+    }
+
+    // Wire the "Switch" footer button each time
+    const switchBtn = document.getElementById('pdm-switch-btn');
+    if (switchBtn) {
+        switchBtn.onclick = function () {
+            closeProductDetailsModal();
+            switchToTransaction(d.transactionId);
+        };
+    }
+
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductDetailsModal() {
+    const modal = document.getElementById('productDetailsModal');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// Backdrop click + Escape key — attached once via event delegation
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'pdm-backdrop') closeProductDetailsModal();
+});
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeProductDetailsModal();
+});
+
+function showInterestModal(productId) {
+    alert('Interest shown for product ID: ' + productId + '.');
+}
+
+function switchToTransaction(transactionId) {
+    Promise.all([
+        fetch(`/messages/conversation/${transactionId}`).then(r => r.text()),
+        fetch(`/messages/transaction-details/${transactionId}`).then(r => r.text())
+    ])
+    .then(([conversationHtml, detailsHtml]) => {
+        document.getElementById('conversation-container').innerHTML = conversationHtml;
+        document.getElementById('transaction-details').innerHTML = detailsHtml;
+
+        document.querySelectorAll('.conversation-item').forEach(item => {
+            item.classList.remove('bg-indigo-100', 'border-l-4', 'border-l-indigo-500');
+            if (item.getAttribute('data-transaction-id') == transactionId) {
+                item.classList.add('bg-indigo-100', 'border-l-4', 'border-l-indigo-500');
+            }
+        });
+
+        if (typeof initializeMessaging === 'function') initializeMessaging();
+        if (typeof initializeOrderModal  === 'function') initializeOrderModal();
+    })
+    .catch(err => console.error('Error loading transaction:', err));
+}
 </script>
+
+<style>
+@keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+.animate-modal-in { animation: modalIn 0.2s ease-out both; }
+</style>
 @endsection

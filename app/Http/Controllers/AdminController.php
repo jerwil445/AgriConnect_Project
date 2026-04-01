@@ -11,6 +11,7 @@ use App\Models\DemandMatch;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -27,17 +28,17 @@ class AdminController extends Controller
         $totalDemands = Demand::count();
         $totalMatches = DemandMatch::count();
         $totalTransactions = Transaction::count();
-        
+
         // Pending notifications (simplified - in a real app, you might want to count unread messages, pending orders, etc.)
         $pendingNotifications = DemandMatch::where('status', 'Pending')->count();
-        
+
         // Sales/Revenue Trends (last 7 days)
         $salesTrends = Transaction::selectRaw('DATE(created_at) as date, SUM(total_amount) as total')
             ->where('created_at', '>=', now()->subDays(7))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
-        
+
         // Product Popularity (top 5 products by transaction count)
         $productPopularity = Transaction::join('products', 'transactions.product_id', '=', 'products.id')
             ->selectRaw('products.product_name, COUNT(transactions.id) as transaction_count')
@@ -45,7 +46,7 @@ class AdminController extends Controller
             ->orderBy('transaction_count', 'desc')
             ->limit(5)
             ->get();
-        
+
         // Regional Demand (top 5 locations by demand count)
         // Use province field instead of the old location field
         $regionalDemand = Demand::selectRaw('province, COUNT(*) as demand_count')
@@ -54,17 +55,17 @@ class AdminController extends Controller
             ->orderBy('demand_count', 'desc')
             ->limit(5)
             ->get();
-        
+
         // Match Status Distribution
         $matchStatusDistribution = DemandMatch::selectRaw('status, COUNT(*) as count')
             ->groupBy('status')
             ->get();
-        
+
         // Active Orders by Status
         $orderStatusDistribution = Transaction::selectRaw('delivery_status, COUNT(*) as count')
             ->groupBy('delivery_status')
             ->get();
-        
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalFarmers',
@@ -81,7 +82,7 @@ class AdminController extends Controller
             'orderStatusDistribution'
         ));
     }
-    
+
     /**
      * Display a listing of the products.
      */
@@ -93,10 +94,10 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $perPage = $request->input('per_page', 10);
-        
+
         // Query products with relationships
         $productsQuery = Product::with(['farmer.user']);
-        
+
         // Apply search filter
         if ($search) {
             $productsQuery->where(function ($query) use ($search) {
@@ -104,22 +105,22 @@ class AdminController extends Controller
                     ->orWhere('variety_size', 'LIKE', "%{$search}%");
             });
         }
-        
+
         // Apply farmer filter
         if ($farmerFilter) {
             $productsQuery->whereHas('farmer', function ($query) use ($farmerFilter) {
                 $query->where('user_id', $farmerFilter);
             });
         }
-        
+
         // Apply status filter
         if ($statusFilter) {
             $productsQuery->where('status', $statusFilter);
         }
-        
+
         // Apply sorting
         $productsQuery->orderBy($sortBy, $sortDirection);
-        
+
         // Paginate results
         $products = $productsQuery->paginate($perPage)->appends([
             'search' => $search,
@@ -129,19 +130,19 @@ class AdminController extends Controller
             'sort_direction' => $sortDirection,
             'per_page' => $perPage
         ]);
-        
+
         // Get farmers for filter dropdown
         $farmers = User::where('role', 'farmer')
             ->with('farmer')
             ->get()
             ->sortBy('first_name');
-        
+
         // Get unique statuses for filter dropdown
         $statuses = Product::select('status')->distinct()->pluck('status');
-        
+
         return view('admin.products.index', compact('products', 'farmers', 'statuses', 'search', 'farmerFilter', 'statusFilter', 'sortBy', 'sortDirection'));
     }
-    
+
     /**
      * Display the specified product.
      */
@@ -150,7 +151,7 @@ class AdminController extends Controller
         $product->load('farmer.user', 'images', 'remainingInventory');
         return view('admin.products.show', compact('product'));
     }
-    
+
     /**
      * Show the form for editing the specified product.
      */
@@ -158,7 +159,7 @@ class AdminController extends Controller
     {
         return view('admin.products.edit', compact('product'));
     }
-    
+
     /**
      * Update the specified product in storage.
      */
@@ -180,7 +181,7 @@ class AdminController extends Controller
             'images' => 'nullable|array|max:10',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-        
+
         $productData = $request->except(['_token', '_method', 'images']);
         $productData['total_amount'] = number_format(
             ((float) $request->input('quantity')) * ((float) $request->input('price')),
@@ -188,10 +189,10 @@ class AdminController extends Controller
             '.',
             ''
         );
-        
+
         if ($request->hasFile('images')) {
             foreach ($product->images as $image) {
-                \Storage::disk('public')->delete($image->image_path);
+                Storage::disk('public')->delete($image->image_path);
             }
 
             $product->images()->delete();
@@ -214,32 +215,32 @@ class AdminController extends Controller
                 }
             }
         }
-        
+
         $product->update($productData);
-        
+
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
-    
+
     /**
      * Approve the specified product.
      */
     public function approveProduct(Product $product)
     {
         $product->update(['status' => 'Available']);
-        
+
         return redirect()->route('admin.products.index')->with('success', 'Product approved successfully.');
     }
-    
+
     /**
      * Reject the specified product.
      */
     public function rejectProduct(Product $product)
     {
         $product->update(['status' => 'Pending']);
-        
+
         return redirect()->route('admin.products.index')->with('success', 'Product rejected successfully.');
     }
-    
+
     /**
      * Remove the specified product from storage.
      */
@@ -247,14 +248,14 @@ class AdminController extends Controller
     {
         // Delete image if exists
         if ($product->image) {
-            \Storage::delete($product->image);
+            Storage::delete($product->image);
         }
-        
+
         $product->delete();
-        
+
         return redirect()->route('admin.products.index')->with('success', 'Product deleted successfully.');
     }
-    
+
     /**
      * Display a listing of the demands.
      */
@@ -265,23 +266,26 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $perPage = $request->input('per_page', 10);
-        
+
         // Query demands with relationships
         $demandsQuery = Demand::with(['buyer', 'matches']);
-        
+
         // Apply search filter
         if ($search) {
-            $demandsQuery->where('egg_type', 'LIKE', "%{$search}%");
+            $demandsQuery->where(function ($query) use ($search) {
+                $query->where('product_name', 'LIKE', "%{$search}%")
+                    ->orWhere('variety_size', 'LIKE', "%{$search}%");
+            });
         }
-        
+
         // Apply buyer filter
         if ($buyerFilter) {
             $demandsQuery->where('buyer_id', $buyerFilter);
         }
-        
+
         // Apply sorting
         $demandsQuery->orderBy($sortBy, $sortDirection);
-        
+
         // Paginate results
         $demands = $demandsQuery->paginate($perPage)->appends([
             'search' => $search,
@@ -290,16 +294,16 @@ class AdminController extends Controller
             'sort_direction' => $sortDirection,
             'per_page' => $perPage
         ]);
-        
+
         // Get buyers for filter dropdown
         $buyers = User::where('role', 'buyer')
             ->with('buyer')
             ->get()
             ->sortBy('first_name');
-        
+
         return view('admin.demands.index', compact('demands', 'buyers', 'search', 'buyerFilter', 'sortBy', 'sortDirection'));
     }
-    
+
     /**
      * Display the specified demand.
      */
@@ -307,7 +311,7 @@ class AdminController extends Controller
     {
         return view('admin.demands.show', compact('demand'));
     }
-    
+
     /**
      * Show the form for editing the specified demand.
      */
@@ -317,77 +321,50 @@ class AdminController extends Controller
             ->with('buyer')
             ->get()
             ->sortBy('first_name');
-            
+
         return view('admin.demands.edit', compact('demand', 'buyers'));
     }
-    
+
     /**
      * Update the specified demand in storage.
      */
     public function updateDemand(Request $request, Demand $demand)
     {
         $request->validate([
-            'egg_type' => 'required|string|max:255',
+            'product_name' => 'required|string|max:255',
+            'variety_size' => 'nullable|string|max:255',
             'quantity' => 'required|numeric|min:0',
-            'target_price' => 'nullable|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'unit' => 'nullable|string|max:50',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
             'delivery_date' => 'required|date',
+            'deadline' => 'nullable|date|after_or_equal:delivery_date',
+            'status' => 'required|string|max:50',
             'buyer_id' => 'required|exists:users,id',
-            'egg_type' => 'nullable|string|max:50',
-            'egg_size' => 'nullable|string|max:255',
-            'small_trays' => 'nullable|integer|min:1',
-            'medium_trays' => 'nullable|integer|min:1',
-            'large_trays' => 'nullable|integer|min:1',
-            'extra_large_trays' => 'nullable|integer|min:1',
-            'jumbo_trays' => 'nullable|integer|min:1',
         ]);
-        
-        // Process egg sizes if they come from checkboxes
-        $eggSize = $request->input('egg_size');
-        if ($request->has('egg_sizes')) {
-            $eggSizes = $request->input('egg_sizes');
-            $processedSizes = [];
-            
-            foreach ($eggSizes as $size) {
-                $trayCount = null;
-                
-                switch ($size) {
-                    case 'small':
-                        $trayCount = $request->input('small_trays');
-                        break;
-                    case 'medium':
-                        $trayCount = $request->input('medium_trays');
-                        break;
-                    case 'large':
-                        $trayCount = $request->input('large_trays');
-                        break;
-                    case 'extra_large':
-                        $trayCount = $request->input('extra_large_trays');
-                        break;
-                    case 'jumbo':
-                        $trayCount = $request->input('jumbo_trays');
-                        break;
-                }
-                
-                if ($trayCount) {
-                    $processedSizes[] = "{$size} ({$trayCount} tray" . ($trayCount > 1 ? 's' : '') . ')';
-                } else {
-                    $processedSizes[] = $size;
-                }
-            }
-            
-            $eggSize = implode(', ', $processedSizes);
-        }
-        
-        $demandData = $request->except(['_token', '_method', 'egg_sizes', 'small_trays', 'medium_trays', 'large_trays', 'extra_large_trays', 'jumbo_trays']);
-        $demandData['egg_size'] = $eggSize;
-        $demandData['egg_type'] = $request->input('egg_type');
-        
+
+        $demandData = $request->only([
+            'product_name',
+            'variety_size',
+            'quantity',
+            'unit',
+            'purok_street',
+            'barangay',
+            'municipality_city',
+            'province',
+            'delivery_date',
+            'deadline',
+            'status',
+            'buyer_id',
+        ]);
+
         $demand->update($demandData);
-        
+
         return redirect()->route('admin.demands.index')->with('success', 'Demand updated successfully.');
     }
-    
+
     /**
      * Audit matches for the specified demand.
      */
@@ -396,7 +373,7 @@ class AdminController extends Controller
         $demand->load(['buyer', 'matches.product.farmer.user']);
         return view('admin.demands.audit', compact('demand'));
     }
-    
+
     /**
      * Display a listing of the matches.
      */
@@ -407,28 +384,28 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $perPage = $request->input('per_page', 10);
-        
+
         // Query matches with relationships
         $matchesQuery = DemandMatch::with(['product.farmer.user', 'demand.buyer']);
-        
+
         // Apply search filter
         if ($search) {
             $matchesQuery->whereHas('product', function ($query) use ($search) {
                 $query->where('product_name', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
                 $query->where('product_name', 'LIKE', "%{$search}%")
-                      ->orWhere('egg_type', 'LIKE', "%{$search}%");
+                    ->orWhere('variety_size', 'LIKE', "%{$search}%");
             });
         }
-        
+
         // Apply status filter
         if ($statusFilter) {
             $matchesQuery->where('status', $statusFilter);
         }
-        
+
         // Apply sorting
         $matchesQuery->orderBy($sortBy, $sortDirection);
-        
+
         // Paginate results
         $matches = $matchesQuery->paginate($perPage)->appends([
             'search' => $search,
@@ -437,13 +414,13 @@ class AdminController extends Controller
             'sort_direction' => $sortDirection,
             'per_page' => $perPage
         ]);
-        
+
         // Get unique statuses for filter dropdown
         $statuses = DemandMatch::select('status')->distinct()->pluck('status');
-        
+
         return view('admin.matches.index', compact('matches', 'statuses', 'search', 'statusFilter', 'sortBy', 'sortDirection'));
     }
-    
+
     /**
      * Display the specified match.
      */
@@ -452,37 +429,37 @@ class AdminController extends Controller
         $match->load(['demand.buyer', 'product.farmer.user']);
         return view('admin.matches.show', compact('match'));
     }
-    
+
     /**
      * Remove the specified match from storage.
      */
     public function deleteMatch(DemandMatch $match)
     {
         $match->delete();
-        
+
         return redirect()->route('admin.matches.index')->with('success', 'Match deleted successfully.');
     }
-    
+
     /**
      * Accept a match.
      */
     public function acceptMatch(DemandMatch $match)
     {
         $match->update(['status' => 'Accepted']);
-        
+
         return back()->with('success', 'Match accepted successfully.');
     }
-    
+
     /**
      * Reject a match.
      */
     public function rejectMatch(DemandMatch $match)
     {
         $match->update(['status' => 'Rejected']);
-        
+
         return back()->with('success', 'Match rejected successfully.');
     }
-    
+
     /**
      * Display a listing of the transactions.
      */
@@ -494,39 +471,39 @@ class AdminController extends Controller
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = $request->input('sort_direction', 'desc');
         $perPage = $request->input('per_page', 10);
-        
+
         // Query transactions with relationships
         $transactionsQuery = Transaction::with(['buyer', 'farmer', 'product', 'demand']);
-        
+
         // Apply search filter
         if ($search) {
             $transactionsQuery->whereHas('product', function ($query) use ($search) {
                 $query->where('product_name', 'LIKE', "%{$search}%");
             })->orWhereHas('demand', function ($query) use ($search) {
                 $query->where('product_name', 'LIKE', "%{$search}%")
-                      ->orWhere('egg_type', 'LIKE', "%{$search}%");
+                    ->orWhere('variety_size', 'LIKE', "%{$search}%");
             })->orWhereHas('buyer', function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%");
+                    ->orWhere('last_name', 'LIKE', "%{$search}%");
             })->orWhereHas('farmer', function ($query) use ($search) {
                 $query->where('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%");
+                    ->orWhere('last_name', 'LIKE', "%{$search}%");
             });
         }
-        
+
         // Apply payment status filter
         if ($paymentStatusFilter) {
             $transactionsQuery->where('payment_status', $paymentStatusFilter);
         }
-        
+
         // Apply delivery status filter
         if ($deliveryStatusFilter) {
             $transactionsQuery->where('delivery_status', $deliveryStatusFilter);
         }
-        
+
         // Apply sorting
         $transactionsQuery->orderBy($sortBy, $sortDirection);
-        
+
         // Paginate results
         $transactions = $transactionsQuery->paginate($perPage)->appends([
             'search' => $search,
@@ -536,14 +513,14 @@ class AdminController extends Controller
             'sort_direction' => $sortDirection,
             'per_page' => $perPage
         ]);
-        
+
         // Get unique statuses for filter dropdowns
         $paymentStatuses = Transaction::select('payment_status')->distinct()->pluck('payment_status');
         $deliveryStatuses = Transaction::select('delivery_status')->distinct()->pluck('delivery_status');
-        
+
         return view('admin.transactions.index', compact('transactions', 'paymentStatuses', 'deliveryStatuses', 'search', 'paymentStatusFilter', 'deliveryStatusFilter', 'sortBy', 'sortDirection'));
     }
-    
+
     /**
      * Display the specified transaction.
      */
@@ -552,17 +529,17 @@ class AdminController extends Controller
         $transaction->load(['buyer', 'farmer', 'product', 'demand']);
         return view('admin.transactions.show', compact('transaction'));
     }
-    
+
     /**
      * Remove the specified demand from storage.
      */
     public function deleteDemand(Demand $demand)
     {
         $demand->delete();
-        
+
         return redirect()->route('admin.demands.index')->with('success', 'Demand deleted successfully.');
     }
-    
+
     /**
      * Display a listing of the users.
      */
@@ -572,32 +549,32 @@ class AdminController extends Controller
         $perPage = $request->input('per_page', 10);
         $roleFilter = $request->input('role');
         $kycStatusFilter = $request->input('kyc_status');
-        
+
         // Query users with search functionality and order by id descending
         $usersQuery = User::query()->orderBy('id', 'desc');
-        
+
         if ($search) {
-            $usersQuery->where(function($query) use ($search) {
+            $usersQuery->where(function ($query) use ($search) {
                 $query->where('id', 'LIKE', "%{$search}%")
-                      ->orWhere('first_name', 'LIKE', "%{$search}%")
-                      ->orWhere('last_name', 'LIKE', "%{$search}%")
-                      ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
-                      ->orWhere('email', 'LIKE', "%{$search}%")
-                      ->orWhere('role', 'LIKE', "%{$search}%")
-                      ->orWhere('phone_number', 'LIKE', "%{$search}%");
+                    ->orWhere('first_name', 'LIKE', "%{$search}%")
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$search}%"])
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('role', 'LIKE', "%{$search}%")
+                    ->orWhere('phone_number', 'LIKE', "%{$search}%");
             });
         }
-        
+
         // Apply role filter
         if ($roleFilter) {
             $usersQuery->where('role', $roleFilter);
         }
-        
+
         // Apply KYC status filter
         if ($kycStatusFilter) {
             $usersQuery->where('kyc_status', $kycStatusFilter);
         }
-        
+
         // Paginate results
         $users = $usersQuery->paginate($perPage)->appends([
             'search' => $search,
@@ -605,7 +582,7 @@ class AdminController extends Controller
             'role' => $roleFilter,
             'kyc_status' => $kycStatusFilter
         ]);
-        
+
         return view('admin.users.index', compact('users', 'search', 'roleFilter', 'kycStatusFilter'));
     }
 
@@ -685,17 +662,17 @@ class AdminController extends Controller
             $request->validate([
                 'kyc_status' => 'required|in:pending,verified,rejected',
             ]);
-            
+
             $user->update(['kyc_status' => $request->kyc_status]);
-            
+
             return redirect()->route('admin.users.index')->with('success', 'KYC status updated successfully.');
         }
-        
+
         // Regular user update
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->id,
+            'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:admin,farmer,buyer',
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
@@ -805,7 +782,7 @@ class AdminController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        
+
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 }

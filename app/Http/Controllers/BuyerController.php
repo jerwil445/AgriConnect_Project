@@ -4,8 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Transaction;
+use App\Models\Demand;
+use App\Models\DemandMatch;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class BuyerController extends Controller
 {
@@ -90,8 +94,30 @@ class BuyerController extends Controller
         $products = $productsQuery
             ->paginate($perPage)
             ->withQueryString();
-        
-        return view('buyers.dashboard', compact(
+        $hasFilters =
+            $search !== '' ||
+            $varietySize !== '' ||
+            $location !== '' ||
+            $statusFilter !== '' ||
+            $unitFilter !== '' ||
+            $sort !== 'latest' ||
+            $perPage !== 12;
+
+        if ($request->ajax()) {
+            return response(view('buyers.partials.product_grid', compact(
+                'products',
+                'search',
+                'varietySize',
+                'location',
+                'statusFilter',
+                'unitFilter',
+                'sort',
+                'perPage',
+                'hasFilters'
+            ))->render());
+        }
+
+        return response(view('buyers.dashboard', compact(
             'products',
             'search',
             'varietySize',
@@ -100,18 +126,40 @@ class BuyerController extends Controller
             'unitFilter',
             'sort',
             'perPage'
-        ));
+        )));
     }
-    
+
     /**
      * Display the buyer profile.
      */
     public function showProfile()
     {
         $user = Auth::user();
-        return view('buyers.profile', compact('user'));
+
+        // Calculate Stats
+        $totalDemands = \App\Models\Demand::where('buyer_id', $user->id)->count();
+        $activeDemands = \App\Models\Demand::where('buyer_id', $user->id)->where('status', 'Available')->count();
+        $totalOrders = \App\Models\Transaction::where('buyer_id', $user->id)->count();
+
+        // Calculate Profile Completeness
+        $fields = [
+            $user->first_name,
+            $user->last_name,
+            $user->email,
+            $user->phone_number,
+            $user->address,
+            $user->profile_picture,
+            $user->buyer?->company_name,
+            $user->buyer?->business_type,
+            $user->buyer?->preferred_products,
+            $user->buyer?->address
+        ];
+        $filled = count(array_filter($fields));
+        $completeness = round(($filled / count($fields)) * 100);
+
+        return view('buyers.profile', compact('user', 'totalDemands', 'activeDemands', 'totalOrders', 'completeness'));
     }
-    
+
     /**
      * Display the specified product details.
      *
@@ -121,10 +169,10 @@ class BuyerController extends Controller
     public function showProduct(Product $product)
     {
         $product->load('farmer.user', 'images', 'remainingInventory');
-        
-        return view('buyers.products.show', compact('product'));
+
+        return response(view('buyers.products.show', compact('product')));
     }
-    
+
     /**
      * Display buyer notifications.
      *
@@ -134,28 +182,28 @@ class BuyerController extends Controller
     {
         $user = Auth::user();
         $notifications = $user->notifications()->paginate(10);
-        
-        return view('buyers.notifications.index', compact('notifications'));
+
+        return response(view('buyers.notifications.index', compact('notifications')));
     }
-    
+
     /**
      * Mark a notification as read.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function markNotificationAsRead($id)
     {
         $user = Auth::user();
         $notification = $user->notifications()->where('id', $id)->first();
-        
+
         if ($notification) {
             $notification->markAsRead();
         }
-        
-        return back();
+
+        return response()->redirectToRoute('buyer.notifications');
     }
-    
+
     /**
      * Display the buyer profile edit form.
      */
@@ -171,7 +219,7 @@ class BuyerController extends Controller
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -201,7 +249,7 @@ class BuyerController extends Controller
             if ($user->profile_picture) {
                 Storage::disk('public')->delete($user->profile_picture);
             }
-            
+
             // Store new profile picture
             $profilePicturePath = $request->file('profile_picture')->store('profile_pictures', 'public');
             $user->update(['profile_picture' => $profilePicturePath]);
@@ -226,5 +274,103 @@ class BuyerController extends Controller
         }
 
         return redirect()->route('buyer.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Display the buyer analytics page.
+     */
+    public function analytics()
+    {
+        if (!Auth::user()->buyer) {
+            return redirect()->route('buyer.dashboard')->with('error', 'You must have a buyer profile to view analytics.');
+        }
+
+        $user = Auth::user();
+
+        // 1. Core Metrics
+        $totalSpent = Transaction::where('buyer_id', $user->id)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics'])
+            ->sum('total_amount');
+
+        $activeDemandsCount = Demand::where('buyer_id', $user->id)
+            ->where('status', 'Available')
+            ->count();
+
+        $completedOrdersCount = Transaction::where('buyer_id', $user->id)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics'])
+            ->count();
+
+        // 2. Fulfillment Rate
+        $totalDemands = Demand::where('buyer_id', $user->id)->count();
+        $matchedDemands = Demand::where('buyer_id', $user->id)
+            ->whereHas('matches', function ($query) {
+                $query->whereIn('status', ['Matched', 'Transaction Started', 'Ordered']);
+            })->count();
+        $fulfillmentRate = $totalDemands > 0 ? round(($matchedDemands / $totalDemands) * 100, 1) : 0;
+
+        // 3. Spending & Quantity by Product
+        $productStats = Transaction::where('transactions.buyer_id', $user->id)
+            ->leftJoin('products', 'transactions.product_id', '=', 'products.id')
+            ->leftJoin('demands', 'transactions.demand_id', '=', 'demands.id')
+            ->select(
+                DB::raw("COALESCE(products.product_name, demands.product_name, 'Other Product') as product_name"),
+                DB::raw('SUM(transactions.total_amount) as total_spent'),
+                DB::raw('SUM(transactions.final_quantity) as total_quantity')
+            )
+            ->groupBy(DB::raw("COALESCE(products.product_name, demands.product_name, 'Other Product')"))
+            ->orderByDesc('total_spent')
+            ->take(5)
+            ->get();
+
+        // 4. Monthly Spending & Volume Trends
+        $monthlySpending = Transaction::where('transactions.buyer_id', $user->id)
+            ->select(
+                DB::raw("to_char(transactions.created_at, 'Mon') as month"),
+                DB::raw('SUM(transactions.total_amount) as total'),
+                DB::raw('SUM(transactions.final_quantity) as volume'),
+                DB::raw('MIN(transactions.created_at) as sort_date')
+            )
+            ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon')"))
+            ->orderBy('sort_date')
+            ->get();
+
+        // 5. Calculate Spending Trend (vs Last Month)
+        $thisMonthSpent = Transaction::where('buyer_id', $user->id)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics'])
+            ->sum('total_amount');
+        $lastMonthSpent = Transaction::where('buyer_id', $user->id)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics'])
+            ->sum('total_amount');
+        $spendingTrend = $lastMonthSpent > 0 ? (($thisMonthSpent - $lastMonthSpent) / $lastMonthSpent) * 100 : 0;
+
+        // 5. Top Suppliers
+        $topSuppliers = Transaction::where('transactions.buyer_id', $user->id)
+            ->join('users as farmer_users', 'transactions.farmer_id', '=', 'farmer_users.id')
+            ->select(
+                'farmer_id',
+                'farmer_users.first_name',
+                'farmer_users.last_name',
+                DB::raw('COUNT(*) as transaction_count'),
+                DB::raw('SUM(total_amount) as total_spent')
+            )
+            ->groupBy('farmer_id', 'farmer_users.first_name', 'farmer_users.last_name')
+            ->orderByDesc('transaction_count')
+            ->take(5)
+            ->get();
+
+        return view('buyers.analytics', compact(
+            'totalSpent',
+            'activeDemandsCount',
+            'completedOrdersCount',
+            'fulfillmentRate',
+            'productStats',
+            'monthlySpending',
+            'spendingTrend',
+            'topSuppliers'
+        ));
     }
 }

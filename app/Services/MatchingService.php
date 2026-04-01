@@ -15,28 +15,16 @@ class MatchingService
     public function matchNewProductWithZeroMatchDemands(Product $product)
     {
         $productName = $product->product_name;
-        $legacyEggType = $product->getRawOriginal('egg_type');
         $hasDemandProductName = Schema::hasColumn('demands', 'product_name');
         $hasDemandStatus = Schema::hasColumn('demands', 'status');
 
-        if ((!$hasDemandProductName || !$productName) && !$legacyEggType) {
+        if (!$hasDemandProductName || !$productName) {
             return;
         }
 
-        $matchingDemands = Demand::where(function ($query) use ($productName, $legacyEggType, $hasDemandProductName) {
-                $hasCondition = false;
-
+        $matchingDemands = Demand::where(function ($query) use ($productName, $hasDemandProductName) {
                 if ($hasDemandProductName && $productName) {
                     $query->where('product_name', $productName);
-                    $hasCondition = true;
-                }
-
-                if ($legacyEggType) {
-                    if ($hasCondition) {
-                        $query->orWhere('egg_type', $legacyEggType);
-                    } else {
-                        $query->where('egg_type', $legacyEggType);
-                    }
                 }
             });
 

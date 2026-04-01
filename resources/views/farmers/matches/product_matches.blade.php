@@ -1,397 +1,536 @@
 @extends('layouts.farmers_page')
 
 @section('content')
-<div class=" mx-auto px-4 py-4 buyer-content">
-    <div class="shadow-sm  ml-64">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Matches for 
-                                        {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
-                                    </h1>
-            <a href="{{ route('farmer.matches') }}" class="text-indigo-600 hover:text-indigo-800">
-                &larr; Back to All Matches
-            </a>
-        </div>
 
-        <!-- Display notifications -->
-        @if(auth()->user()->unreadNotifications->count() > 0)
-            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+    <div class="min-h-screen ml-64 mt-5">
+
+        {{-- ── Header ── --}}
+        <div class="mb-8">
+            <div class="flex items-end justify-between pb-6 border-b-2 border-green-200">
+                <div>
+                    {{-- <p class="text-xs font-semibold tracking-widest text-green-600 uppercase mb-2 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5.951-1.488 5.951 1.488a1 1 0 001.169-1.409l-7-14z" />
                         </svg>
-                    </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-yellow-700">
-                            <strong>{{ auth()->user()->unreadNotifications->count() }}</strong> new notification(s)
-                            <a href="{{ route('farmer.notifications') }}" class="font-medium underline">View all notifications</a>
-                        </p>
-                    </div>
+                        Farmer Portal
+                    </p> --}}
+                    <h1 class="text-4xl font-bold text-green-950 leading-tight">
+                        Matches for
+                        <span class="bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                            {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
+                        </span>
+                    </h1>
                 </div>
-            </div>
-        @endif
-
-        @if(session('success'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        <div class="p-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-1">
-                    <div class="bg-white shadow-md rounded-lg p-5 sticky top-6">
-                        <div class="flex justify-between items-start mb-4">
-                            <h2 class="text-xl font-bold text-gray-800">
-                                                        {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
-                                                    </h2>
-                            <span class="px-2 py-1 rounded-full text-xs font-medium 
-                                @if($product->status == 'Available') bg-green-100 text-green-800
-                                @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
-                                @else bg-yellow-100 text-yellow-800 @endif">
-                                {{ ucfirst(str_replace('_', ' ', $product->status)) }}
-                            </span>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <span class="text-gray-700">Original Quantity: <span class="font-medium">{{ $product->quantity }} {{ $product->unit }}</span></span>
-                            </div>
-                            @if($product->remainingInventory)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <span class="text-gray-700">Remaining Quantity: <span class="font-medium text-green-600">{{ $product->remainingInventory->remaining_quantity }} {{ $product->unit }}</span></span>
-                            </div>
-                            @endif
-                            
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700">Price per Unit: <span class="font-medium">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</span></span>
-                            </div>
-                            @if($product->variety_size)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 12h10M7 17h6"></path>
-                                </svg>
-                                <span class="text-gray-700">Variety/Size: <span class="font-medium">{{ $product->variety_size }}</span></span>
-                            </div>
-                            @endif
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700">Total Amount: <span class="font-medium">₱{{ number_format((float) ($product->total_amount ?? 0), 2) }}</span></span>
-                            </div>
-                            @if($product->remainingInventory)
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700">Remaining Total Amount: <span class="font-medium text-green-600">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</span></span>
-                            </div>
-                            @endif
-                            
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span class="text-gray-700">Harvest Date: <span class="font-medium">{{ $product->harvest_date->format('M d, Y') }}</span></span>
-                            </div>
-                            
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span class="text-gray-700">Posted: <span class="font-medium">{{ $product->created_at->format('M d, Y H:i') }}</span></span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-50 p-4 rounded-lg mt-6">
-                        <h3 class="font-bold text-lg text-gray-800 mb-3">Match Summary</h3>
-                        <div class="grid grid-cols-4 gap-4 text-center">
-                            <div class="bg-white p-3 rounded shadow">
-                                <div class="text-2xl font-bold text-indigo-600">{{ $product->matches->count() }}</div>
-                                <div class="text-sm text-gray-600">Total Matches</div>
-                            </div>
-                            <div class="bg-white p-3 rounded shadow">
-                                <div class="text-2xl font-bold text-green-600">{{ $product->matches->where('status', 'Matched')->count() }}</div>
-                                <div class="text-sm text-gray-600">Ordered</div>
-                            </div>
-                            <div class="bg-white p-3 rounded shadow">
-                                <div class="text-2xl font-bold text-blue-600">{{ $product->matches->where('status', 'Transaction Started')->count() }}</div>
-                                <div class="text-sm text-gray-600">Transaction Started</div>
-                            </div>
-                            <div class="bg-white p-3 rounded shadow">
-                                <div class="text-2xl font-bold text-red-600">{{ $product->matches->where('status', 'Sold Out')->count() }}</div>
-                                <div class="text-sm text-gray-600">Sold Out</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white shadow-md rounded-lg p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Buyer Demands</h2>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                    {{ $product->matches->count() }} Matches Found
-                </span>
-            </div>
-
-            @if($product->matches->isEmpty())
-                <div class="text-center py-12">
-                    <svg class="w-16 h-16 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <a href="{{ route('farmer.matches') }}"
+                    class="inline-flex items-center gap-2 text-sm font-semibold text-green-700 bg-white border border-green-200 px-5 py-2.5 rounded-full hover:bg-green-50 hover:border-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M19 12H5M12 5l-7 7 7 7" />
                     </svg>
-                    <p class="mt-4 text-gray-600 font-medium">No matches found for this product yet.</p>
-                    <p class="text-gray-500 text-sm mt-2">The system will automatically find matches for your product.</p>
+                    Back to Matches
+                </a>
+            </div>
+        </div>
+
+        {{-- ── Notifications ── --}}
+        @if (auth()->user()->unreadNotifications->count() > 0)
+            <div class="flex items-start gap-3 bg-yellow-50 border border-yellow-300 rounded-xl px-5 py-4 mb-5">
+                <svg class="w-5 h-5 text-yellow-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+                <p class="text-sm text-yellow-800">
+                    <strong>{{ auth()->user()->unreadNotifications->count() }}</strong> unread notification(s).
+                    <a href="{{ route('farmer.notifications') }}" class="font-semibold underline ml-1">View all</a>
+                </p>
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="flex items-center gap-3 bg-green-50 border border-green-300 rounded-xl px-5 py-4 mb-5">
+                <svg class="w-5 h-5 text-green-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path d="M9 12l2 2 4-4M22 12a10 10 0 11-20 0 10 10 0 0120 0z" />
+                </svg>
+                <p class="text-sm text-green-800">{{ session('success') }}</p>
+            </div>
+        @endif
+
+        {{-- ── Main Grid ── --}}
+        <div class="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-6 items-start">
+
+            {{-- ── Left: Buyer Demands panel (main content) ── --}}
+            <div class="bg-white border border-green-200 rounded-2xl p-6 shadow-sm">
+                <div class="flex justify-between items-center mb-5 pb-4 border-b border-green-100">
+                    <h2 class="text-2xl font-bold text-green-950">Matches Summary</h2>
+                    {{-- <span class="bg-green-950 text-green-50 text-xs font-semibold px-3 py-1.5 rounded-full tracking-wide">
+                        {{ $product->matches->count() }} Matches
+                    </span> --}}
                 </div>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    @foreach($product->matches as $match)
-                        @if($match->demand && $match->demand->buyer)
-                        <div class="border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow duration-300 relative">
-                            <!-- Delete Match Icon (X) in top right corner -->
-                            <form action="{{ route('matches.destroy', $match) }}" method="POST" class="absolute top-3 right-3">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" 
-                                        class="text-gray-400 hover:text-red-500 transition-colors duration-200"
-                                        onclick="return confirm('Are you sure you want to delete this match? This action cannot be undone.')">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                                    </svg>
-                                </button>
-                            </form>
-                            
-                            <div class="flex justify-between items-start mb-4">
-                                <div>
-                                    <h3 class="font-bold text-lg text-gray-900">
-                                                                @php
-                                                                    $eggTypes = [
-                                                                        'chicken' => 'Chicken',
-                                                                        'duck' => 'Duck',
-                                                                        'quail' => 'Quail',
-                                                                        'native_chicken' => 'Native Chicken',
-                                                                        'brown' => 'Brown Egg',
-                                                                        'white' => 'White Egg'
-                                                                    ];
-                                                                @endphp
-                                                                {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
-                                                            </h3>
-                                    <p class="text-gray-600 text-sm">{{ $match->demand->buyer->first_name ?? '' }} {{ $match->demand->buyer->last_name ?? '' }}</p>
-                                </div>
-                                <span class="px-2 py-1 rounded-full text-xs font-medium 
-                                    @if($match->status == 'Matched') bg-green-100 text-green-800
-                                    @elseif($match->status == 'Pending') bg-yellow-100 text-yellow-800
-                                    @elseif($match->status == 'New') bg-blue-100 text-blue-800
-                                    @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
-                                    @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
-                                    @else bg-red-100 text-red-800
-                                    @endif">
-                                    {{ $match->status }}
-                                </span>
-                            </div>
-                            
-                            <div class="space-y-3 mb-5">
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Egg Type:</span>
-                                    <span class="font-medium">
-                                        @php
-                                            $eggTypes = [
-                                                'chicken' => 'Chicken',
-                                                'duck' => 'Duck',
-                                                'quail' => 'Quail',
-                                                'native_chicken' => 'Native Chicken',
-                                                'brown' => 'Brown Egg',
-                                                'white' => 'White Egg'
-                                            ];
-                                        @endphp
-                                        {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
-                                    </span>
-                                </div>
-                                @if($match->demand->egg_size)
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Egg Size:</span>
-                                    <span class="font-medium">{{ $match->demand->egg_size }}</span>
-                                </div>
-                                @endif
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Required Quantity:</span>
-                                    <span class="font-medium">{{ $match->demand->quantity }} {{ $match->demand->unit ?? 'units' }}</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-gray-500 text-sm">Delivery Date:</span>
-                                    <span class="font-medium">{{ $match->demand->delivery_date->format('M d, Y') }}</span>
-                                </div>
-                                <!-- Address Information -->
-                                @if($match->demand->purok_street || $match->demand->barangay || $match->demand->municipality_city || $match->demand->province)
-                                <div class="flex items-start">
-                                    <svg class="w-5 h-5 text-gray-500 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                                    </svg>
-                                    <span class="text-gray-700">
-                                        Address: 
-                                        <span class="font-medium">
-                                            @if($match->demand->purok_street)
-                                                {{ $match->demand->purok_street }}
-                                            @endif
-                                            @if($match->demand->barangay)
-                                                {{ $match->demand->barangay }}
-                                            @endif
-                                            @if($match->demand->municipality_city)
-                                                {{ $match->demand->municipality_city }}
-                                            @endif
-                                            @if($match->demand->province)
-                                                {{ $match->demand->province }}
-                                            @endif
-                                        </span>
-                                    </span>
-                                </div>
-                                @endif
-                            </div>
-                            
-                            <div class="flex space-x-2 mb-3">
-                                <a href="{{ route('products.show', $match->product) }}" class="flex-1 text-center px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded hover:bg-gray-200">
-                                    View Product
-                                </a>
-                                
-                                <!-- Button to view buyer profile -->
-                                <button type="button" 
-                                        class="flex-1 text-center px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded hover:bg-blue-200"
-                                        onclick="openBuyerModal({{ $match->demand->buyer->id ?? 0 }}, '{{ $match->demand->buyer->first_name ?? '' }}', '{{ $match->demand->buyer->last_name ?? '' }}', '{{ $match->demand->buyer->email ?? '' }}', '{{ $match->demand->buyer->phone_number ?? 'N/A' }}', '{{ $match->demand->buyer->company_name ?? 'N/A' }}', '{{ $match->demand->buyer->business_type ?? 'N/A' }}', '{{ $match->demand->buyer->address ?? 'N/A' }}')">
-                                    View Profile
-                                </button>
-                            </div>
-                            
-                            @if($product->status == 'Sold Out')
-                                <button disabled class="w-full inline-block text-center px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed">
-                                    Product Sold Out
-                                </button>
-                            @else
-                                <form action="{{ route('matches.startTransaction', $match) }}" method="POST" class="w-full">
-                                    @csrf
-                                    <button type="submit" class="w-full inline-block text-center px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">
-                                        Message
-                                    </button>
-                                </form>
-                            @endif
+                <div class="grid grid-cols-4 gap-3 mb-6">
+
+                    <div
+                        class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-sky-600">{{ $product->matches->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Total</div>
+                    </div>
+                    <div
+                        class="bg-green-50 border border-green-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-green-600">
+                            {{ $product->matches->where('status', 'Matched')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Ordered</div>
+                    </div>
+                    <div
+                        class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-violet-500">
+                            {{ $product->matches->where('status', 'Transaction Started')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">In Progress</div>
+                    </div>
+                    <div
+                        class="bg-red-50 border border-red-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-red-400">
+                            {{ $product->matches->where('status', 'Sold Out')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Sold Out</div>
+                    </div>
+                </div>
+                {{-- Panel header --}}
+                <div class="flex justify-between items-center mb-5 pb-4 border-b border-green-100">
+                    <h2 class="text-2xl font-bold text-green-950">Buyer Demands</h2>
+                    <span class="bg-green-950 text-green-50 text-xs font-semibold px-3 py-1.5 rounded-full tracking-wide">
+                        {{ $product->matches->count() }} Matches
+                    </span>
+                </div>
+
+                {{-- ── Match Summary tiles ── --}}
+                {{-- <div class="grid grid-cols-4 gap-3 mb-6">
+                    <div
+                        class="bg-sky-50 border border-sky-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-sky-600">{{ $product->matches->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Total</div>
+                    </div>
+                    <div
+                        class="bg-green-50 border border-green-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-green-600">
+                            {{ $product->matches->where('status', 'Matched')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Ordered</div>
+                    </div>
+                    <div
+                        class="bg-violet-50 border border-violet-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-violet-500">
+                            {{ $product->matches->where('status', 'Transaction Started')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">In Progress</div>
+                    </div>
+                    <div
+                        class="bg-red-50 border border-red-100 rounded-xl p-3 text-center hover:-translate-y-0.5 transition-transform">
+                        <div class="text-2xl font-bold text-red-400">
+                            {{ $product->matches->where('status', 'Sold Out')->count() }}</div>
+                        <div class="text-xs text-stone-400 uppercase tracking-wider mt-1">Sold Out</div>
+                    </div>
+                </div> --}}
+
+                {{-- ── Match cards ── --}}
+                @if ($product->matches->isEmpty())
+                    <div class="flex flex-col items-center justify-center py-16 text-center">
+                        <div
+                            class="w-20 h-20 rounded-full bg-green-50 border-2 border-dashed border-green-300 flex items-center justify-center mb-5 text-green-400">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="M21 21l-4.35-4.35" />
+                            </svg>
                         </div>
+                        <h3 class="text-lg font-semibold text-green-950 mb-2">No matches yet</h3>
+                        <p class="text-sm text-stone-400 max-w-xs">The system will automatically find matches for your
+                            product once buyers post demands.</p>
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-5">
+                        @foreach ($product->matches as $i => $match)
+                            @if ($match->demand && $match->demand->buyer)
+                                @php
+                                    $eggTypes = [
+                                        'chicken' => 'Chicken',
+                                        'duck' => 'Duck',
+                                        'quail' => 'Quail',
+                                        'native_chicken' => 'Native Chicken',
+                                        'brown' => 'Brown Egg',
+                                        'white' => 'White Egg',
+                                    ];
+                                    $eggLabel =
+                                        $eggTypes[$match->demand->egg_type] ??
+                                        ucfirst(str_replace('_', ' ', $match->demand->egg_type));
+                                    $badgeClass = match ($match->status) {
+                                        'Matched' => 'bg-green-100 text-green-800',
+                                        'Pending' => 'bg-yellow-100 text-yellow-800',
+                                        'New' => 'bg-blue-100 text-blue-800',
+                                        'Transaction Started' => 'bg-violet-100 text-violet-800',
+                                        'Ordered' => 'bg-pink-100 text-pink-800',
+                                        default => 'bg-red-100 text-red-800',
+                                    };
+                                @endphp
+
+                                <div
+                                    class="relative border border-green-200 rounded-xl p-5 bg-green-50/40 hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+
+                                    {{-- Delete button --}}
+                                    <form action="{{ route('matches.destroy', $match) }}" method="POST"
+                                        class="absolute top-3.5 right-3.5">
+                                        @csrf @method('DELETE')
+                                        <button type="submit"
+                                            onclick="return confirm('Delete this match? This cannot be undone.')"
+                                            class="text-stone-300 hover:text-red-500 hover:bg-red-50 p-1 rounded-md transition-colors duration-200">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5"
+                                                viewBox="0 0 24 24">
+                                                <path d="M18 6L6 18M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </form>
+
+                                    {{-- Card header --}}
+                                    <div class="flex justify-between items-start mb-4 pr-6">
+                                        <div>
+                                            <h3 class="font-bold text-base text-green-950">
+                                                {{ $match->demand->product_name ?? 'N/A' }}</h3>
+                                            <p class="text-xs text-stone-400 mt-0.5">
+                                                {{ $match->demand->buyer->first_name ?? '' }}
+                                                {{ $match->demand->buyer->last_name ?? '' }}</p>
+                                        </div>
+                                        <span
+                                            class="text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide {{ $badgeClass }}">
+                                            {{ $match->status }}
+                                        </span>
+                                    </div>
+
+                                    {{-- Details --}}
+                                    <div class="space-y-0 divide-y divide-green-100 mb-4">
+                                        <div class="flex justify-between py-2 text-xs">
+                                            <span class="text-stone-400">Product Name</span>
+                                            <span
+                                                class="font-medium text-green-950">{{ $match->demand->product_name ?? 'N/A' }}</span>
+                                        </div>
+                                        @if ($match->demand->variety_size)
+                                            <div class="flex justify-between py-2 text-xs">
+                                                <span class="text-stone-400">Variety/Size</span>
+                                                <span
+                                                    class="font-medium text-green-950">{{ $match->demand->variety_size }}</span>
+                                            </div>
+                                        @endif
+                                        <div class="flex justify-between py-2 text-xs">
+                                            <span class="text-stone-400">Quantity</span>
+                                            <span class="font-medium text-green-950">{{ $match->demand->quantity }}
+                                                {{ $match->demand->unit ?? 'units' }}</span>
+                                        </div>
+                                        <div class="flex justify-between py-2 text-xs">
+                                            <span class="text-stone-400">Delivery Date</span>
+                                            <span
+                                                class="font-medium text-green-950">{{ $match->demand->delivery_date->format('M d, Y') }}</span>
+                                        </div>
+                                        @if ($match->demand->deadline)
+                                            <div class="flex justify-between py-2 text-xs">
+                                                <span class="text-stone-400">Deadline</span>
+                                                <span
+                                                    class="font-medium text-green-950">{{ $match->demand->deadline }}</span>
+                                            </div>
+                                        @endif
+                                        @php $addressParts = array_filter([$match->demand->purok_street, $match->demand->barangay, $match->demand->municipality_city, $match->demand->province]); @endphp
+                                        @if (count($addressParts))
+                                            <div class="flex justify-between py-2 text-xs">
+                                                <span class="text-stone-400">Address</span>
+                                                <span
+                                                    class="font-medium text-green-950 text-right">{{ implode(', ', $addressParts) }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Action buttons --}}
+                                    <div class="flex gap-2 mb-2">
+                                        <a href="{{ route('farmer.products.show', $match->product) }}"
+                                            class="flex-1 text-center text-xs font-medium py-2 rounded-lg bg-white border border-green-200 text-stone-600 hover:bg-green-50 transition-colors">
+                                            View Product
+                                        </a>
+                                        <button type="button"
+                                            onclick="openBuyerModal({{ $match->demand->buyer->id ?? 0 }}, '{{ addslashes($match->demand->buyer->first_name ?? '') }}', '{{ addslashes($match->demand->buyer->last_name ?? '') }}', '{{ addslashes($match->demand->buyer->email ?? '') }}', '{{ addslashes($match->demand->buyer->phone_number ?? 'N/A') }}', '{{ addslashes($match->demand->buyer->company_name ?? 'N/A') }}', '{{ addslashes($match->demand->buyer->business_type ?? 'N/A') }}', '{{ addslashes($match->demand->buyer->address ?? 'N/A') }}')"
+                                            class="flex-1 text-center text-xs font-medium py-2 rounded-lg bg-sky-50 border border-sky-200 text-sky-700 hover:bg-sky-100 transition-colors">
+                                            Profile
+                                        </button>
+                                    </div>
+
+                                    @if ($product->status == 'Sold Out')
+                                        <button disabled
+                                            class="w-full text-xs font-medium py-2 rounded-lg bg-stone-100 text-stone-400 cursor-not-allowed">
+                                            Product Sold Out
+                                        </button>
+                                    @else
+                                        <form action="{{ route('matches.startTransaction', $match) }}" method="POST">
+                                            @csrf
+                                            <button type="submit"
+                                                class="w-full text-xs font-semibold py-2 rounded-lg bg-green-950 text-green-50 hover:bg-green-800 transition-colors duration-200">
+                                                Message Buyer
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            {{-- ── Right sidebar: Product card only ── --}}
+            <div class="xl:sticky xl:top-6">
+                <div class="bg-white border border-green-200 rounded-2xl p-6 shadow-sm">
+                    <div class="flex justify-between items-start mb-5">
+                        <h2 class="text-xl font-bold text-green-950 leading-tight">
+                            {{ $product->product_name ?: $product->egg_type ?: 'N/A' }}
+                        </h2>
+                        @php
+                            $statusColor = match ($product->status) {
+                                'Available' => 'bg-green-100 text-green-800',
+                                'Sold Out' => 'bg-red-100 text-red-800',
+                                default => 'bg-yellow-100 text-yellow-800',
+                            };
+                        @endphp
+                        <span
+                            class="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide {{ $statusColor }}">
+                            {{ $product->status }}
+                        </span>
+                    </div>
+
+                    {{-- Product Image --}}
+                    @if ($product->images->count() > 0)
+                        <img src="{{ asset('storage/' . $product->images->first()->image_path) }}"
+                            alt="{{ $product->product_name ?: 'Product image' }}"
+                            class="w-full h-40 object-cover rounded-lg border border-green-100 mb-5">
+                    @elseif ($product->image)
+                        <img src="{{ asset('storage/' . $product->image) }}"
+                            alt="{{ $product->product_name ?: 'Product image' }}"
+                            class="w-full h-40 object-cover rounded-lg border border-green-100 mb-5">
+                    @else
+                        <div
+                            class="w-full h-40 rounded-lg border-2 border-dashed border-green-200 bg-green-50/30 flex items-center justify-center mb-5">
+                            <svg class="w-8 h-8 text-green-300" fill="none" stroke="currentColor" stroke-width="1.5"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                    @endif
+
+                    <div class="space-y-0 divide-y divide-green-100">
+                        <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                            <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>Quantity: <strong class="text-green-950 font-semibold">{{ $product->quantity }}
+                                    {{ $product->unit }}</strong></span>
+                        </div>
+
+                        @if ($product->remainingInventory)
+                            <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                                <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span>Remaining: <strong
+                                        class="text-green-700 font-semibold">{{ $product->remainingInventory->remaining_quantity }}
+                                        {{ $product->unit }}</strong></span>
+                            </div>
                         @endif
-                    @endforeach
+
+                        <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                            <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Price: <strong
+                                    class="text-green-950 font-semibold">₱{{ number_format($product->price, 2) }}/{{ $product->unit }}</strong></span>
+                        </div>
+
+                        @if ($product->variety_size)
+                            <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                                <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M7 7h10M7 12h10M7 17h6" />
+                                </svg>
+                                <span>Variety/Size: <strong
+                                        class="text-green-950 font-semibold">{{ $product->variety_size }}</strong></span>
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                            <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Total: <strong
+                                    class="text-green-950 font-semibold">₱{{ number_format((float) ($product->total_amount ?? 0), 2) }}</strong></span>
+                        </div>
+
+                        @if ($product->remainingInventory)
+                            <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                                <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>Remaining Total: <strong
+                                        class="text-green-700 font-semibold">₱{{ number_format($product->remainingInventory->remaining_price, 2) }}</strong></span>
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                            <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>Harvest: <strong
+                                    class="text-green-950 font-semibold">{{ $product->harvest_date->format('M d, Y') }}</strong></span>
+                        </div>
+
+                        <div class="flex items-center gap-3 py-3 text-sm text-stone-600">
+                            <svg class="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor"
+                                stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Posted: <strong
+                                    class="text-green-950 font-semibold">{{ $product->created_at->format('M d, Y H:i') }}</strong></span>
+                        </div>
+                    </div>
                 </div>
-            @endif
+            </div>
+
         </div>
     </div>
-</div>
 
-<!-- Buyer Profile Modal -->
-<div id="buyerProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 w-full max-w-2xl mx-4">
-        <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="text-lg font-semibold text-gray-900">Buyer Profile</h2>
-            <button onclick="closeBuyerModal()" class="text-gray-500 hover:text-gray-700">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
+    {{-- ── Buyer Profile Modal ── --}}
+    <div id="buyerProfileModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-scale-in">
 
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="md:col-span-1">
-                    <div class="bg-gray-50 rounded-lg p-6 text-center">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" 
-                             alt="Profile" class="w-24 h-24 rounded-full mx-auto object-cover">
-                        <h3 id="modal-buyer-name" class="text-lg font-medium text-gray-900 mt-4"></h3>
-                        <p class="text-gray-500 text-sm">Buyer</p>
+            <div class="flex justify-between items-center px-6 py-4 bg-green-50 border-b border-green-200">
+                <h2 class="text-lg font-bold text-green-950">Buyer Profile</h2>
+                <button onclick="closeBuyerModal()"
+                    class="text-stone-400 hover:text-stone-700 hover:bg-green-100 p-1.5 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5">
+                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl p-4">
+                    <img id="modal-avatar" src="" alt="Avatar"
+                        class="w-14 h-14 rounded-full object-cover border-2 border-green-300">
+                    <div>
+                        <h3 id="modal-buyer-name" class="font-bold text-green-950 text-base"></h3>
+                        <p class="text-xs text-stone-400 mt-0.5">Buyer Account</p>
                     </div>
                 </div>
 
-                <div class="md:col-span-2">
-                    <div class="space-y-6">
+                <div>
+                    <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Personal Information</p>
+                    <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                    <p id="modal-first-name" class="text-gray-900"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                    <p id="modal-last-name" class="text-gray-900"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                    <p id="modal-email" class="text-gray-900"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                                    <p id="modal-phone" class="text-gray-900"></p>
-                                </div>
-                            </div>
+                            <label class="block text-xs text-stone-400 mb-1">First Name</label>
+                            <p id="modal-first-name" class="text-sm font-semibold text-green-950"></p>
                         </div>
-
                         <div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Buyer Information</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
-                                    <p id="modal-company" class="text-gray-900"></p>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Business Type</label>
-                                    <p id="modal-business-type" class="text-gray-900"></p>
-                                </div>
-                                <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                    <p id="modal-address" class="text-gray-900"></p>
-                                </div>
-                            </div>
+                            <label class="block text-xs text-stone-400 mb-1">Last Name</label>
+                            <p id="modal-last-name" class="text-sm font-semibold text-green-950"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">Email</label>
+                            <p id="modal-email" class="text-sm font-semibold text-green-950 break-all"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">Phone</label>
+                            <p id="modal-phone" class="text-sm font-semibold text-green-950"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-green-100"></div>
+
+                <div>
+                    <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Business Information</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">Company</label>
+                            <p id="modal-company" class="text-sm font-semibold text-green-950"></p>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-stone-400 mb-1">Business Type</label>
+                            <p id="modal-business-type" class="text-sm font-semibold text-green-950"></p>
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs text-stone-400 mb-1">Address</label>
+                            <p id="modal-address" class="text-sm font-semibold text-green-950"></p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    function openBuyerModal(buyerId, firstName, lastName, email, phone, company, businessType, address) {
-        // Set the modal content
-        document.getElementById('modal-buyer-name').textContent = firstName + ' ' + lastName;
-        document.getElementById('modal-first-name').textContent = firstName;
-        document.getElementById('modal-last-name').textContent = lastName;
-        document.getElementById('modal-email').textContent = email;
-        document.getElementById('modal-phone').textContent = phone;
-        document.getElementById('modal-company').textContent = company;
-        document.getElementById('modal-business-type').textContent = businessType;
-        document.getElementById('modal-address').textContent = address;
-        
-        // Show the modal
-        document.getElementById('buyerProfileModal').classList.remove('hidden');
-        document.getElementById('buyerProfileModal').classList.add('flex');
-    }
-    
-    function closeBuyerModal() {
-        // Hide the modal
-        document.getElementById('buyerProfileModal').classList.add('hidden');
-        document.getElementById('buyerProfileModal').classList.remove('flex');
-    }
-    
-    // Close modal when clicking outside
-    document.getElementById('buyerProfileModal').addEventListener('click', function(event) {
-        if (event.target === this) {
-            closeBuyerModal();
+    <style>
+        @keyframes scale-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
-    });
-</script>
+
+        .animate-scale-in {
+            animation: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+
+    <script>
+        function openBuyerModal(id, firstName, lastName, email, phone, company, businessType, address) {
+            const fullName = firstName + ' ' + lastName;
+            document.getElementById('modal-buyer-name').textContent = fullName;
+            document.getElementById('modal-first-name').textContent = firstName;
+            document.getElementById('modal-last-name').textContent = lastName;
+            document.getElementById('modal-email').textContent = email;
+            document.getElementById('modal-phone').textContent = phone;
+            document.getElementById('modal-company').textContent = company;
+            document.getElementById('modal-business-type').textContent = businessType;
+            document.getElementById('modal-address').textContent = address;
+            document.getElementById('modal-avatar').src =
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=dcfce7&color=14532d&size=128`;
+
+            const modal = document.getElementById('buyerProfileModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBuyerModal() {
+            const modal = document.getElementById('buyerProfileModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('buyerProfileModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBuyerModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeBuyerModal();
+        });
+    </script>
+
 @endsection

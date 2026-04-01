@@ -30,7 +30,7 @@ class ProductController extends Controller
         $sort = $request->input('sort', 'latest');
         $perPage = (int) $request->input('per_page', 10);
 
-        if (!in_array($perPage, [5, 10, 25, 50], true)) {
+        if (!in_array($perPage, [10, 25, 50, 100], true)) {
             $perPage = 10;
         }
 
@@ -47,10 +47,10 @@ class ProductController extends Controller
 
         if ($search !== '') {
             $productsQuery->where(function ($query) use ($search) {
-                $query->where('product_name', 'LIKE', '%' . $search . '%')
-                    ->orWhere('variety_size', 'LIKE', '%' . $search . '%')
-                    ->orWhere('description', 'LIKE', '%' . $search . '%')
-                    ->orWhere('unit', 'LIKE', '%' . $search . '%');
+                $query->where('product_name', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('variety_size', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('description', 'ILIKE', '%' . $search . '%')
+                    ->orWhere('unit', 'ILIKE', '%' . $search . '%');
             });
         }
 
@@ -77,6 +77,34 @@ class ProductController extends Controller
             'sort',
             'perPage'
         ));
+    }
+
+    /**
+     * Display all orders for a specific product.
+     */
+    public function orders(Product $product)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+        if (!$user->farmer) {
+            abort(403, 'Access denied. Farmer profile required.');
+        }
+
+        // Ensure the product belongs to this farmer
+        if ($product->farmer_id != $user->farmer->id) {
+            abort(403);
+        }
+
+        // Fetch all transactions (orders) for this product
+        $orders = \App\Models\Transaction::where('product_id', $product->id)
+            ->with('buyer')
+            ->orderByDesc('created_at')
+            ->paginate(15);
+
+        return view('farmers.products.orders', compact('product', 'orders'));
     }
 
     /**
@@ -119,7 +147,7 @@ class ProductController extends Controller
         $this->syncImages($request, $product);
         $this->syncRemainingInventory($product);
 
-        return redirect()->route('products.index')
+        return redirect()->route('farmer.products.index')
             ->with('success', 'Product created successfully.');
     }
 
@@ -203,7 +231,7 @@ class ProductController extends Controller
         $this->syncImages($request, $product, true);
         $this->syncRemainingInventory($product);
 
-        return redirect()->route('products.index')
+        return redirect()->route('farmer.products.index')
             ->with('success', 'Product updated successfully.');
     }
 
@@ -232,7 +260,7 @@ class ProductController extends Controller
 
         $product->delete();
 
-        return redirect()->route('products.index')
+        return redirect()->route('farmer.products.index')
             ->with('success', 'Product deleted successfully.');
     }
 

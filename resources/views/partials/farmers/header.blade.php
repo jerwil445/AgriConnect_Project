@@ -2,22 +2,19 @@
     $farmerName = auth()->user()->first_name ?? 'Farmer';
 @endphp
 
-<header class="bg-white shadow-sm border-b border-gray-200 ml-56 ">
-    <div class="px-4 lg:px-8 py-5 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-end">
+<header class="bg-white shadow-sm border-b border-gray-200">
+    <div class="px-4 lg:px-8 py-3 lg:py-5 flex flex-col gap-3 lg:gap-4 lg:flex-row lg:items-center lg:justify-end">
+        <!-- Mobile Menu Toggle -->
+        <button id="menu-toggle" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 text-gray-600">
+            <i class="fas fa-bars text-lg"></i>
+        </button>
 
-
-        <div class="flex items-center gap-3">
-
-            <!-- <a href="{{ route('farmer.orders') }}"
-               class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
-                <i class="fas fa-shopping-cart"></i>
-                My Orders
-            </a> -->
+        <div class="flex items-center gap-2 lg:gap-3">
 
             <!-- Notification Icon -->
             <div class="relative">
-                <button id="notification-button" type="button"
-                    class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
+                <button id="notification-button"  type="button"
+                    class="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 lg:px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
                     <i class="fas fa-bell"></i>
 
                     @auth
@@ -45,33 +42,44 @@
                         @auth
                             @forelse(auth()->user()->notifications as $notification)
                                 <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100">
-                                    <p class="text-sm text-gray-800 notification-message">
-                                        {{ $notification->data['message'] ?? 'No message' }}</p>
-                                    @if (isset($notification->data['data']) && is_array($notification->data['data']))
-                                        @if (isset($notification->data['data']['product_name']))
-                                            <p class="text-xs text-gray-600 mt-1">Product:
-                                                {{ $notification->data['data']['product_name'] }}</p>
-                                        @endif
-                                        @if (isset($notification->data['data']['farmer_name']) && isset($notification->data['data']['buyer_name']))
-                                            @if (auth()->id() == $notification->notifiable_id)
-                                                @if (isset($notification->data['data']['actor']) && $notification->data['data']['actor'] === 'farmer')
-                                                    <p class="text-xs text-gray-600">Action by: You (Farmer)</p>
-                                                @elseif(strpos($notification->data['message'] ?? '', 'Farmer accepted') !== false)
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="text-sm text-gray-800 notification-message">
+                                                {{ $notification->data['message'] ?? 'No message' }}</p>
+                                            @if (isset($notification->data['data']) && is_array($notification->data['data']))
+                                                @if (isset($notification->data['data']['product_name']))
+                                                    <p class="text-xs text-gray-600 mt-1">Product:
+                                                        {{ $notification->data['data']['product_name'] }}</p>
+                                                @endif
+                                                @if (isset($notification->data['data']['farmer_name']) && isset($notification->data['data']['buyer_name']))
+                                                    @if (auth()->id() == $notification->notifiable_id)
+                                                        @if (isset($notification->data['data']['actor']) && $notification->data['data']['actor'] === 'farmer')
+                                                            <p class="text-xs text-gray-600">Action by: You (Farmer)</p>
+                                                        @elseif(strpos($notification->data['message'] ?? '', 'Farmer accepted') !== false)
+                                                            <p class="text-xs text-gray-600">From:
+                                                                {{ $notification->data['data']['farmer_name'] }}</p>
+                                                        @else
+                                                            <p class="text-xs text-gray-600">From:
+                                                                {{ $notification->data['data']['buyer_name'] }}</p>
+                                                        @endif
+                                                    @endif
+                                                @elseif(isset($notification->data['data']['farmer_name']))
                                                     <p class="text-xs text-gray-600">From:
                                                         {{ $notification->data['data']['farmer_name'] }}</p>
-                                                @else
+                                                @elseif(isset($notification->data['data']['buyer_name']))
                                                     <p class="text-xs text-gray-600">From:
                                                         {{ $notification->data['data']['buyer_name'] }}</p>
                                                 @endif
                                             @endif
-                                        @elseif(isset($notification->data['data']['farmer_name']))
-                                            <p class="text-xs text-gray-600">From:
-                                                {{ $notification->data['data']['farmer_name'] }}</p>
-                                        @elseif(isset($notification->data['data']['buyer_name']))
-                                            <p class="text-xs text-gray-600">From:
-                                                {{ $notification->data['data']['buyer_name'] }}</p>
+                                        </div>
+                                        @if (!$notification->read_at)
+                                            <button type="button" 
+                                                class="text-xs font-medium text-indigo-600 hover:text-indigo-500 mark-as-read flex-shrink-0 ml-2"
+                                                data-notification-id="{{ $notification->id }}">
+                                                Mark as read
+                                            </button>
                                         @endif
-                                    @endif
+                                    </div>
                                     <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}
                                     </p>
 
@@ -109,10 +117,10 @@
 
             <div class="relative">
                 <button id="user-menu-button" type="button"
-                    class="flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition focus:outline-none">
+                    class="flex items-center gap-2 rounded-lg border border-gray-200 px-3 lg:px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition focus:outline-none">
                     <img src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80' }}"
                         alt="User" class="h-6 w-6 rounded-full">
-                    <span>Profile</span>
+                    <span class="hidden sm:inline">Profile</span>
                     <i class="fas fa-chevron-down text-xs"></i>
                 </button>
 
@@ -149,33 +157,71 @@
 </div>
 
 <script>
-    // // Enable notification dropdown functionality
-    // document.addEventListener("DOMContentLoaded", () => {
-    //     // Handle notification dropdown for both farmer and buyer
-    //     const notificationButton = document.getElementById("notification-button");
-    //     const notificationDropdown = document.getElementById("notification-dropdown");
+    document.addEventListener("DOMContentLoaded", () => {
+        const notificationButton = document.getElementById("notification-button");
+        console.log("Notification button: " + notificationButton);
+        const notificationDropdown = document.getElementById("notification-dropdown");
 
-    //     if (notificationButton && notificationDropdown) {
-    //         // Toggle notification dropdown
-    //         notificationButton.addEventListener("click", (event) => {
-    //             event.stopPropagation();
-    //             notificationDropdown.classList.toggle("hidden");
-    //         });
+        if (notificationButton && notificationDropdown) {
+            // Toggle notification dropdown
+            notificationButton.addEventListener("click", (event) => {
+                event.stopPropagation();
+                notificationDropdown.classList.toggle("hidden");
+            });
 
-    //         // Close dropdown when clicking outside
-    //         document.addEventListener("click", (event) => {
-    //             if (!notificationDropdown.contains(event.target) && 
-    //                 !notificationButton.contains(event.target)) {
-    //                 notificationDropdown.classList.add("hidden");
-    //             }
-    //         });
+            // Close dropdown when clicking outside
+            document.addEventListener("click", (event) => {
+                if (!notificationDropdown.contains(event.target) && 
+                    !notificationButton.contains(event.target)) {
+                    notificationDropdown.classList.add("hidden");
+                }
+            });
 
-    //         // Close dropdown when pressing Escape key
-    //         document.addEventListener("keydown", (event) => {
-    //             if (event.key === "Escape") {
-    //                 notificationDropdown.classList.add("hidden");
-    //             }
-    //         });
-    //     }
-    // });
+            // Close dropdown when pressing Escape key
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") {
+                    notificationDropdown.classList.add("hidden");
+                }
+            });
+        }
+
+        // Handle Mark as Read
+        const markAsReadButtons = document.querySelectorAll('.mark-as-read');
+        markAsReadButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const notificationId = this.getAttribute('data-notification-id');
+                
+                this.disabled = true;
+                this.classList.add('opacity-50');
+
+                fetch(`/farmer/notifications/${notificationId}/read`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        this.disabled = false;
+                        this.classList.remove('opacity-50');
+                        alert('Error marking notification as read.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    this.disabled = false;
+                    this.classList.remove('opacity-50');
+                    alert('An error occurred while marking the notification as read.');
+                });
+            });
+        });
+    });
 </script>

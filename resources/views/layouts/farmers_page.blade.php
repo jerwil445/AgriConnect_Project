@@ -18,14 +18,14 @@
         <div class="flex-1 flex flex-col overflow-hidden">
             @include('partials.farmers.header')
 
-            <main class="flex-1 overflow-y-auto px-6 pb-8 bg-gray-50">
+            <main class="flex-1 overflow-y-auto p-4 md:px-6 pb-8 bg-gray-50">
                 @yield('content')
             </main>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const menuToggle = document.getElementById('menu-toggle');
             const closeBtn = document.getElementById('close-btn');
             const sidebar = document.getElementById('sidebar');
@@ -35,12 +35,12 @@
             const userDropdown = document.getElementById('user-dropdown');
 
             if (userMenuButton && userDropdown) {
-                userMenuButton.addEventListener('click', function() {
+                userMenuButton.addEventListener('click', function () {
                     userDropdown.classList.toggle('hidden');
                 });
 
                 // Close dropdown when clicking outside
-                document.addEventListener('click', function(event) {
+                document.addEventListener('click', function (event) {
                     if (!userMenuButton.contains(event.target) && !userDropdown.contains(event.target)) {
                         userDropdown.classList.add('hidden');
                     }
@@ -48,24 +48,24 @@
             }
 
             if (menuToggle) {
-                menuToggle.addEventListener('click', function() {
+                menuToggle.addEventListener('click', function () {
                     sidebar.classList.toggle('-translate-x-full');
                 });
             }
 
             if (closeBtn) {
-                closeBtn.addEventListener('click', function() {
+                closeBtn.addEventListener('click', function () {
                     sidebar.classList.add('-translate-x-full');
                 });
             }
 
             // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', function(event) {
+            document.addEventListener('click', function (event) {
                 const isClickInsideSidebar = sidebar && sidebar.contains(event.target);
                 const isClickOnMenuToggle = menuToggle && menuToggle.contains(event.target);
 
                 if (!isClickInsideSidebar && !isClickOnMenuToggle && sidebar && !sidebar.classList.contains(
-                        '-translate-x-full')) {
+                    '-translate-x-full')) {
                     sidebar.classList.add('-translate-x-full');
                 }
             });

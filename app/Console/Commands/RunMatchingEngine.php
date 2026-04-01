@@ -67,18 +67,15 @@ class RunMatchingEngine extends Command
      */
     private function matchDemand(Demand $demand)
     {
-        $productNames = array_values(array_unique(array_filter([
-            $demand->product_name,
-            $this->mapEggTypeToProductName($demand->egg_type),
-        ])));
+        $productName = $demand->product_name;
 
-        if (empty($productNames)) {
+        if (!$productName) {
             return;
         }
 
         // Find products that match the demand criteria
         // Match based on product name, location (partial match), and sufficient remaining quantity
-        $matchingProducts = Product::whereIn('product_name', $productNames)
+        $matchingProducts = Product::where('product_name', $productName)
             ->where('status', 'Available')
             ->where(function($query) use ($demand) {
                 // Check if product has remaining inventory and sufficient quantity
@@ -135,37 +132,18 @@ class RunMatchingEngine extends Command
      */
     private function matchProduct(Product $product)
     {
-        $legacyEggType = $product->getRawOriginal('egg_type');
+        $productName = $product->product_name;
         $hasDemandProductName = Schema::hasColumn('demands', 'product_name');
         $hasDemandStatus = Schema::hasColumn('demands', 'status');
-        $productNames = array_values(array_unique(array_filter([
-            $product->product_name,
-            $this->mapEggTypeToProductName($legacyEggType),
-        ])));
 
-        if ((empty($productNames) || !$hasDemandProductName) && !$legacyEggType) {
+        if ((!$productName || !$hasDemandProductName)) {
             return;
         }
 
         // Find demands that match the product criteria
         // Only match with products that are available
         // Match based on product name, location (partial match), and sufficient remaining quantity
-        $matchingDemands = Demand::where(function ($query) use ($productNames, $legacyEggType, $hasDemandProductName) {
-                $hasCondition = false;
-
-                if ($hasDemandProductName && !empty($productNames)) {
-                    $query->whereIn('product_name', $productNames);
-                    $hasCondition = true;
-                }
-
-                if ($legacyEggType) {
-                    if ($hasCondition) {
-                        $query->orWhere('egg_type', $legacyEggType);
-                    } else {
-                        $query->where('egg_type', $legacyEggType);
-                    }
-                }
-            });
+        $matchingDemands = Demand::where('product_name', $productName);
 
         if ($hasDemandStatus) {
             $matchingDemands->where('status', 'Available');
@@ -228,22 +206,5 @@ class RunMatchingEngine extends Command
                 ]);
             }
         }
-    }
-
-    private function mapEggTypeToProductName(?string $eggType): ?string
-    {
-        if (!$eggType) {
-            return null;
-        }
-
-        return match ($eggType) {
-            'chicken' => 'Chicken Eggs',
-            'duck' => 'Duck Eggs',
-            'quail' => 'Quail Eggs',
-            'native_chicken' => 'Native Chicken Eggs',
-            'brown' => 'Brown Eggs',
-            'white' => 'White Eggs',
-            default => ucwords(str_replace('_', ' ', $eggType)),
-        };
     }
 }

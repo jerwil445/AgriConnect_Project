@@ -68,9 +68,8 @@ Route::get('/admin/transactions/{transaction}', [AdminController::class, 'viewTr
 
 // Farmer Product Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/farmer', function () {
-        return view('farmers.dashboard');
-    })->name('farmer.dashboard');
+    Route::get('/farmer', [FarmerController::class, 'dashboard'])->name('farmer.dashboard');
+    Route::get('/farmer/analytics', [FarmerController::class, 'analytics'])->name('farmer.analytics');
     
     Route::get('/farmer/profile', [FarmerController::class, 'showProfile'])->name('farmer.profile');
     Route::get('/farmer/profile/edit', [FarmerController::class, 'editProfile'])->name('farmer.profile.edit');
@@ -79,8 +78,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/farmer/notifications', [FarmerController::class, 'notifications'])->name('farmer.notifications');
     Route::post('/farmer/notifications/{id}/read', [FarmerController::class, 'markNotificationAsRead'])->name('farmer.notifications.read');
     
-    Route::resource('/farmer/products', ProductController::class);
-    Route::put('/farmer/products/{product}/status', [ProductController::class, 'updateStatus'])->name('products.updateStatus');
+    Route::resource('/farmer/products', ProductController::class)->names('farmer.products');
+    Route::get('/farmer/products/{product}/orders', [ProductController::class, 'orders'])->name('farmer.products.orders');
+    Route::put('/farmer/products/{product}/status', [ProductController::class, 'updateStatus'])->name('farmer.products.updateStatus');
     
     // Farmer messages route
     Route::get('/farmer/messages', [DemandMatchingController::class, 'listTransactions'])->name('farmer.messages');
@@ -91,7 +91,8 @@ Route::middleware('auth')->group(function () {
 
 // Buyer Routes
 Route::middleware('auth')->group(function () {
-    Route::get('/buyer', [BuyerController::class, 'dashboard'])->name('buyer.dashboard');
+    Route::get('/buyer/dashboard', [BuyerController::class, 'dashboard'])->name('buyer.dashboard');
+    Route::get('/buyer/analytics', [BuyerController::class, 'analytics'])->name('buyer.analytics');
     Route::get('/buyer/profile', [BuyerController::class, 'showProfile'])->name('buyer.profile');
     Route::get('/buyer/profile/edit', [BuyerController::class, 'editProfile'])->name('buyer.profile.edit');
     Route::put('/buyer/profile', [BuyerController::class, 'updateProfile'])->name('buyer.profile.update');

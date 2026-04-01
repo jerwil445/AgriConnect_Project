@@ -75,6 +75,7 @@
                                         @if (!$notification->read_at)
                                             <button type="button" 
                                                 class="text-xs font-medium text-indigo-600 hover:text-indigo-500 mark-as-read flex-shrink-0 ml-2"
+                                                data-url="{{ route('farmer.notifications.read', $notification->id) }}"
                                                 data-notification-id="{{ $notification->id }}">
                                                 Mark as read
                                             </button>

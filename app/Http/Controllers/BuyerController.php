@@ -186,12 +186,6 @@ class BuyerController extends Controller
         return response(view('buyers.notifications.index', compact('notifications')));
     }
 
-    /**
-     * Mark a notification as read.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function markNotificationAsRead($id)
     {
         $user = Auth::user();
@@ -199,6 +193,10 @@ class BuyerController extends Controller
 
         if ($notification) {
             $notification->markAsRead();
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return response()->redirectToRoute('buyer.notifications');

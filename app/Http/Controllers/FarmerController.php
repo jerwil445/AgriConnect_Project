@@ -285,9 +285,6 @@ class FarmerController extends Controller
         return view('farmers.notifications.index', compact('notifications'));
     }
 
-    /**
-     * Mark a notification as read.
-     */
     public function markNotificationAsRead($id)
     {
         $user = Auth::user();
@@ -295,6 +292,10 @@ class FarmerController extends Controller
 
         if ($notification) {
             $notification->markAsRead();
+        }
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true]);
         }
 
         return back();

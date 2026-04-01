@@ -25,8 +25,7 @@
             <div class="bg-white shadow-md rounded-lg overflow-hidden">
                 <ul class="divide-y divide-gray-200">
                     @foreach ($notifications as $notification)
-                        <li
-                            class="px-4 sm:px-6 py-4 hover:bg-gray-50 {{ $notification->read_at ? 'bg-gray-50' : 'bg-white' }}">
+                        <li class="px-4 sm:px-6 py-4 hover:bg-gray-50 {{ $notification->read_at ? 'bg-gray-50' : 'bg-white' }}">
                             <div class="flex items-start">
                                 <div class="flex-shrink-0 pt-1">
                                     @if ($notification->read_at)
@@ -49,6 +48,7 @@
                                         <div class="mt-2">
                                             <button type="button"
                                                 class="text-sm font-medium text-indigo-600 hover:text-indigo-500 mark-as-read"
+                                                data-url="{{ route('farmer.notifications.read', $notification->id) }}"
                                                 data-notification-id="{{ $notification->id }}">
                                                 Mark as read
                                             </button>
@@ -69,39 +69,4 @@
         @endif
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle mark as read buttons
-            var markAsReadButtons = document.querySelectorAll('.mark-as-read');
-            markAsReadButtons.forEach(function(button) {
-                button.addEventListener('click', function(e) {
-                    var notificationId = this.getAttribute('data-notification-id');
-
-                    // Send AJAX request to mark as read
-                    fetch('/farmer/notifications/' + notificationId + '/read', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector(
-                                    'meta[name="csrf-token"]').getAttribute('content'),
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                // Reload the page to reflect the updated status
-                                location.reload();
-                            } else {
-                                alert('Error marking notification as read.');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while marking the notification as read.');
-                        });
-                });
-            });
-        });
-    </script>
 @endsection

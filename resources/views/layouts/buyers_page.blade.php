@@ -12,10 +12,11 @@
 </head>
 
 <body class="bg-gray-100 font-sans antialiased text-gray-800">
-    <div class="min-h-screen flex flex-col bg-gray-50">
+    <div class="sticky top-0 z-50">
         <!-- Include buyer header -->
         @include('partials.buyers.header')
-
+    </div>
+    <div class="min-h-screen flex flex-col bg-gray-50">
         <div class="flex-1 flex flex-col overflow-hidden pt-0">
             <main class="flex-1 overflow-y-auto px-4 bg-gray-50 buyer-content">
                 @yield('content')

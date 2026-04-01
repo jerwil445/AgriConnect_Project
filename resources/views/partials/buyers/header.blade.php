@@ -6,7 +6,7 @@
 @endphp
 
 <header class="bg-white shadow-sm buyer-page-header buyer-header"
-    style="position: -webkit-sticky; position: sticky; top: 0; z-index: 1000;">
+    style="position: -webkit-sticky; position: sticky; top: 0; z-index: 40;">
     <div class="container mx-auto px-4 py-3">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-2">
@@ -180,7 +180,7 @@
 
 <!-- Notification dropdown menu -->
 <div id="notification-dropdown"
-    class="hidden absolute right-0 z-50 mt-2 w-80 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+    class="hidden absolute right-10 top-10  z-50 mt-2 w-80 rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
     role="menu" aria-orientation="vertical" aria-labelledby="notification-button" tabindex="-1">
     <div class="px-4 py-3 border-b border-gray-200">
         <p class="text-sm font-medium text-gray-900">Notifications</p>

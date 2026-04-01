@@ -156,9 +156,10 @@
 
 </div>
 
-<script>
+<!-- <script>
     document.addEventListener("DOMContentLoaded", () => {
         const notificationButton = document.getElementById("notification-button");
+        
         const notificationDropdown = document.getElementById("notification-dropdown");
 
         if (notificationButton && notificationDropdown) {
@@ -223,4 +224,4 @@
             });
         });
     });
-</script>
+</script> -->

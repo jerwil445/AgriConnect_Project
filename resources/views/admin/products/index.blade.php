@@ -1,128 +1,175 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
-    <main class="flex-1 p-6">
+<div class="ml-72 mr-5 mt-20 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden">
+    
+    <!-- Subtle Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-green-200/20 rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl -mb-10 -ml-10 pointer-events-none"></div>
+
+    <main class="relative z-10 flex-1 p-8 lg:p-10">
         <div class="max-w-7xl mx-auto">
-            <div class="bg-white rounded-lg shadow p-6" style="overflow: visible;">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">Product Management</h2>
+            
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-10 pb-6 border-b border-gray-100 gap-6">
+                <div class="flex items-center gap-5">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/20 text-2xl">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-3xl font-black text-gray-800 tracking-tight">Product Inventory</h2>
+                        <p class="text-sm text-gray-500 font-medium mt-1">Monitor and verify agricultural supply listings</p>
+                    </div>
                 </div>
+                
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="hidden lg:flex items-center gap-6 px-6 py-2.5 bg-white/50 backdrop-blur-md rounded-2xl border border-white shadow-sm">
+                        <div class="text-center border-r border-gray-100 pr-6">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">Registered Listings</p>
+                            <p class="text-lg font-black text-gray-800 mt-1">{{ $products->total() }}</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest leading-none">Live Access</p>
+                            <p class="text-xs font-black text-emerald-600 mt-1 uppercase tracking-tighter">Verified System</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                    <form method="GET" action="{{ route('admin.products.index') }}" class="flex items-center" id="search-form">
-                        <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
-                        <input type="hidden" name="farmer" value="{{ request('farmer') }}">
-                        <input type="hidden" name="status" value="{{ request('status') }}">
-                        <div class="relative">
-                            <input type="text" name="search"
-                                   value="{{ request('search') }}"
-                                   placeholder="Search products..."
-                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-400 sm:text-sm">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
+            <!-- Toolbar / Filters -->
+            <div class="bg-white/60 backdrop-blur-lg rounded-[2rem] border border-white shadow-sm p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                
+                <div class="flex flex-wrap items-center gap-4">
+                    <!-- Farmer Filter -->
+                    <div class="relative group">
+                        <button type="button" onclick="toggleDropdownById('farmer-filter-dropdown')" 
+                                class="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                            <span class="text-gray-400 uppercase font-medium">Farmer:</span> {{ request('farmer') ? 'Selected' : 'All Suppliers' }}
+                            <i class="fas fa-tractor text-[10px] text-gray-400"></i>
+                        </button>
+                        <div id="farmer-filter-dropdown" class="hidden absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                            <div class="p-2 bg-gray-50 border-b border-gray-100 text-[9px] font-black uppercase text-gray-400 tracking-widest pl-4">Supplier Directory</div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <a href="{{ request()->fullUrlWithoutQuery(['farmer', 'page']) }}" class="block px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50 {{ !request('farmer') ? 'bg-emerald-50/50 text-emerald-700 border-l-2 border-emerald-500' : '' }}">All Suppliers</a>
+                                @foreach($farmers as $farmer)
+                                    <a href="{{ request()->fullUrlWithQuery(['farmer' => $farmer->id, 'page' => 1]) }}" class="block px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50 {{ request('farmer') == $farmer->id ? 'bg-emerald-50/50 text-emerald-700 border-l-2 border-emerald-500' : '' }}">
+                                        {{ $farmer->first_name }} {{ $farmer->last_name }}
+                                    </a>
+                                @endforeach
                             </div>
                         </div>
-                        <button type="submit" class="ml-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md">Search</button>
-                    </form>
+                    </div>
 
-                    <div class="flex items-center gap-4">
-                        <div class="relative inline-block text-left">
-                            <button type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="toggleDropdownById('farmer-filter-dropdown')">
-                                Farmer: {{ request('farmer') ? 'Selected' : 'All Farmers' }}
-                            </button>
-                            <div id="farmer-filter-dropdown" class="hidden origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                                <div class="py-1">
-                                    <a href="{{ request()->fullUrlWithoutQuery(['farmer', 'page']) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">All Farmers</a>
-                                    @foreach($farmers as $farmer)
-                                        <a href="{{ request()->fullUrlWithQuery(['farmer' => $farmer->id, 'page' => 1]) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                            {{ $farmer->first_name }} {{ $farmer->last_name }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="relative inline-block text-left">
-                            <button type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" onclick="toggleDropdownById('status-filter-dropdown')">
-                                Status: {{ request('status') ?: 'All Statuses' }}
-                            </button>
-                            <div id="status-filter-dropdown" class="hidden origin-top-right absolute left-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                                <div class="py-1">
-                                    <a href="{{ request()->fullUrlWithoutQuery(['status', 'page']) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">All Statuses</a>
-                                    @foreach($statuses as $status)
-                                        <a href="{{ request()->fullUrlWithQuery(['status' => $status, 'page' => 1]) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                            {{ $status }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
+                    <!-- Status Filter -->
+                    <div class="relative group">
+                        <button type="button" onclick="toggleDropdownById('status-filter-dropdown')" 
+                                class="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 flex items-center gap-2 hover:bg-gray-50 transition-colors shadow-sm">
+                            <span class="text-gray-400 uppercase font-medium">Status:</span> {{ request('status') ?: 'Any State' }}
+                            <i class="fas fa-filter text-[10px] text-gray-400"></i>
+                        </button>
+                        <div id="status-filter-dropdown" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                            <a href="{{ request()->fullUrlWithoutQuery(['status', 'page']) }}" class="block px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50">All Statuses</a>
+                            @foreach($statuses as $status)
+                                <a href="{{ request()->fullUrlWithQuery(['status' => $status, 'page' => 1]) }}" class="block px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50">
+                                    <span class="w-2 h-2 rounded-full inline-block mr-2 @if($status=='Available') bg-emerald-500 @elseif($status=='Sold Out') bg-red-500 @else bg-amber-500 @endif"></span>
+                                    {{ $status }}
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 </div>
 
+                <!-- Search -->
+                <form action="{{ route('admin.products.index') }}" method="GET" class="relative lg:w-80 group">
+                    <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+                    <input type="hidden" name="farmer" value="{{ request('farmer') }}">
+                    <input type="hidden" name="status" value="{{ request('status') }}">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search inventory detail..."
+                           class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all shadow-sm text-sm font-medium">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white/40 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-xl overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variety/Size</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farmer Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price per Unit</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harvest Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <table class="min-w-full divide-y divide-gray-100">
+                        <thead>
+                            <tr class="bg-gray-50/50">
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Listing Context</th>
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Proprietor</th>
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Volume Metrics</th>
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Finances</th>
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Market State</th>
+                                <th class="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Actions</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="divide-y divide-gray-50">
                             @forelse($products as $product)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $product->product_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->variety_size ?: 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->farmer->user->first_name }} {{ $product->farmer->user->last_name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $product->quantity }} {{ $product->unit }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ number_format($product->price, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱{{ number_format($product->total_amount ?? ($product->quantity * $product->price), 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                            @if($product->status == 'Available') bg-green-100 text-green-800
-                                            @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
-                                            @else bg-yellow-100 text-yellow-800 @endif">
-                                            {{ $product->status }}
+                                <tr class="hover:bg-white/60 transition-all group">
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 font-black overflow-hidden bg-cover bg-center transition-all group-hover:scale-105"
+                                                 style="background-image: url('{{ $product->product_image ? asset('storage/' . $product->product_image) : '' }}')">
+                                                @if(!$product->product_image) <i class="fas fa-image text-gray-200"></i> @endif
+                                            </div>
+                                            <div>
+                                                <div class="text-sm font-black text-gray-800">{{ $product->product_name }}</div>
+                                                <div class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase tracking-tighter">{{ $product->variety_size ?: 'Standard' }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <div class="text-sm font-bold text-gray-700 leading-none">{{ $product->farmer->user->first_name }} {{ $product->farmer->user->last_name }}</div>
+                                        <div class="text-[10px] font-medium text-gray-400 mt-1.5 uppercase tracking-widest"><i class="fas fa-map-marker-alt text-[9px] mr-1"></i> Supplier #{{ str_pad($product->farmer->id, 4, '0', STR_PAD_LEFT) }}</div>
+                                    </td>
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <div class="text-sm font-black text-gray-800">{{ $product->quantity }} <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $product->unit }}</span></div>
+                                        <div class="text-[10px] font-medium text-gray-400 mt-1.5 leading-none">Harvest: {{ optional($product->harvest_date)->format('M d, Y') ?? 'N/A' }}</div>
+                                    </td>
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <div class="text-sm font-black text-indigo-700">₱{{ number_format($product->price, 2) }} <span class="text-[9px] text-gray-400 font-medium">/{{ $product->unit }}</span></div>
+                                        <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">Valuation: ₱{{ number_format($product->total_amount ?? ($product->quantity * $product->price), 2) }}</div>
+                                    </td>
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <span class="px-3 py-1 text-[10px] font-black uppercase tracking-tight rounded-full border shadow-sm
+                                            @if($product->status == 'Available') bg-emerald-50 text-emerald-700 border-emerald-100
+                                            @elseif($product->status == 'Sold Out') bg-red-50 text-red-700 border-red-100
+                                            @else bg-amber-50 text-amber-700 border-amber-100 @endif">
+                                            <i class="fas fa-circle text-[6px] mr-1.5 align-middle"></i> {{ $product->status }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ optional($product->harvest_date)->format('M d, Y') ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="relative inline-block text-left">
-                                            <button type="button"
-                                                    class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-2 py-1 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                                                    onclick="toggleDropdownById('dropdown-menu-{{ $product->id }}')">
-                                                Actions
-                                            </button>
-
-                                            <div id="dropdown-menu-{{ $product->id }}" class="hidden absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
-                                                <div class="py-1">
-                                                    <a href="{{ route('admin.products.view', $product) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                                        <i class="fas fa-eye mr-2 text-blue-500"></i>View Details
+                                    <td class="px-8 py-6 whitespace-nowrap text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <a href="{{ route('admin.products.view', $product) }}" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-blue-100 shadow-sm">
+                                                <i class="fas fa-eye text-xs"></i>
+                                            </a>
+                                            <a href="{{ route('admin.products.edit', $product) }}" class="w-9 h-9 rounded-xl bg-green-50 text-green-600 hover:bg-green-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-green-100 shadow-sm">
+                                                <i class="fas fa-edit text-xs"></i>
+                                            </a>
+                                            
+                                            <div class="relative">
+                                                <button type="button" onclick="toggleDropdownById('actions-menu-{{ $product->id }}')" 
+                                                        class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-all duration-300 flex items-center justify-center border border-gray-200 shadow-sm">
+                                                    <i class="fas fa-ellipsis-v text-xs"></i>
+                                                </button>
+                                                <div id="actions-menu-{{ $product->id }}" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 text-left">
+                                                    <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                                                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Auth & Visibility</p>
+                                                    </div>
+                                                    <a href="{{ route('admin.products.approve', $product) }}" class="flex items-center gap-2 px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border-b border-gray-50">
+                                                        <i class="fas fa-check-circle text-emerald-500"></i> Verify Listing
                                                     </a>
-                                                    <a href="{{ route('admin.products.edit', $product) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                                        <i class="fas fa-edit mr-2 text-green-500"></i>Edit
+                                                    <a href="{{ route('admin.products.reject', $product) }}" class="flex items-center gap-2 px-4 py-3 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-700 border-b border-gray-50">
+                                                        <i class="fas fa-history text-amber-500"></i> Revert to Pending
                                                     </a>
-                                                    <a href="{{ route('admin.products.approve', $product) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                                        <i class="fas fa-check-circle mr-2 text-green-500"></i>Approve
-                                                    </a>
-                                                    <a href="{{ route('admin.products.reject', $product) }}" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100">
-                                                        <i class="fas fa-times-circle mr-2 text-yellow-500"></i>Mark Pending
-                                                    </a>
-                                                    <form action="{{ route('admin.products.delete', $product) }}" method="POST" class="inline delete-form" data-product-name="{{ $product->product_name }}">
+                                                    <form action="{{ route('admin.products.delete', $product) }}" method="POST" class="delete-form" data-product-name="{{ $product->product_name }}">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="text-red-700 block w-full text-left px-4 py-2 text-sm hover:bg-gray-100">
-                                                            <i class="fas fa-trash mr-2"></i>Delete
+                                                        <button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
+                                                            <i class="fas fa-trash-alt"></i> Purge Record
                                                         </button>
                                                     </form>
                                                 </div>
@@ -132,49 +179,60 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">No products found.</td>
+                                    <td colspan="6" class="px-8 py-20 text-center">
+                                        <div class="flex flex-col items-center">
+                                            <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-200 mb-4 border-2 border-dashed border-gray-100">
+                                                <i class="fas fa-box-open text-3xl"></i>
+                                            </div>
+                                            <h4 class="text-lg font-black text-gray-300 uppercase tracking-widest">Inventory Empty</h4>
+                                            <p class="text-xs text-gray-400 mt-2 font-medium">No agricultural listings have been registered for this filter.</p>
+                                        </div>
+                                    </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-
-                <div class="mt-6">
-                    {{ $products->links() }}
-                </div>
+                
+                @if($products->hasPages())
+                    <div class="px-8 py-6 bg-gray-50/50 border-t border-gray-100">
+                        {{ $products->links() }}
+                    </div>
+                @endif
             </div>
+
         </div>
     </main>
 </div>
 
 <script>
-    document.querySelectorAll('.delete-form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const productName = this.getAttribute('data-product-name');
-            if (confirm(`Are you sure you want to delete product ${productName}?`)) {
-                this.submit();
-            }
-        });
-    });
-
     function toggleDropdownById(id) {
-        document.querySelectorAll('[id$="-dropdown"], [id^="dropdown-menu-"]').forEach((element) => {
-            if (element.id !== id) {
-                element.classList.add('hidden');
-            }
+        const dropdown = document.getElementById(id);
+        const allDropdowns = document.querySelectorAll('[id$="-dropdown"], [id^="actions-menu-"]');
+        
+        allDropdowns.forEach(d => {
+            if (d.id !== id) d.classList.add('hidden');
         });
-
-        const target = document.getElementById(id);
-        if (target) {
-            target.classList.toggle('hidden');
+        
+        if (dropdown) {
+            dropdown.classList.toggle('hidden');
         }
     }
 
     window.addEventListener('click', function(e) {
-        if (!e.target.closest('button') && !e.target.closest('.delete-form') && !e.target.closest('a')) {
-            document.querySelectorAll('[id$="-dropdown"], [id^="dropdown-menu-"]').forEach(el => el.classList.add('hidden'));
+        if (!e.target.closest('button') && !e.target.closest('form')) {
+            document.querySelectorAll('[id$="-dropdown"], [id^="actions-menu-"]').forEach(d => d.classList.add('hidden'));
         }
+    });
+
+    document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const productName = this.getAttribute('data-product-name');
+            if (confirm(`PURGE RECORD: Are you sure you want to permanently delete "${productName}" from the marketplace inventory?`)) {
+                this.submit();
+            }
+        });
     });
 </script>
 @endsection

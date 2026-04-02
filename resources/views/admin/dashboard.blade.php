@@ -1,574 +1,339 @@
 @extends('layouts.admin_page')
 @vite('resources/css/app.css')
 @section('content')
-    <div class=" rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
-        <main class="flex-1 p-6">
-            <div class="max-w-7xl mx-auto">
-                <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
+<div class="ml-72 mr-5 mt-20 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden min-h-screen">
+    
+    <!-- Ambient Background Accents -->
+    <div class="absolute top-0 right-0 w-[40rem] h-[40rem] bg-indigo-100/30 rounded-full blur-[100px] -mt-40 -mr-40 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-emerald-100/30 rounded-full blur-[80px] -mb-40 -ml-40 pointer-events-none"></div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-blue-100 text-blue-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Total Users</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalUsers }}
-                                </p>
-                            </div>
+    <main class="relative z-10 flex-1 p-8 lg:p-12">
+        <div class="max-w-7xl mx-auto">
+            
+            <!-- Header -->
+            <div class="mb-12">
+                <h1 class="text-4xl font-black text-gray-800 tracking-tight leading-none mb-2">Systems Intelligence</h1>
+                <p class="text-sm font-bold text-gray-500 uppercase tracking-[0.2em] opacity-60 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    AgriConnect Core Dashboard | Real-time Analytics
+                </p>
+            </div>
+
+            <!-- Major KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                
+                <!-- Stat Card: Users -->
+                <div class="group bg-white/70 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shadow-sm border border-blue-100 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black text-blue-400 bg-blue-50 px-2.5 py-1 rounded-full uppercase tracking-tighter">Total Identites</span>
+                    </div>
+                    <div class="text-3xl font-black text-gray-800 leading-none mb-1">{{ $totalUsers }}</div>
+                    <p class="text-[11px] font-bold text-gray-400 flex items-center gap-1.5 uppercase tracking-wide">
+                        <span class="text-blue-500">{{ $totalFarmers }} Farmers</span> | <span class="text-indigo-500">{{ $totalBuyers }} Buyers</span>
+                    </p>
+                </div>
+
+                <!-- Stat Card: Supply -->
+                <div class="group bg-white/70 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm border border-emerald-100 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-boxes text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black text-emerald-400 bg-emerald-50 px-2.5 py-1 rounded-full uppercase tracking-tighter">Inventory Count</span>
+                    </div>
+                    <div class="text-3xl font-black text-gray-800 leading-none mb-1">{{ $totalProducts }}</div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Active Market Listings</p>
+                </div>
+
+                <!-- Stat Card: Demand -->
+                <div class="group bg-white/70 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shadow-sm border border-amber-100 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bullseye text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black text-amber-400 bg-amber-50 px-2.5 py-1 rounded-full uppercase tracking-tighter">Requests Open</span>
+                    </div>
+                    <div class="text-3xl font-black text-gray-800 leading-none mb-1">{{ $totalDemands }}</div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Aggregated Buyer Demand</p>
+                </div>
+
+                <!-- Stat Card: Settlements -->
+                <div class="group bg-white/70 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-500 shadow-sm border border-purple-100 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-file-invoice-dollar text-xl"></i>
+                        </div>
+                        <span class="text-[10px] font-black text-purple-400 bg-purple-50 px-2.5 py-1 rounded-full uppercase tracking-tighter">Settlements</span>
+                    </div>
+                    <div class="text-3xl font-black text-gray-800 leading-none mb-1">{{ $totalTransactions }}</div>
+                    <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Finalized Agreement Flows</p>
+                </div>
+
+            </div>
+
+            <!-- Visualization Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+                
+                <!-- Main Trend Chart -->
+                <div class="lg:col-span-8 bg-white/70 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-sm">
+                    <div class="flex items-center justify-between mb-10">
+                        <div>
+                            <h3 class="text-lg font-black text-gray-800 leading-none">Revenue Trajectory</h3>
+                            <p class="text-[11px] font-bold text-gray-400 uppercase mt-2">Aggregated system sales performance</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <div class="w-3 h-3 rounded-full bg-indigo-500 border-2 border-white shadow-sm shadow-indigo-500/20"></div>
+                             <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Market Value Index</span>
                         </div>
                     </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-green-100 text-green-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Farmers</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalFarmers }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Buyers</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalBuyers }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-purple-100 text-purple-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Products</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalProducts }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-red-100 text-red-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Demands</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalDemands }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-indigo-100 text-indigo-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Matches</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalMatches }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-pink-100 text-pink-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Transactions</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $totalTransactions }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-lg shadow p-6">
-                        <div class="flex items-center">
-                            <div class="p-3 rounded-full bg-teal-100 text-teal-500 mr-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-500">Pending Notifications</p>
-                                <p class="text-2xl font-semibold text-gray-800">
-                                    {{ $pendingNotifications }}
-                                </p>
-                            </div>
-                        </div>
+                    <div class="h-[18rem] relative">
+                        <canvas id="salesTrendsChart"></canvas>
                     </div>
                 </div>
 
-                <!-- Charts Section -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Sales Trends Chart -->
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Sales Trends</h2>
-                        <div class="h-48">
-                            <canvas id="salesTrendsChart"></canvas>
-                        </div>
+                <!-- Product Popularity -->
+                <div class="lg:col-span-4 bg-white/70 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-sm flex flex-col">
+                    <div class="mb-10">
+                        <h3 class="text-lg font-black text-gray-800 leading-none">Inventory Volume</h3>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mt-2">Active units per category</p>
                     </div>
-
-                    <!-- Product Popularity Chart -->
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Product Popularity</h2>
-                        <div class="h-48">
-                            <canvas id="productPopularityChart"></canvas>
-                        </div>
+                    <div class="h-[18rem] relative flex-grow">
+                        <canvas id="productPopularityChart"></canvas>
                     </div>
+                </div>
 
-                    <!-- Regional Demand Chart -->
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Regional Demand</h2>
-                        <div class="h-48">
-                            <canvas id="regionalDemandChart"></canvas>
-                        </div>
+                <!-- Regional Demand Pie -->
+                <div class="lg:col-span-4 bg-white/70 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-sm">
+                    <div class="mb-8 text-center">
+                        <h3 class="text-lg font-black text-gray-800 leading-none">Supply Distribution</h3>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mt-2">Regional Market Concentration</p>
                     </div>
-
-                    <!-- Match Status Chart -->
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Match Status Distribution</h2>
-                        <div class="h-48">
-                            <canvas id="matchStatusChart"></canvas>
-                        </div>
+                    <div class="h-[18rem] relative">
+                        <canvas id="regionalDemandChart"></canvas>
                     </div>
+                </div>
 
-                    <!-- Order Status Chart -->
-                    <div class="bg-white rounded-lg shadow p-4">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-2">Active Orders by Status</h2>
-                        <div class="h-48">
-                            <canvas id="orderStatusChart"></canvas>
-                        </div>
+                <!-- Match Lifecycle -->
+                <div class="lg:col-span-4 bg-white/70 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-sm text-center">
+                    <div class="mb-8">
+                        <h3 class="text-lg font-black text-gray-800 leading-none">Sync Intelligence</h3>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mt-2">Match lifecycle distribution</p>
+                    </div>
+                    <div class="h-[18rem] relative flex justify-center">
+                        <canvas id="matchStatusChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Logistics Overvew -->
+                <div class="lg:col-span-4 bg-white/70 backdrop-blur-xl border border-white rounded-[2.5rem] p-8 shadow-sm flex flex-col">
+                    <div class="mb-10 lg:text-right">
+                        <h3 class="text-lg font-black text-gray-800 leading-none">Logistics Tracking</h3>
+                        <p class="text-[11px] font-bold text-gray-400 uppercase mt-2">Current delivery fulfillment states</p>
+                    </div>
+                    <div class="h-[18rem] relative flex-grow">
+                        <canvas id="orderStatusChart"></canvas>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <!-- Include Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Include Chart.js Plugin for Data Labels -->
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    <script>
-        // Register the data labels plugin
-        Chart.register(ChartDataLabels);
+            <!-- Footer Stats (Notifications) -->
+            <div class="bg-indigo-600 rounded-[2rem] p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl shadow-indigo-600/20 overflow-hidden relative group">
+                <div class="absolute -right-10 -top-10 text-white/5 text-[15rem] pointer-events-none group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700 leading-none opacity-20">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="flex items-center gap-6 relative z-10">
+                    <div class="w-20 h-20 bg-white/10 backdrop-blur-md rounded-3xl flex items-center justify-center text-white text-3xl shadow-lg border border-white/10">
+                        <i class="fas fa-broadcast-tower animate-ping absolute text-sm opacity-50"></i>
+                        <i class="fas fa-bell relative z-20"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-black text-white leading-none">Pending Notifications</h3>
+                        <p class="text-indigo-100 font-bold uppercase tracking-widest text-[10px] mt-2">Active system alerts requiring attention</p>
+                    </div>
+                </div>
+                <div class="text-center md:text-right relative z-10">
+                    <div class="text-6xl font-black text-white leading-none mb-2">{{ $pendingNotifications }}</div>
+                    <span class="bg-white/10 text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/20 backdrop-blur-sm">System Priority High</span>
+                </div>
+            </div>
 
-        // Parse the data from PHP to JavaScript
-        const salesTrendsData = [
-            @foreach ($salesTrends as $trend)
-                {
-                    date: '{{ $trend->date }}',
-                    total: {{ $trend->total ?? 0 }}
-                },
-            @endforeach
-        ];
-        const productPopularityData = [
-            @foreach ($productPopularity as $product)
-                {
-                    name: '{{ $product->product_name }}',
-                    count: {{ $product->transaction_count }}
-                },
-            @endforeach
-        ];
-        const regionalDemandData = [
-            @foreach ($regionalDemand as $demand)
-                {
-                    location: '{{ $demand->location }}',
-                    count: {{ $demand->demand_count }}
-                },
-            @endforeach
-        ];
-        const matchStatusData = [
-            @foreach ($matchStatusDistribution as $status)
-                {
-                    status: '{{ $status->status }}',
-                    count: {{ $status->count }}
-                },
-            @endforeach
-        ];
-        const orderStatusData = [
-            @foreach ($orderStatusDistribution as $status)
-                {
-                    status: '{{ $status->delivery_status }}',
-                    count: {{ $status->count }}
-                },
-            @endforeach
-        ];
+        </div>
+    </main>
+</div>
 
-        // Calculate total for percentage calculations
-        const regionalDemandTotal = regionalDemandData.reduce((sum, item) => sum + item.count, 0);
-        const matchStatusTotal = matchStatusData.reduce((sum, item) => sum + item.count, 0);
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Include Chart.js Plugin for Data Labels -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
-        // Sales Trends Chart
-        const salesTrendsCtx = document.getElementById('salesTrendsChart').getContext('2d');
-        const salesTrendsChart = new Chart(salesTrendsCtx, {
-            type: 'line',
-            data: {
-                labels: salesTrendsData.map(item => item.date),
-                datasets: [{
-                    label: 'Revenue',
-                    data: salesTrendsData.map(item => item.total),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    tension: 0.1,
-                    pointRadius: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    datalabels: {
-                        display: false
-                    }
+<script>
+    // Register the data labels plugin
+    Chart.register(ChartDataLabels);
+
+    // Global Font Styling
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.color = "#9ca3af";
+
+    // Parse logic
+    const salesTrendsData = [@foreach($salesTrends as $trend) { date: '{{$trend->date}}', total: {{$trend->total ?: 0}} },@endforeach];
+    const productPopularityData = [@foreach($productPopularity as $p) { name: '{{$p->product_name}}', count: {{$p->transaction_count}} },@endforeach];
+    const regionalDemandData = [@foreach($regionalDemand as $d) { location: '{{$d->location}}', count: {{$d->demand_count}} },@endforeach];
+    const matchStatusData = [@foreach($matchStatusDistribution as $s) { status: '{{$s->status}}', count: {{$s->count}} },@endforeach];
+    const orderStatusData = [@foreach($orderStatusDistribution as $s) { status: '{{$s->delivery_status}}', count: {{$s->count}} },@endforeach];
+
+    // Chart Configuration Helpers
+    const createGrad = (ctx, start, stop) => {
+        const h = ctx.canvas.height;
+        const g = ctx.createLinearGradient(0, 0, 0, h);
+        g.addColorStop(0, start);
+        g.addColorStop(1, stop);
+        return g;
+    };
+
+    // Sales Trends: Premium Area Chart
+    new Chart(document.getElementById('salesTrendsChart'), {
+        type: 'line',
+        data: {
+            labels: salesTrendsData.map(d => d.date),
+            datasets: [{
+                label: 'System Revenue',
+                data: salesTrendsData.map(d => d.total),
+                borderColor: '#6366f1',
+                borderWidth: 4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#6366f1',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(99, 102, 241, 0.2)');
+                    gradient.addColorStop(1, 'rgba(99, 102, 241, 0)');
+                    return gradient;
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        },
-                        title: {
-                            display: true,
-                            text: 'Amount (₹)'
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: 5
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                }
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, datalabels: { display: false } },
+            scales: {
+                y: { grid: { borderDash: [5, 5], color: '#f3f4f6' }, border: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } },
+                x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 'bold', size: 10 } } }
             }
-        });
+        }
+    });
 
-        // Product Popularity Chart
-        const productPopularityCtx = document.getElementById('productPopularityChart').getContext('2d');
-        const productPopularityChart = new Chart(productPopularityCtx, {
-            type: 'bar',
-            data: {
-                labels: productPopularityData.map(item => item.name),
-                datasets: [{
-                    label: 'Transaction Count',
-                    data: productPopularityData.map(item => item.count),
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: (value) => value,
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        },
-                        title: {
-                            display: true,
-                            text: 'Number of Transactions'
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: 5
-                        },
-                        title: {
-                            display: true,
-                            text: 'Product'
-                        }
-                    }
-                }
+    // Product Popularity: Polished Bar
+    new Chart(document.getElementById('productPopularityChart'), {
+        type: 'bar',
+        data: {
+            labels: productPopularityData.map(d => d.name),
+            datasets: [{
+                data: productPopularityData.map(d => d.count),
+                backgroundColor: '#10b981',
+                borderRadius: 12,
+                hoverBackgroundColor: '#059669',
+                maxBarThickness: 30
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, datalabels: { color: '#000', font: { weight: 'black', size: 9 }, anchor: 'end', align: 'right' } },
+            scales: {
+                x: { grid: { display: false }, border: { display: false }, ticks: { display: false } },
+                y: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 'black', size: 10 }, color: '#374151' } }
             }
-        });
+        }
+    });
 
-        // Regional Demand Chart
-        const regionalDemandCtx = document.getElementById('regionalDemandChart').getContext('2d');
-        const regionalDemandChart = new Chart(regionalDemandCtx, {
-            type: 'pie',
-            data: {
-                labels: regionalDemandData.map(item => item.location),
-                datasets: [{
-                    label: 'Demand Count',
-                    data: regionalDemandData.map(item => item.count),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 205, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right',
-                        labels: {
-                            boxWidth: 10,
-                            padding: 10,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    datalabels: {
-                        formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
-                                sum += data;
-                            });
-                            let percentage = (value * 100 / sum).toFixed(1) + "%";
-                            return percentage;
-                        },
-                        color: '#000',
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const percentage = Math.round((value / regionalDemandTotal) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
+    // Regional: Minimalist Pie
+    new Chart(document.getElementById('regionalDemandChart'), {
+        type: 'pie',
+        data: {
+            labels: regionalDemandData.map(d => d.location),
+            datasets: [{
+                data: regionalDemandData.map(d => d.count),
+                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                borderWidth: 4,
+                borderColor: '#ffffff',
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'bottom', labels: { boxWidth: 8, padding: 20, font: { weight: 'bold', size: 10 } } },
+                datalabels: { color: '#fff', font: { weight: 'black', size: 9 }, formatter: (v, ctx) => {
+                    const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                    return Math.round((v/total)*100) + '%';
+                }}
             }
-        });
+        }
+    });
 
-        // Match Status Chart
-        const matchStatusCtx = document.getElementById('matchStatusChart').getContext('2d');
-        const matchStatusChart = new Chart(matchStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: matchStatusData.map(item => item.status),
-                datasets: [{
-                    label: 'Match Count',
-                    data: matchStatusData.map(item => item.count),
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 205, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 205, 86, 1)',
-                        'rgba(75, 192, 192, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'right',
-                        labels: {
-                            boxWidth: 10,
-                            padding: 10,
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    datalabels: {
-                        formatter: (value, ctx) => {
-                            let sum = 0;
-                            let dataArr = ctx.chart.data.datasets[0].data;
-                            dataArr.map(data => {
-                                sum += data;
-                            });
-                            let percentage = (value * 100 / sum).toFixed(1) + "%";
-                            return percentage;
-                        },
-                        color: '#000',
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw || 0;
-                                const percentage = Math.round((value / matchStatusTotal) * 100);
-                                return `${label}: ${value} (${percentage}%)`;
-                            }
-                        }
-                    }
-                }
+    // Match Status: Premium Doughnut
+    new Chart(document.getElementById('matchStatusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: matchStatusData.map(d => d.status),
+            datasets: [{
+                data: matchStatusData.map(d => d.count),
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444', '#6366f1'],
+                borderWidth: 0,
+                hoverOffset: 10,
+                cutout: '75%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { position: 'bottom', labels: { boxWidth: 8, padding: 15, font: { weight: 'bold', size: 10 } } },
+                datalabels: { display: false }
             }
-        });
+        }
+    });
 
-        // Order Status Chart
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-        const orderStatusChart = new Chart(orderStatusCtx, {
-            type: 'bar',
-            data: {
-                labels: orderStatusData.map(item => item.status),
-                datasets: [{
-                    label: 'Order Count',
-                    data: orderStatusData.map(item => item.count),
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                        labels: {
-                            font: {
-                                size: 10
-                            }
-                        }
-                    },
-                    datalabels: {
-                        anchor: 'end',
-                        align: 'top',
-                        formatter: (value) => value,
-                        font: {
-                            weight: 'bold',
-                            size: 10
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        },
-                        title: {
-                            display: true,
-                            text: 'Number of Orders'
-                        }
-                    },
-                    x: {
-                        ticks: {
-                            maxTicksLimit: 10
-                        },
-                        title: {
-                            display: true,
-                            text: 'Order Status'
-                        }
-                    }
-                }
+    // Order Status: Polished Bar
+    new Chart(document.getElementById('orderStatusChart'), {
+        type: 'bar',
+        data: {
+            labels: orderStatusData.map(d => d.status),
+            datasets: [{
+                data: orderStatusData.map(d => d.count),
+                backgroundColor: '#3b82f6',
+                borderRadius: 12,
+                maxBarThickness: 40
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false }, datalabels: { font: { weight: 'black', size: 10 }, anchor: 'end', align: 'top' } },
+            scales: {
+                y: { grid: { borderDash: [5, 5], color: '#f3f4f6' }, border: { display: false }, ticks: { font: { weight: 'bold' } } },
+                x: { grid: { display: false }, border: { display: false }, ticks: { font: { weight: 'black', size: 9 }, color: '#374151' } }
             }
-        });
-    </script>
+        }
+    });
+
+</script>
+
+<style>
+/* Custom Scrollbar for better UI experience */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+</style>
 @endsection

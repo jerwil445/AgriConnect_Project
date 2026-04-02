@@ -1,361 +1,273 @@
 @extends('layouts.admin_page')
 
 @section('content')
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 ml-72 mr-5 mt-20">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
-        <div class="px-6 py-5 border-b border-gray-100">
-            <h2 class="text-lg font-semibold text-gray-900">Edit Demand</h2>
-            <p class="text-sm text-gray-500 mt-1">Update demand details</p>
-        </div>
+<div class="ml-72 mr-5 mt-20 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden">
+    
+    <!-- Subtle Background Elements -->
+    <div class="absolute top-0 right-0 w-96 h-96 bg-green-200/20 rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl -mb-10 -ml-10 pointer-events-none"></div>
 
-        <form action="{{ route('admin.demands.update', $demand) }}" method="POST" class="p-6">
-            @csrf
-            @method('PUT')
+    <main class="relative z-10 flex-1 p-8 lg:p-10">
+        <div class="max-w-4xl mx-auto">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label for="egg_type" class="block text-sm font-medium text-gray-700 mb-1">Egg Type / Category</label>
-                        <select name="egg_type" id="egg_type" 
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" required>
-                            <option value="">Select Egg Type</option>
-                            <option value="chicken" {{ old('egg_type', $demand->egg_type) == 'chicken' ? 'selected' : '' }}>Chicken</option>
-                            <option value="duck" {{ old('egg_type', $demand->egg_type) == 'duck' ? 'selected' : '' }}>Duck</option>
-                            <option value="quail" {{ old('egg_type', $demand->egg_type) == 'quail' ? 'selected' : '' }}>Quail</option>
-                            <option value="native_chicken" {{ old('egg_type', $demand->egg_type) == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option>
-                            <option value="brown" {{ old('egg_type', $demand->egg_type) == 'brown' ? 'selected' : '' }}>Brown Egg</option>
-                            <option value="white" {{ old('egg_type', $demand->egg_type) == 'white' ? 'selected' : '' }}>White Egg</option>
-                        </select>
-                        @error('egg_type')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+            <div class="flex justify-between items-center mb-8 pb-4 border-b border-green-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 shadow-inner">
+                        <i class="fas fa-edit"></i>
                     </div>
-                    
                     <div>
-                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <input type="text" name="address" id="address" 
-                               value="{{ old('address', $demand->address) }}"
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                               placeholder="Enter delivery address">
-                        @error('address')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <h2 class="text-2xl font-black text-gray-800 tracking-tight">Edit Demand</h2>
+                        <p class="text-sm text-gray-500 font-medium mt-0.5">Update market demand requirements</p>
                     </div>
-                    
-                    <!-- Egg-specific fields -->
-                    <div id="egg-demand-fields">
-                        <div class="border-t border-gray-200 pt-4 mt-2">
-                            <h4 class="text-md font-medium text-gray-900 mb-3">Egg-Specific Details</h4>
-                            
-                            <div class="mb-3">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Size / Grade</label>
-                                <div class="space-y-2">
-                                    <div class="flex items-start">
-                                        <label class="inline-flex items-center mt-1">
-                                            <input type="checkbox" name="egg_sizes[]" value="small" id="small_checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50" {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'small') !== false || strpos(($demand->egg_size ?? ''), 'small') !== false) ? 'checked' : '' }}>
-                                            <span class="ml-2">Small</span>
-                                        </label>
-                                        <div id="small_tray_container" class="ml-4 {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'small') !== false || strpos(($demand->egg_size ?? ''), 'small') !== false) ? '' : 'hidden' }}">
-                                            <label for="small_trays" class="text-sm text-gray-600">Tray(s):</label>
-                                            <input type="number" name="small_trays" id="small_trays" min="1" 
-                                                   class="ml-2 w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                   placeholder="Qty" 
-                                                   value="{{ preg_match('/small \((\d+)/', old('egg_size', $demand->egg_size ?? ''), $matches) ? $matches[1] : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <label class="inline-flex items-center mt-1">
-                                            <input type="checkbox" name="egg_sizes[]" value="medium" id="medium_checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50" {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'medium') !== false || strpos(($demand->egg_size ?? ''), 'medium') !== false) ? 'checked' : '' }}>
-                                            <span class="ml-2">Medium</span>
-                                        </label>
-                                        <div id="medium_tray_container" class="ml-4 {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'medium') !== false || strpos(($demand->egg_size ?? ''), 'medium') !== false) ? '' : 'hidden' }}">
-                                            <label for="medium_trays" class="text-sm text-gray-600">Tray(s):</label>
-                                            <input type="number" name="medium_trays" id="medium_trays" min="1" 
-                                                   class="ml-2 w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                   placeholder="Qty" 
-                                                   value="{{ preg_match('/medium \((\d+)/', old('egg_size', $demand->egg_size ?? ''), $matches) ? $matches[1] : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <label class="inline-flex items-center mt-1">
-                                            <input type="checkbox" name="egg_sizes[]" value="large" id="large_checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50" {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'large') !== false || strpos(($demand->egg_size ?? ''), 'large') !== false) ? 'checked' : '' }}>
-                                            <span class="ml-2">Large</span>
-                                        </label>
-                                        <div id="large_tray_container" class="ml-4 {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'large') !== false || strpos(($demand->egg_size ?? ''), 'large') !== false) ? '' : 'hidden' }}">
-                                            <label for="large_trays" class="text-sm text-gray-600">Tray(s):</label>
-                                            <input type="number" name="large_trays" id="large_trays" min="1" 
-                                                   class="ml-2 w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                   placeholder="Qty" 
-                                                   value="{{ preg_match('/large \((\d+)/', old('egg_size', $demand->egg_size ?? ''), $matches) ? $matches[1] : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <label class="inline-flex items-center mt-1">
-                                            <input type="checkbox" name="egg_sizes[]" value="extra_large" id="extra_large_checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50" {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'extra_large') !== false || strpos(($demand->egg_size ?? ''), 'extra_large') !== false) ? 'checked' : '' }}>
-                                            <span class="ml-2">Extra Large</span>
-                                        </label>
-                                        <div id="extra_large_tray_container" class="ml-4 {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'extra_large') !== false || strpos(($demand->egg_size ?? ''), 'extra_large') !== false) ? '' : 'hidden' }}">
-                                            <label for="extra_large_trays" class="text-sm text-gray-600">Tray(s):</label>
-                                            <input type="number" name="extra_large_trays" id="extra_large_trays" min="1" 
-                                                   class="ml-2 w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                   placeholder="Qty" 
-                                                   value="{{ preg_match('/extra_large \((\d+)/', old('egg_size', $demand->egg_size ?? ''), $matches) ? $matches[1] : '' }}">
-                                        </div>
-                                    </div>
-                                    <div class="flex items-start">
-                                        <label class="inline-flex items-center mt-1">
-                                            <input type="checkbox" name="egg_sizes[]" value="jumbo" id="jumbo_checkbox" class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50" {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'jumbo') !== false || strpos(($demand->egg_size ?? ''), 'jumbo') !== false) ? 'checked' : '' }}>
-                                            <span class="ml-2">Jumbo</span>
-                                        </label>
-                                        <div id="jumbo_tray_container" class="ml-4 {{ (strpos(old('egg_size', $demand->egg_size ?? ''), 'jumbo') !== false || strpos(($demand->egg_size ?? ''), 'jumbo') !== false) ? '' : 'hidden' }}">
-                                            <label for="jumbo_trays" class="text-sm text-gray-600">Tray(s):</label>
-                                            <input type="number" name="jumbo_trays" id="jumbo_trays" min="1" 
-                                                   class="ml-2 w-20 rounded border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500" 
-                                                   placeholder="Qty" 
-                                                   value="{{ preg_match('/jumbo \((\d+)/', old('egg_size', $demand->egg_size ?? ''), $matches) ? $matches[1] : '' }}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type="hidden" name="egg_size" id="egg_size_hidden" value="{{ old('egg_size', $demand->egg_size ?? '') }}">
+                </div>
+                
+                <a href="{{ route('admin.demands.index') }}" 
+                   class="bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-xl border border-gray-200 shadow-sm transition-all duration-200 flex items-center group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-400 group-hover:text-gray-600 transition-colors" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Back to Demands
+                </a>
+            </div>
+
+            @if ($errors->any())
+                <div class="bg-red-50/80 backdrop-blur-sm border-l-4 border-red-500 text-red-800 px-5 py-4 rounded-r-xl shadow-sm mb-8">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-exclamation-circle text-red-500"></i>
+                        <strong class="font-bold text-red-700">Please fix the following errors:</strong>
+                    </div>
+                    <ul class="list-disc list-inside text-sm text-red-600/90 ml-6 space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('admin.demands.update', $demand) }}" method="POST" class="bg-white/60 backdrop-blur-xl rounded-2xl border border-white shadow-sm p-6 lg:p-8">
+                @csrf
+                @method('PUT')
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <!-- Basic Info -->
+                    <div class="space-y-6">
+                        <div class="mb-2 pb-2 border-b border-gray-100">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-green-700 flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i> Basic Specification
+                            </h3>
+                        </div>
+
+                        <div class="relative w-full group">
+                            <select name="egg_type" id="egg_type" required
+                                    class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all shadow-sm appearance-none">
+                                <option value="" disabled {{ !old('egg_type', $demand->egg_type) ? 'selected' : '' }}>Select Egg Type</option>
+                                <option value="chicken" {{ old('egg_type', $demand->egg_type) == 'chicken' ? 'selected' : '' }}>Chicken</option>
+                                <option value="duck" {{ old('egg_type', $demand->egg_type) == 'duck' ? 'selected' : '' }}>Duck</option>
+                                <option value="quail" {{ old('egg_type', $demand->egg_type) == 'quail' ? 'selected' : '' }}>Quail</option>
+                                <option value="native_chicken" {{ old('egg_type', $demand->egg_type) == 'native_chicken' ? 'selected' : '' }}>Native Chicken</option>
+                                <option value="brown" {{ old('egg_type', $demand->egg_type) == 'brown' ? 'selected' : '' }}>Brown Egg</option>
+                                <option value="white" {{ old('egg_type', $demand->egg_type) == 'white' ? 'selected' : '' }}>White Egg</option>
+                            </select>
+                            <label for="egg_type" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-green-600 rounded transition-all">
+                                Egg Type / Category
+                            </label>
+                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-green-500">
+                                <i class="fas fa-chevron-down text-sm"></i>
+                            </div>
+                        </div>
+
+                        <div class="relative w-full">
+                            <input type="number" name="quantity" id="quantity" value="{{ old('quantity', $demand->quantity) }}" min="1" placeholder=" " required
+                                   class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                            <label for="quantity" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
+                                Total Quantity (Trays)
+                            </label>
+                        </div>
+
+                        <div class="relative w-full">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-green-500">
+                                ₱
+                            </div>
+                            <input type="number" name="target_price" id="target_price" value="{{ old('target_price', $demand->target_price) }}" step="0.01" min="0" placeholder=" "
+                                   class="peer w-full pl-8 pr-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                            <label for="target_price" class="absolute left-8 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 peer-focus:left-4 rounded cursor-text">
+                                Target Price per Unit
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Logistics Info -->
+                    <div class="space-y-6">
+                        <div class="mb-2 pb-2 border-b border-gray-100">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-green-700 flex items-center gap-2">
+                                <i class="fas fa-truck"></i> Delivery Details
+                            </h3>
+                        </div>
+
+                        <div class="relative w-full">
+                            <input type="date" name="delivery_date" id="delivery_date" value="{{ old('delivery_date', $demand->delivery_date ? $demand->delivery_date->format('Y-m-d') : '') }}" min="{{ date('Y-m-d') }}" placeholder=" "
+                                   class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                            <label for="delivery_date" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
+                                Target Delivery Date
+                            </label>
+                        </div>
+
+                        <div class="relative w-full">
+                            <input type="text" name="location" id="location" value="{{ old('location', $demand->location) }}" placeholder=" "
+                                   class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                            <label for="location" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
+                                Delivery City/Municipality
+                            </label>
+                        </div>
+
+                        <div class="relative w-full">
+                            <input type="text" name="address" id="address" value="{{ old('address', $demand->address) }}" placeholder=" "
+                                   class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                            <label for="address" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
+                                Specific Delivery Address
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Status & Ownership -->
+                    <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
+                        <div class="relative w-full group">
+                            <select name="status" id="status"
+                                    class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all shadow-sm appearance-none font-semibold text-gray-700">
+                                <option value="unmatched" {{ old('status', $demand->status) == 'unmatched' ? 'selected' : '' }}>Unmatched</option>
+                                <option value="matched" {{ old('status', $demand->status) == 'matched' ? 'selected' : '' }}>Matched</option>
+                                <option value="in negotiation" {{ old('status', $demand->status) == 'in negotiation' ? 'selected' : '' }}>In Negotiation</option>
+                                <option value="completed" {{ old('status', $demand->status) == 'completed' ? 'selected' : '' }}>Completed</option>
+                            </select>
+                            <label for="status" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-green-600 rounded transition-all">
+                                Administrative Status
+                            </label>
+                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-green-500">
+                                <i class="fas fa-chevron-down text-sm"></i>
+                            </div>
+                        </div>
+
+                        <div class="relative w-full group">
+                            <select name="buyer_id" id="buyer_id" required
+                                    class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all shadow-sm appearance-none">
+                                @foreach($buyers as $buyer)
+                                    <option value="{{ $buyer->id }}" {{ old('buyer_id', $demand->buyer_id) == $buyer->id ? 'selected' : '' }}>
+                                        {{ $buyer->first_name }} {{ $buyer->last_name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <label for="buyer_id" class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-green-600 rounded transition-all">
+                                Associated Buyer
+                            </label>
+                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-green-500">
+                                <i class="fas fa-user text-sm"></i>
                             </div>
                         </div>
                     </div>
-                    
-                    <div>
-                        <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                        <input type="number" name="quantity" id="quantity" 
-                               value="{{ old('quantity', $demand->quantity) }}" min="1"
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                        @error('quantity')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                    <div>
-                        <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Delivery Location</label>
-                        <input type="text" name="location" id="location" 
-                               value="{{ old('location', $demand->location) }}"
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                        @error('location')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label for="delivery_date" class="block text-sm font-medium text-gray-700 mb-1">Delivery Date</label>
-                        <input type="date" name="delivery_date" id="delivery_date" 
-                               value="{{ old('delivery_date', $demand->delivery_date ? $demand->delivery_date->format('Y-m-d') : '') }}"
-                               class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                               min="{{ date('Y-m-d') }}">
-                        @error('delivery_date')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                            <option value="unmatched" {{ old('status', $demand->status) == 'unmatched' ? 'selected' : '' }}>Unmatched</option>
-                            <option value="matched" {{ old('status', $demand->status) == 'matched' ? 'selected' : '' }}>Matched</option>
-                            <option value="in negotiation" {{ old('status', $demand->status) == 'in negotiation' ? 'selected' : '' }}>In Negotiation</option>
-                            <option value="completed" {{ old('status', $demand->status) == 'completed' ? 'selected' : '' }}>Completed</option>
-                        </select>
-                        @error('status')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                    <div>
-                        <label for="buyer_id" class="block text-sm font-medium text-gray-700 mb-1">Buyer</label>
-                        <select name="buyer_id" id="buyer_id"
-                                class="w-full rounded-lg border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                            @foreach($buyers as $buyer)
-                                <option value="{{ $buyer->id }}" {{ old('buyer_id', $demand->buyer_id) == $buyer->id ? 'selected' : '' }}>
-                                    {{ $buyer->first_name }} {{ $buyer->last_name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('buyer_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+
+                    <!-- Egg-Specific Fields -->
+                    <div id="egg-demand-fields" class="md:col-span-2 pt-6">
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-6 shadow-sm relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 text-green-200/40 transform rotate-12 pointer-events-none">
+                                <i class="fas fa-egg text-8xl"></i>
+                            </div>
+                            
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-green-800 mb-6 pb-2 border-b border-green-200 relative z-10">
+                                <i class="fas fa-list-ul mr-2"></i> Quality & Size Breakdown
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 relative z-10">
+                                @php
+                                    $egg_sizes = ['small', 'medium', 'large', 'extra_large', 'jumbo'];
+                                    $eggSizeStr = old('egg_size', $demand->egg_size ?? '');
+                                @endphp
+                                
+                                @foreach($egg_sizes as $size)
+                                    @php
+                                        $isChecked = strpos($eggSizeStr, $size) !== false;
+                                        preg_match('/' . $size . ' \((\d+)/', $eggSizeStr, $matches);
+                                        $trayCount = isset($matches[1]) ? $matches[1] : '';
+                                    @endphp
+                                    <div class="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white shadow-sm transition-all hover:shadow-md group">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <label class="inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" name="egg_sizes[]" value="{{ $size }}" id="{{ $size }}_checkbox" 
+                                                       class="w-5 h-5 rounded border-gray-300 text-green-600 shadow-sm focus:ring-green-500 focus:ring-offset-0 transition-all cursor-pointer" 
+                                                       {{ $isChecked ? 'checked' : '' }}>
+                                                <span class="ml-2.5 font-bold text-gray-700 capitalize">{{ str_replace('_', ' ', $size) }}</span>
+                                            </label>
+                                        </div>
+                                        <div id="{{ $size }}_tray_container" class="{{ $isChecked ? '' : 'hidden' }} mt-2">
+                                            <div class="relative w-full">
+                                                <input type="number" name="{{ $size }}_trays" id="{{ $size }}_trays" min="1" value="{{ $trayCount }}" placeholder="Qty"
+                                                       class="w-full pl-3 pr-10 py-2 border border-green-100 rounded-lg bg-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 transition-all text-sm font-semibold">
+                                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[10px] font-bold text-green-600 uppercase">Trays</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <input type="hidden" name="egg_size" id="egg_size_hidden" value="{{ $eggSizeStr }}">
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="mt-6 flex justify-end gap-3">
-                <a href="{{ route('admin.demands.index') }}" 
-                   class="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Cancel
-                </a>
-                <button type="submit" 
-                        class="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-                    Update Demand
-                </button>
-            </div>
-        </form>
-    </div>
+
+                <div class="mt-10 pt-6 flex justify-end gap-3 border-t border-gray-100">
+                    <a href="{{ route('admin.demands.index') }}" 
+                       class="bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold px-6 py-3 rounded-xl border border-gray-200 shadow-sm transition-all duration-200">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="bg-gradient-to-r from-green-600 to-emerald-500 text-white font-bold px-8 py-3 rounded-xl shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] hover:shadow-[0_15px_25px_-10px_rgba(16,185,129,0.6)] transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2">
+                        <i class="fas fa-save"></i> Update Demand
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
 </div>
 
-@section('scripts')
+<!-- Preserving exactly the same functional logic but updating element selection for the new layout -->
 <script>
 window.addEventListener('DOMContentLoaded', function() {
+    const sizes = ['small', 'medium', 'large', 'extra_large', 'jumbo'];
+    const eggSizeHidden = document.getElementById('egg_size_hidden');
     
-    // Elements for small eggs
-    const smallCheckbox = document.getElementById('small_checkbox');
-    const smallTrayContainer = document.getElementById('small_tray_container');
-    const smallTrays = document.getElementById('small_trays');
-    
-    // Elements for medium eggs
-    const mediumCheckbox = document.getElementById('medium_checkbox');
-    const mediumTrayContainer = document.getElementById('medium_tray_container');
-    const mediumTrays = document.getElementById('medium_trays');
-    
-    // Elements for large eggs
-    const largeCheckbox = document.getElementById('large_checkbox');
-    const largeTrayContainer = document.getElementById('large_tray_container');
-    const largeTrays = document.getElementById('large_trays');
-    
-    // Elements for extra large eggs
-    const extraLargeCheckbox = document.getElementById('extra_large_checkbox');
-    const extraLargeTrayContainer = document.getElementById('extra_large_tray_container');
-    const extraLargeTrays = document.getElementById('extra_large_trays');
-    
-    // Elements for jumbo eggs
-    const jumboCheckbox = document.getElementById('jumbo_checkbox');
-    const jumboTrayContainer = document.getElementById('jumbo_tray_container');
-    const jumboTrays = document.getElementById('jumbo_trays');
-    
-    // Show/hide tray input for small eggs
-    if (smallCheckbox) {
-        smallCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                smallTrayContainer.classList.remove('hidden');
-            } else {
-                smallTrayContainer.classList.add('hidden');
-                if (smallTrays) {
-                    smallTrays.value = '';
-                }
-            }
-            updateEggSizeHidden();
-        });
-    }
-    
-    // Show/hide tray input for medium eggs
-    if (mediumCheckbox) {
-        mediumCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                mediumTrayContainer.classList.remove('hidden');
-            } else {
-                mediumTrayContainer.classList.add('hidden');
-                if (mediumTrays) {
-                    mediumTrays.value = '';
-                }
-            }
-            updateEggSizeHidden();
-        });
-    }
-    
-    // Show/hide tray input for large eggs
-    if (largeCheckbox) {
-        largeCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                largeTrayContainer.classList.remove('hidden');
-            } else {
-                largeTrayContainer.classList.add('hidden');
-                if (largeTrays) {
-                    largeTrays.value = '';
-                }
-            }
-            updateEggSizeHidden();
-        });
-    }
-    
-    // Show/hide tray input for extra large eggs
-    if (extraLargeCheckbox) {
-        extraLargeCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                extraLargeTrayContainer.classList.remove('hidden');
-            } else {
-                extraLargeTrayContainer.classList.add('hidden');
-                if (extraLargeTrays) {
-                    extraLargeTrays.value = '';
-                }
-            }
-            updateEggSizeHidden();
-        });
-    }
-    
-    // Show/hide tray input for jumbo eggs
-    if (jumboCheckbox) {
-        jumboCheckbox.addEventListener('change', function() {
-            if (this.checked) {
-                jumboTrayContainer.classList.remove('hidden');
-            } else {
-                jumboTrayContainer.classList.add('hidden');
-                if (jumboTrays) {
-                    jumboTrays.value = '';
-                }
-            }
-            updateEggSizeHidden();
-        });
-    }
-    
-    // Update tray count when changed for each size
-    if (smallTrays) {
-        smallTrays.addEventListener('input', updateEggSizeHidden);
-    }
-    if (mediumTrays) {
-        mediumTrays.addEventListener('input', updateEggSizeHidden);
-    }
-    if (largeTrays) {
-        largeTrays.addEventListener('input', updateEggSizeHidden);
-    }
-    if (extraLargeTrays) {
-        extraLargeTrays.addEventListener('input', updateEggSizeHidden);
-    }
-    if (jumboTrays) {
-        jumboTrays.addEventListener('input', updateEggSizeHidden);
-    }
-    
-    // Function to update the hidden input with egg sizes and tray counts
-    function updateEggSizeHidden() {
-        const checkboxes = document.querySelectorAll('input[name="egg_sizes[]"]');
-        const selectedValues = [];
+    sizes.forEach(size => {
+        const checkbox = document.getElementById(`${size}_checkbox`);
+        const trayContainer = document.getElementById(`${size}_tray_container`);
+        const trayInput = document.getElementById(`${size}_trays`);
         
-        checkboxes.forEach(checkbox => {
-            if (checkbox.checked) {
-                let trayCount = '';
-                let trayElement = null;
-                
-                switch (checkbox.value) {
-                    case 'small':
-                        trayElement = document.getElementById('small_trays');
-                        break;
-                    case 'medium':
-                        trayElement = document.getElementById('medium_trays');
-                        break;
-                    case 'large':
-                        trayElement = document.getElementById('large_trays');
-                        break;
-                    case 'extra_large':
-                        trayElement = document.getElementById('extra_large_trays');
-                        break;
-                    case 'jumbo':
-                        trayElement = document.getElementById('jumbo_trays');
-                        break;
+        if (checkbox) {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    trayContainer.classList.remove('hidden');
+                    trayContainer.classList.add('animate-in', 'fade-in', 'slide-in-from-top-2', 'duration-200');
+                } else {
+                    trayContainer.classList.add('hidden');
+                    if (trayInput) trayInput.value = '';
                 }
-                
-                if (trayElement) {
-                    trayCount = trayElement.value;
-                }
+                updateEggSizeHidden();
+            });
+        }
+        
+        if (trayInput) {
+            trayInput.addEventListener('input', updateEggSizeHidden);
+        }
+    });
+    
+    function updateEggSizeHidden() {
+        const selectedValues = [];
+        sizes.forEach(size => {
+            const checkbox = document.getElementById(`${size}_checkbox`);
+            if (checkbox && checkbox.checked) {
+                const trayInput = document.getElementById(`${size}_trays`);
+                const trayCount = trayInput ? trayInput.value : '';
                 
                 if (trayCount) {
-                    selectedValues.push(`${checkbox.value} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
+                    selectedValues.push(`${size} (${trayCount} tray${trayCount > 1 ? 's' : ''})`);
                 } else {
-                    selectedValues.push(checkbox.value);
+                    selectedValues.push(size);
                 }
             }
         });
@@ -364,14 +276,6 @@ window.addEventListener('DOMContentLoaded', function() {
             eggSizeHidden.value = selectedValues.join(', ');
         }
     }
-    
-    // Add event listeners to all egg size checkboxes
-    document.querySelectorAll('input[name="egg_sizes[]"]').forEach(checkbox => {
-        checkbox.addEventListener('change', updateEggSizeHidden);
-    });
-    
-    // Initialize hidden input with any pre-selected values
-    updateEggSizeHidden();
 });
 </script>
 @endsection

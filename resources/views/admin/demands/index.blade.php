@@ -33,7 +33,7 @@
             </div>
 
             <!-- Toolbar / Filters -->
-            <div class="bg-white/60 backdrop-blur-lg rounded-[2rem] border border-white shadow-sm p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="relative z-[60] bg-white/60 backdrop-blur-lg rounded-[2rem] border border-white shadow-sm p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                 
                 <div class="flex flex-wrap items-center gap-4">
                     <!-- Per Page Select -->

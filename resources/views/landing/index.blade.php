@@ -258,7 +258,7 @@
     </section>
 
     <!-- Success Stories -->
-    <section id="alumni" class="py-20 md:py-32 bg-gray-50 text-center px-4 md:px-6">
+    <section id="success-stories" class="py-20 md:py-32 bg-gray-50 text-center px-4 md:px-6">
         <div class="max-w-7xl mx-auto">
             <div class="reveal-group opacity-0 translate-y-8 transition-all duration-700 ease-out mb-16">
                 <span class="text-green-600 font-bold text-sm tracking-wider uppercase mb-2 block">Testimonials</span>

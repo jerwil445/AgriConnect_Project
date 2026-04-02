@@ -27,6 +27,11 @@ Route::get('/register', [AuthController::class, 'showRegister'])->name('register
 // Registration POST route
 Route::post('/register', [RegisterController::class, 'register']);
 
+// Admin Auth Routes
+Route::get('/admin/login', function () {
+    return view('auth.admin-login');
+})->name('admin.login');
+
 // Admin Routes with User CRUD
 Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 

@@ -24,6 +24,7 @@ class AdminController extends Controller
         $totalUsers = User::count();
         $totalFarmers = User::where('role', 'farmer')->count();
         $totalBuyers = User::where('role', 'buyer')->count();
+        $totalAdmins = User::where('role', 'admin')->count();
         $totalProducts = Product::where('status', 'Available')->count();
         $totalDemands = Demand::count();
         $totalMatches = DemandMatch::count();
@@ -66,10 +67,67 @@ class AdminController extends Controller
             ->groupBy('delivery_status')
             ->get();
 
+        // Pending KYC Verifications
+        $pendingKYCUsers = User::where('kyc_status', 'pending')
+            ->whereIn('role', ['farmer', 'buyer'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Recent Ecosystem Activity Feed
+        $recentSignups = User::latest()->take(3)->get()->map(function ($u) {
+            return [
+                'type' => 'Registration',
+                'title' => $u->first_name . ' ' . $u->last_name,
+                'subtitle' => 'Joined as ' . ucfirst($u->role),
+                'time' => $u->created_at,
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>',
+                'color' => 'blue'
+            ];
+        });
+
+        $recentProducts = Product::with('farmer.user')->latest()->take(3)->get()->map(function ($p) {
+            return [
+                'type' => 'New Product',
+                'title' => $p->product_name,
+                'subtitle' => 'Listed by ' . ($p->farmer->user->first_name ?? 'Farmer'),
+                'time' => $p->created_at,
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>',
+                'color' => 'green'
+            ];
+        });
+
+        $recentMatches = DemandMatch::with('demand')->latest()->take(3)->get()->map(function ($m) {
+            return [
+                'type' => 'New Match',
+                'title' => 'Product Match Found',
+                'subtitle' => 'For ' . ($m->demand->product_name ?? 'Requirement'),
+                'time' => $m->created_at,
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>',
+                'color' => 'indigo'
+            ];
+        });
+
+        $recentTransactions = Transaction::with('product')->latest()->take(2)->get()->map(function ($t) {
+            return [
+                'type' => 'Transaction',
+                'title' => 'Order Completed',
+                'subtitle' => ($t->product->product_name ?? 'Item') . ' delivered',
+                'time' => $t->created_at,
+                'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+                'color' => 'pink'
+            ];
+        });
+
+        $recentActivities = $recentSignups->concat($recentProducts)->concat($recentMatches)->concat($recentTransactions)
+            ->sortByDesc('time')
+            ->take(8);
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalFarmers',
             'totalBuyers',
+            'totalAdmins',
             'totalProducts',
             'totalDemands',
             'totalMatches',
@@ -79,7 +137,9 @@ class AdminController extends Controller
             'productPopularity',
             'regionalDemand',
             'matchStatusDistribution',
-            'orderStatusDistribution'
+            'orderStatusDistribution',
+            'pendingKYCUsers',
+            'recentActivities'
         ));
     }
 

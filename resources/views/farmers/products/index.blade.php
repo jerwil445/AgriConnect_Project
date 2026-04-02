@@ -3,300 +3,242 @@
 @section('title', 'Product Listings • AgriConnect')
 
 @section('content')
-    <div class="bg-white rounded-xl shadow-sm border border-gray-100 relative ml-64">
-        <div
-            class="px-4 lg:px-6 py-4 lg:py-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900">My Product Listings</h2>
-                <p class="text-sm text-gray-500 mt-1">Manage your agricultural products</p>
-            </div>
-            <a href="{{ route('farmer.products.create') }}"
-                class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition w-fit">
-                <i class="fas fa-plus"></i>
-                <span class="hidden sm:inline">Add New Product</span>
-                <span class="sm:hidden">Add</span>
-            </a>
-        </div>
+    <div class="ml-64 mr-5 mt-10 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden">
+        
+        <!-- Subtle Background Elements -->
+        <div class="absolute top-0 right-0 w-96 h-96 bg-green-200/20 rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl -mb-10 -ml-10 pointer-events-none"></div>
 
-        @if (session('success'))
-            <div class="bg-green-50 border-l-4 border-green-500 p-4">
-                <div class="flex">
-                    <div class="flex-shrink-0">
-                        <i class="fas fa-check-circle text-green-500"></i>
+        <main class="relative z-10 flex-1 p-8 lg:p-10">
+            <div class="max-w-7xl mx-auto">
+                
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-10 pb-6 border-b border-gray-100 gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/20 text-2xl">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-3xl font-black text-gray-800 tracking-tight">Product Inventory</h2>
+                            <p class="text-sm text-gray-500 font-medium mt-1">Manage and track your agricultural supply listings</p>
+                        </div>
                     </div>
-                    <div class="ml-3">
-                        <p class="text-sm text-green-700">
-                            {{ session('success') }}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        {{-- Search, Filter, and Show Entries Controls --}}
-        <div class="px-4 lg:px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <form method="GET" action="{{ route('farmer.products.index') }}" class="space-y-4">
-                <div class="flex flex-wrap items-end gap-2 lg:gap-4">
-                    {{-- Search Box --}}
-                    <div class="flex-1 min-w-[150px] lg:min-w-[200px]">
-                        <label for="search" class="block text-xs font-medium text-gray-700 mb-1">Search</label>
-                        <input type="text" name="search" id="search" placeholder="Search by product name..."
-                            value="{{ request('search') }}"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                    </div>
-
-                    {{-- Status Filter --}}
-                    <div class="w-32 lg:w-40">
-                        <label for="status" class="block text-xs font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="">All Status</option>
-                            <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available
-                            </option>
-                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="Sold Out" {{ request('status') == 'Sold Out' ? 'selected' : '' }}>Sold Out
-                            </option>
-                        </select>
-                    </div>
-
-                    {{-- Show Entries Dropdown --}}
-                    <div class="w-24 lg:w-32">
-                        <label for="per_page" class="block text-xs font-medium text-gray-700 mb-1">Show</label>
-                        <select name="per_page" id="per_page" onchange="this.form.submit()"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                            <option value="10" {{ request('per_page') == '10' || !request('per_page') ? 'selected' : '' }}>10
-                            </option>
-                            <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
-                            <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
-                            <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
-                        </select>
-                    </div>
-
-                    {{-- Search and Filter Buttons --}}
-                    <div class="flex gap-2">
-                        <button type="submit"
-                            class="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-500 transition">
-                            <i class="fas fa-search"></i>
-                            <span class="hidden sm:inline">Search</span>
-                        </button>
-                        <a href="{{ route('farmer.products.index') }}"
-                            class="inline-flex items-center gap-2 px-3 lg:px-4 py-2 bg-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-400 transition">
-                            <i class="fas fa-redo"></i>
-                            <span class="hidden sm:inline">Clear</span>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="{{ route('farmer.products.create') }}"
+                            class="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 text-white px-6 py-3 text-sm font-black shadow-lg shadow-emerald-600/20 hover:bg-emerald-500 transition-all active:scale-95 group">
+                            <i class="fas fa-plus group-hover:rotate-90 transition-transform duration-300"></i>
+                            <span>Register New Product</span>
                         </a>
                     </div>
                 </div>
-            </form>
-        </div>
 
+                @if (session('success'))
+                    <div class="mb-8 p-4 bg-emerald-50/80 backdrop-blur-md border border-emerald-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <p class="text-sm font-bold text-emerald-800">{{ session('success') }}</p>
+                    </div>
+                @endif
 
+                <!-- Toolbar / Filters -->
+                <div class="relative z-[60] bg-white/60 backdrop-blur-lg rounded-[2rem] border border-white shadow-sm p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <form method="GET" action="{{ route('farmer.products.index') }}" class="flex flex-wrap items-center gap-4 w-full">
+                        <div class="flex items-center gap-3">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Show</label>
+                            <select name="per_page" onchange="this.form.submit()"
+                                class="bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-emerald-400 focus:outline-none transition-all shadow-sm">
+                                <option value="10" {{ request('per_page') == '10' || !request('per_page') ? 'selected' : '' }}>10</option>
+                                <option value="25" {{ request('per_page') == '25' ? 'selected' : '' }}>25</option>
+                                <option value="50" {{ request('per_page') == '50' ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('per_page') == '100' ? 'selected' : '' }}>100</option>
+                            </select>
+                        </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Egg Type
-                        </th>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                            Details
-                        </th>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Price
-                        </th>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
-                            Harvest
-                            Date</th>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                        </th>
-                        <th scope="col"
-                            class="px-4 lg:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                        </th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($products as $product)
-                        <tr>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                <div class="flex items-center">
-                                    @if ($product->image)
-                                        <img class="h-10 w-10 rounded-md object-cover"
-                                            src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}">
-                                    @else
-                                        <div class="h-10 w-10 rounded-md bg-gray-200 flex items-center justify-center">
-                                            <i class="fas fa-image text-gray-400"></i>
-                                        </div>
-                                    @endif
-                                    <div class="ml-3 lg:ml-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            @php
-                                                $eggTypes = [
-                                                    'chicken' => 'Chicken',
-                                                    'duck' => 'Duck',
-                                                    'quail' => 'Quail',
-                                                    'native_chicken' => 'Native Chicken',
-                                                    'brown' => 'Brown Egg',
-                                                    'white' => 'White Egg',
-                                                ];
-                                            @endphp
-                                            {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
-                                <div>{{ $product->quantity }} {{ $product->unit }}</div>
-                            </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                ₱{{ number_format($product->price, 2) }}
-                            </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                                {{ \Carbon\Carbon::parse($product->harvest_date)->format('M d, Y') }}
-                            </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
-                                <span
-                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                                                                            @if ($product->status == 'Available') bg-green-100 text-green-800
-                                                                                                            @elseif($product->status == 'Sold Out') bg-red-100 text-red-800
-                                                                                                            @else bg-yellow-100 text-yellow-800 @endif">
-                                    {{ ucfirst(str_replace('_', ' ', $product->status)) }}
-                                </span>
-                            </td>
-                            <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-right text-sm font-medium relative">
-                                <div class="relative inline-block text-left">
-                                    <button type="button"
-                                        class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
-                                        id="product-actions-menu-{{ $product->id }}">
-                                        Actions
-                                        <i class="fas fa-chevron-down ml-2"></i>
-                                    </button>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status</label>
+                            <select name="status" onchange="this.form.submit()"
+                                class="bg-white border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-emerald-400 focus:outline-none transition-all shadow-sm min-w-[140px]">
+                                <option value="">Any State</option>
+                                <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available</option>
+                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="Sold Out" {{ request('status') == 'Sold Out' ? 'selected' : '' }}>Sold Out</option>
+                            </select>
+                        </div>
 
-                                    <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 hidden z-10"
-                                        id="dropdown-menu-{{ $product->id }}">
-                                        <div class="py-1" role="menu">
-                                            <a href="{{ route('farmer.products.show', $product) }}"
-                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                                <i class="fas fa-eye mr-2"></i> View
-                                            </a>
-                                            <a href="{{ route('farmer.products.edit', $product) }}"
-                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                                <i class="fas fa-edit mr-2"></i> Edit
-                                            </a>
-                                            <a href="{{ route('farmer.products.orders', $product) }}"
-                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                                <i class="fas fa-users mr-2"></i> View Orders
-                                            </a>
-                                            <form action="{{ route('farmer.products.destroy', $product) }}" method="POST"
-                                                onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    role="menuitem">
-                                                    <i class="fas fa-trash mr-2"></i> Delete
-                                                </button>
-                                            </form>
-                                            <div class="border-t border-gray-100"></div>
-                                            <div class="py-1">
-                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    role="menuitem"
-                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Available');">
-                                                    <i class="fas fa-check-circle mr-2 text-green-500"></i> Mark as
-                                                    Available
+                        <div class="relative flex-1 lg:max-w-md group ml-auto">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search inventory detail..."
+                                class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all shadow-sm text-sm font-medium">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-emerald-500 transition-colors">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+                                Search
+                            </button>
+                            <a href="{{ route('farmer.products.index') }}" class="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs font-bold rounded-xl transition-all active:scale-95">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Data Table -->
+                <div class="bg-white/40 backdrop-blur-xl border border-white rounded-[2.5rem] shadow-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-100">
+                            <thead>
+                                <tr class="bg-gray-50/50">
+                                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Listing Context</th>
+                                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Volume Metrics</th>
+                                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Finances</th>
+                                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Cycle Info</th>
+                                    <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Market State</th>
+                                    <th class="px-8 py-5 text-right text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                @forelse($products as $product)
+                                    <tr class="hover:bg-white/60 transition-all group">
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-12 h-12 bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center text-gray-300 font-black overflow-hidden bg-cover bg-center transition-all group-hover:scale-105"
+                                                     style="background-image: url('{{ $product->image ? asset('storage/' . $product->image) : '' }}')">
+                                                    @if(!$product->image) <i class="fas fa-image text-gray-200"></i> @endif
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-black text-gray-800">
+                                                        @php
+                                                            $eggTypes = [
+                                                                'chicken' => 'Chicken',
+                                                                'duck' => 'Duck',
+                                                                'quail' => 'Quail',
+                                                                'native_chicken' => 'Native Chicken',
+                                                                'brown' => 'Brown Egg',
+                                                                'white' => 'White Egg',
+                                                            ];
+                                                        @endphp
+                                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                    </div>
+                                                    <div class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase tracking-tighter">{{ $product->product_name }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="text-sm font-black text-gray-800">{{ $product->quantity }} <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $product->unit }}</span></div>
+                                            <div class="text-[10px] font-medium text-gray-400 mt-1.5 uppercase tracking-widest">Available Supply</div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="text-sm font-black text-indigo-700">₱{{ number_format($product->price, 2) }} <span class="text-[9px] text-gray-400 font-medium">/{{ $product->unit }}</span></div>
+                                            <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase tracking-tighter">Valuation: ₱{{ number_format($product->quantity * $product->price, 2) }}</div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <div class="text-sm font-bold text-gray-700 leading-none">{{ \Carbon\Carbon::parse($product->harvest_date)->format('M d, Y') }}</div>
+                                            <div class="text-[10px] font-medium text-gray-400 mt-1.5 uppercase tracking-widest">Harvest Date</div>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap">
+                                            <span class="px-3 py-1 text-[10px] font-black uppercase tracking-tight rounded-full border shadow-sm
+                                                @if($product->status == 'Available') bg-emerald-50 text-emerald-700 border-emerald-100
+                                                @elseif($product->status == 'Sold Out') bg-red-50 text-red-700 border-red-100
+                                                @else bg-amber-50 text-amber-700 border-amber-100 @endif">
+                                                <i class="fas fa-circle text-[6px] mr-1.5 align-middle"></i> {{ $product->status }}
+                                            </span>
+                                        </td>
+                                        <td class="px-8 py-6 whitespace-nowrap text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <a href="{{ route('farmer.products.show', $product) }}" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-blue-100 shadow-sm" title="View Listing">
+                                                    <i class="fas fa-eye text-xs"></i>
                                                 </a>
-                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    role="menuitem"
-                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Pending');">
-                                                    <i class="fas fa-clock mr-2 text-yellow-500"></i> Mark as Pending
+                                                <a href="{{ route('farmer.products.edit', $product) }}" class="w-9 h-9 rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-orange-100 shadow-sm" title="Edit Inventory">
+                                                    <i class="fas fa-edit text-xs"></i>
                                                 </a>
-                                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                    role="menuitem"
-                                                    onclick="event.preventDefault(); changeProductStatus({{ $product->id }}, 'Sold Out');">
-                                                    <i class="fas fa-times-circle mr-2 text-red-500"></i> Mark as Sold Out
+                                                
+                                                <div class="relative">
+                                                    <button type="button" onclick="toggleDropdownById('dropdown-menu-{{ $product->id }}')" 
+                                                            class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-all duration-300 flex items-center justify-center border border-gray-200 shadow-sm">
+                                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                                    </button>
+                                                    <div id="dropdown-menu-{{ $product->id }}" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 text-left">
+                                                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center">Lifecycle Actions</p>
+                                                        </div>
+                                                        <a href="{{ route('farmer.products.orders', $product) }}" class="flex items-center gap-2 px-4 py-3 text-xs font-bold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 border-b border-gray-50">
+                                                            <i class="fas fa-users text-emerald-500"></i> Active Orders
+                                                        </a>
+                                                        <form action="{{ route('farmer.products.destroy', $product) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="w-full text-left flex items-center gap-2 px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-50 border-b border-gray-50">
+                                                                <i class="fas fa-trash"></i> Purge Record
+                                                            </button>
+                                                        </form>
+                                                        <div class="bg-gray-50/50 px-4 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest">State Switching</div>
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Available')" class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700">
+                                                            <i class="fas fa-check-circle text-emerald-500"></i> Mark Available
+                                                        </button>
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Pending')" class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-700">
+                                                            <i class="fas fa-clock text-amber-500"></i> Mark Pending
+                                                        </button>
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Sold Out')" class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-red-50 hover:text-red-700">
+                                                            <i class="fas fa-times-circle text-red-500"></i> Mark Sold Out
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="6" class="px-8 py-20 text-center">
+                                            <div class="flex flex-col items-center">
+                                                <div class="w-20 h-20 bg-gray-50 rounded-[2rem] flex items-center justify-center text-gray-200 mb-4 border-2 border-dashed border-gray-100">
+                                                    <i class="fas fa-box-open text-3xl"></i>
+                                                </div>
+                                                <h4 class="text-lg font-black text-gray-300 uppercase tracking-widest">Inventory Empty</h4>
+                                                <p class="text-xs text-gray-400 mt-2 font-medium">You haven't listed any agricultural products yet.</p>
+                                                <a href="{{ route('farmer.products.create') }}" class="mt-6 px-6 py-2.5 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20">
+                                                    Seed First Listing
                                                 </a>
                                             </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
-                                <div class="flex flex-col items-center justify-center py-12">
-                                    <i class="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
-                                    <h3 class="text-lg font-medium text-gray-900 mb-1">No products found</h3>
-                                    <p class="text-gray-500 mb-4">Get started by adding your first product.</p>
-                                    <a href="{{ route('farmer.products.create') }}"
-                                        class="inline-flex items-center gap-2 rounded-lg bg-green-600 text-white px-4 py-2 text-sm font-semibold shadow hover:bg-green-500 transition">
-                                        <i class="fas fa-plus"></i>
-                                        Add New Product
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            class="px-4 lg:px-6 py-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 rounded-b-xl">
-            <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">
-                @if ($products->total() > 0)
-                    Showing <span class="text-gray-900">{{ $products->firstItem() }}</span> to <span
-                        class="text-gray-900">{{ $products->lastItem() }}</span> of <span
-                        class="text-gray-900">{{ $products->total() }}</span> Products
-                @else
-                    Showing <span class="text-gray-900">0</span> Products
-                @endif
-            </p>
-            @if ($products->hasPages())
-                <div class="bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
-                    {{ $products->appends(request()->query())->links() }}
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    @if($products->hasPages())
+                        <div class="px-8 py-6 bg-gray-50/50 border-t border-gray-100">
+                            <div class="bg-white p-1 rounded-2xl border border-gray-100 shadow-sm w-fit mx-auto lg:mx-0">
+                                {{ $products->appends(request()->query())->links() }}
+                            </div>
+                        </div>
+                    @endif
                 </div>
-            @endif
-        </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        // Toggle dropdown visibility
-        document.addEventListener('click', function (event) {
-            // Handle dropdown toggles
-            const dropdownButtons = document.querySelectorAll('[id^="product-actions-menu-"]');
-            dropdownButtons.forEach(button => {
-                if (button.contains(event.target)) {
-                    const productId = button.id.replace('product-actions-menu-', '');
-                    const dropdown = document.getElementById('dropdown-menu-' + productId);
-                    dropdown.classList.toggle('hidden');
-                    event.stopPropagation();
-                }
+        function toggleDropdownById(id) {
+            const dropdown = document.getElementById(id);
+            const allDropdowns = document.querySelectorAll('[id^="dropdown-menu-"]');
+            
+            allDropdowns.forEach(d => {
+                if (d.id !== id) d.classList.add('hidden');
             });
+            
+            if (dropdown) {
+                dropdown.classList.toggle('hidden');
+            }
+        }
 
-            // Close all dropdowns when clicking outside
-            const dropdowns = document.querySelectorAll('[id^="dropdown-menu-"]');
-            dropdowns.forEach(dropdown => {
-                if (!dropdown.classList.contains('hidden') && !dropdown.contains(event.target)) {
-                    // Check if click was on a dropdown button
-                    let isClickOnButton = false;
-                    dropdownButtons.forEach(button => {
-                        if (button.contains(event.target)) {
-                            isClickOnButton = true;
-                        }
-                    });
-
-                    if (!isClickOnButton) {
-                        dropdown.classList.add('hidden');
-                    }
-                }
-            });
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('button') && !e.target.closest('form')) {
+                document.querySelectorAll('[id^="dropdown-menu-"]').forEach(d => d.classList.add('hidden'));
+            }
         });
 
         // Change product status

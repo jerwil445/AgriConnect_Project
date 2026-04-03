@@ -151,13 +151,15 @@
                                 </div>
                             @endif
                             <div class="absolute inset-x-0 top-0 flex justify-between items-center p-4">
-                                <span class=" font-bold text-xs uppercase tracking-wide  rounded">
+                                <span class="font-bold text-xs uppercase tracking-wide rounded">
                                     @if ($product->status == 'Available')
-                                        <span class="text-green-100 bg-green-600 px-3 py-1  rounded">Available</span>
-                                    @elseif ($product->status == 'Reserved')
-                                        <span class="text-yellow-100 bg-yellow-600 px-3 py-1  rounded">Reserved</span>
-                                    @elseif ($product->status == 'Sold')
-                                        <span class="text-red-100 bg-red-600 px-3 py-1  rounded">Sold</span>
+                                        <span class="text-green-100 bg-green-600 px-3 py-1 rounded-md shadow-sm">Available</span>
+                                    @elseif ($product->status == 'Pending')
+                                        <span class="text-yellow-100 bg-yellow-600 px-3 py-1 rounded-md shadow-sm">Pending</span>
+                                    @elseif ($product->status == 'Sold Out')
+                                        <span class="text-red-100 bg-red-600 px-3 py-1 rounded-md shadow-sm">Sold Out</span>
+                                    @else
+                                        <span class="text-gray-100 bg-gray-600 px-3 py-1 rounded-md shadow-sm">{{ $product->status }}</span>
                                     @endif
                                 </span>
                                 <a href="{{ route('farmer.products.edit', $product) }}"

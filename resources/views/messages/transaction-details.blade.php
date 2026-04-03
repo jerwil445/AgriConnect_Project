@@ -48,7 +48,7 @@
                 ->where('buyer_id', $transaction->buyer_id)
                 ->where('id', '!=', $transaction->id)
                 ->whereNotIn('status', $orderStatuses)
-                ->whereHas('product', function($query) use ($searchTerm) {
+                ->whereHas('product', function ($query) use ($searchTerm) {
                     $query->where('product_name', 'LIKE', '%' . $searchTerm . '%');
                 })
                 ->with(['product'])
@@ -72,15 +72,17 @@
                     $otherTransactions->push($pseudoTransaction);
                 }
             }
+            $otherItems = $otherTransactions;
         } else {
-            $otherTransactions = \App\Models\Transaction::where('buyer_id', $transaction->buyer_id)
-                ->where('farmer_id', $transaction->farmer_id)
-                ->where('id', '!=', $transaction->id)
-                ->whereNotIn('status', $orderStatuses)
-                ->whereHas('product', function($query) use ($searchTerm) {
-                    $query->where('product_name', 'LIKE', '%' . $searchTerm . '%');
+            // Farmer view: Show other demands of the buyer that match farmer's products
+            $otherItems = \App\Models\DemandMatch::whereHas('product', function ($query) use ($transaction) {
+                    $query->where('farmer_id', $transaction->farmer_id);
                 })
-                ->with(['product'])
+                ->whereHas('demand', function ($query) use ($transaction) {
+                    $query->where('buyer_id', $transaction->buyer_id);
+                })
+                ->where('demand_id', '!=', $transaction->demand_id)
+                ->with(['product', 'demand'])
                 ->get();
         }
     @endphp
@@ -99,10 +101,10 @@
         <div id="orderModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             {{-- Backdrop --}}
             <div id="orderModalBackdrop" class="absolute inset-0 bg-gray-900/40 backdrop-blur-sm transition-opacity"></div>
-            
+
             {{-- Modal Panel --}}
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh] animate-modal-in z-10">
-                
+
                 {{-- Header --}}
                 <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center relative overflow-hidden">
                     <div class="absolute left-0 top-0 w-2 h-full bg-green-500"></div>
@@ -128,10 +130,10 @@
                 {{-- Form Content --}}
                 <form id="orderForm" action="{{ route('transactions.order', $transaction->id) }}" method="POST" class="flex flex-col flex-1 overflow-hidden">
                     @csrf
-                    
+
                     <div class="flex-1 overflow-y-auto px-6 py-5">
                         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                            
+
                             {{-- Left Column: User Details --}}
                             <div class="lg:col-span-7 space-y-5">
                                 <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide border-b border-gray-100 pb-2 mb-4 flex items-center gap-2">
@@ -140,7 +142,7 @@
                                     </svg>
                                     Delivery Details
                                 </h4>
-                                
+
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_name">Full Name</label>
@@ -163,7 +165,7 @@
                                                 id="buyer_phone" name="buyer_phone" type="text" required placeholder="e.g. 09123456789">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="sm:col-span-2">
                                         <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="buyer_email">Email Address</label>
                                         <div class="relative">
@@ -181,14 +183,14 @@
                                             id="buyer_address" name="buyer_address" rows="3" required placeholder="Street, Barangay, Municipality, Province..."></textarea>
                                     </div>
                                 </div>
-                                
+
                                 <h4 class="text-sm font-bold text-gray-900 uppercase tracking-wide border-b border-gray-100 pb-2 mt-6 mb-4 flex items-center gap-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                     </svg>
                                     Payment
                                 </h4>
-                                
+
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-1.5" for="payment_method">Preferred Payment Method</label>
                                     <div class="relative">
@@ -207,7 +209,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {{-- Right Column: Order Summary --}}
                             <div class="lg:col-span-5 flex flex-col h-full relative">
                                 <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl border border-green-200 p-6 shadow-sm flex-1 flex flex-col justify-between relative overflow-hidden">
@@ -215,10 +217,10 @@
                                     <svg class="absolute -right-6 -bottom-6 w-32 h-32 text-green-200/50 transform -rotate-12" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
                                     </svg>
-                                    
+
                                     <div>
                                         <h4 class="text-xs font-bold text-green-600 uppercase tracking-widest mb-4">Order Summary</h4>
-                                        
+
                                         <div class="bg-white rounded-xl p-4 shadow-sm border border-green-100 mb-5">
                                             <div class="flex items-start gap-3">
                                                 <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 text-green-600">
@@ -231,7 +233,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+
                                         <div class="space-y-4 mb-4">
                                             <div>
                                                 <label class="block text-sm font-semibold text-gray-800 mb-1.5" for="order_quantity_simple">Quantity ({{ $transaction->product->unit }})</label>
@@ -247,19 +249,19 @@
                                                         required>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="flex justify-between items-center text-sm">
                                                 <span class="text-gray-600 font-medium">Unit Price</span>
                                                 <span class="font-bold text-gray-900" id="price_per_unit_value">₱{{ number_format($transaction->product->price, 2) }}</span>
                                             </div>
-                                            
+
                                             <div class="flex justify-between items-center text-sm border-t border-green-200/60 pt-3">
                                                 <span class="text-gray-600 font-medium">Delivery</span>
                                                 <span class="text-gray-500 italic text-xs">Calculated Later</span>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mt-4 pt-4 border-t-2 border-green-200 relative z-10">
                                         <div class="flex justify-between items-end">
                                             <span class="text-sm font-bold text-gray-700 uppercase">Estimated Total</span>
@@ -270,7 +272,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     {{-- Footer Actions --}}
                     <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
                         <button type="button" id="cancelOrder" class="w-full sm:w-auto px-6 py-2.5 text-sm font-bold text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
@@ -288,45 +290,66 @@
         </div>
     @endif
 
-    @if($otherTransactions->count() > 0)
+    @if($otherItems->count() > 0)
         <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-            <h3 class="font-bold text-gray-900 mb-3">Other Product Matches</h3>
+            <h3 class="font-bold text-gray-900 mb-3">
+                {{ Auth::id() == $transaction->buyer_id ? 'Other Product Matches' : 'Demand of Buyer Product Matches' }}
+            </h3>
             <div class="space-y-3">
-                @foreach($otherTransactions as $otherTransaction)
+                @foreach($otherItems as $item)
+                    @php
+                        $isProductMatch = $item instanceof \App\Models\DemandMatch;
+                    @endphp
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-100">
                         <div>
-                            <h4 class="font-medium text-gray-900">{{ $otherTransaction->product->product_name }}</h4>
-                            <p class="text-sm text-gray-600">{{ $otherTransaction->product->variety_size ?: 'No variety/size' }}</p>
-                            <p class="text-sm text-gray-600">{{ $otherTransaction->final_quantity }} {{ $otherTransaction->product->unit }} @ ₱{{ number_format($otherTransaction->final_price, 2) }}/{{ $otherTransaction->product->unit }}</p>
+                            @if($isProductMatch)
+                                <h4 class="font-medium text-gray-900">{{ $item->demand->product_name }}</h4>
+                                <p class="text-sm text-gray-600">Matched with your: {{ $item->product->product_name }}</p>
+                                <p class="text-sm text-gray-600">{{ $item->demand->quantity }} {{ $item->demand->unit }} {{ $item->demand->variety_size ? '(' . $item->demand->variety_size . ')' : '' }}</p>
+                            @else
+                                <h4 class="font-medium text-gray-900">{{ $item->product->product_name }}</h4>
+                                <p class="text-sm text-gray-600">{{ $item->product->variety_size ?: 'No variety/size' }}</p>
+                                <p class="text-sm text-gray-600">{{ $item->final_quantity }} {{ $item->product->unit }} @ ₱{{ number_format($item->final_price, 2) }}/{{ $item->product->unit }}</p>
+                            @endif
                         </div>
                         <div class="text-right">
-                            <p class="font-bold text-green-600">₱{{ number_format($otherTransaction->total_amount, 2) }}</p>
-                            @if(isset($otherTransaction->id) && str_starts_with((string) $otherTransaction->id, 'product_'))
-                                <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors"
-                                    onclick="showInterestModal('{{ $otherTransaction->product->id }}')">
-                                    Show Interest
-                                </button> 
+                            @if($isProductMatch)
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                    {{ $item->status ?: 'Matched' }}
+                                </span>
+                                <a href="{{ route('farmer.product.matches', $item->product_id) }}" 
+                                   class="block mt-2 text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                                    View Match Details
+                                </a>
                             @else
-                                <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors view-details-btn"
-                                    data-transaction-id="{{ $otherTransaction->id }}"
-                                    data-product-name="{{ $otherTransaction->product->product_name }}"
-                                    data-variety="{{ $otherTransaction->product->variety_size ?: 'N/A' }}"
-                                    data-quantity="{{ $otherTransaction->final_quantity }}"
-                                    data-unit="{{ $otherTransaction->product->unit }}"
-                                    data-price="{{ number_format($otherTransaction->final_price, 2) }}"
-                                    data-total="{{ number_format($otherTransaction->total_amount, 2) }}"
-                                    data-status="{{ $otherTransaction->product->status ?? 'Available' }}"
-                                    data-harvest="{{ $otherTransaction->product->harvest_date ? $otherTransaction->product->harvest_date->format('M d, Y') : 'N/A' }}"
-                                    data-location="{{ implode(', ', array_filter([$otherTransaction->product->barangay, $otherTransaction->product->municipality_city])) ?: 'Location not specified' }}"
-                                    data-image="{{ $otherTransaction->product->image ? asset('storage/'.$otherTransaction->product->image) : '' }}"
-                                    data-farmer="{{ $transaction->farmer->first_name }} {{ $transaction->farmer->last_name }}"
-                                    data-farmer-email="{{ $transaction->farmer->email }}"
-                                    data-farmer-phone="{{ $transaction->farmer->user->phone_number ?? 'N/A' }}"
-                                    data-farm-name="{{ $transaction->farmer->farm_name ?? '' }}"
-                                    data-farm-address="{{ $transaction->farmer->farm_address ?? 'N/A' }}"
-                                    onclick="openProductDetailsModal(this)">
-                                    View Details
-                                </button>
+                                <p class="font-bold text-green-600">₱{{ number_format($item->total_amount, 2) }}</p>
+                                @if(isset($item->id) && str_starts_with((string) $item->id, 'product_'))
+                                    <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors"
+                                        onclick="showInterestModal('{{ $item->product->id }}')">
+                                        Show Interest
+                                    </button> 
+                                @else
+                                    <button class="mt-1 text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-2 py-1 rounded transition-colors view-details-btn"
+                                        data-transaction-id="{{ $item->id }}"
+                                        data-product-name="{{ $item->product->product_name }}"
+                                        data-variety="{{ $item->product->variety_size ?: 'N/A' }}"
+                                        data-quantity="{{ $item->final_quantity }}"
+                                        data-unit="{{ $item->product->unit }}"
+                                        data-price="{{ number_format($item->final_price, 2) }}"
+                                        data-total="{{ number_format($item->total_amount, 2) }}"
+                                        data-status="{{ $item->product->status ?? 'Available' }}"
+                                        data-harvest="{{ $item->product->harvest_date ? $item->product->harvest_date->format('M d, Y') : 'N/A' }}"
+                                        data-location="{{ implode(', ', array_filter([$item->product->barangay, $item->product->municipality_city])) ?: 'Location not specified' }}"
+                                        data-image="{{ $item->product->image ? asset('storage/' . $item->product->image) : '' }}"
+                                        data-farmer="{{ $transaction->farmer->first_name }} {{ $transaction->farmer->last_name }}"
+                                        data-farmer-email="{{ $transaction->farmer->email }}"
+                                        data-farmer-phone="{{ $transaction->farmer->user->phone_number ?? 'N/A' }}"
+                                        data-farm-name="{{ $transaction->farmer->farm_name ?? '' }}"
+                                        data-farm-address="{{ $transaction->farmer->farm_address ?? 'N/A' }}"
+                                        onclick="openProductDetailsModal(this)">
+                                        View Details
+                                    </button>
+                                @endif
                             @endif
                         </div>
                     </div>

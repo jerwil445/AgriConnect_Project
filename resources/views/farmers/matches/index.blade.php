@@ -23,7 +23,7 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </div>
-                    <div class="ml-3">
+                    <div class="ml-3 ">
                         <p class="text-sm text-yellow-700">
                             <strong>{{ auth()->user()->unreadNotifications->count() }}</strong> new notification(s)
                             <a href="{{ route('farmer.notifications') }}" class="font-medium underline">View all
@@ -47,35 +47,44 @@
                     <div class="flex flex-wrap items-end gap-2 lg:gap-4">
                         {{-- Search Box --}}
                         <div class="flex-1 min-w-[200px]">
-                            <label for="search" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Search Products or Buyers</label>
+                            <label for="search"
+                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Search
+                                Products or Buyers</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                                     <i class="fas fa-search"></i>
                                 </span>
-                                <input type="text" name="search" id="search" placeholder="Search by name, variety, or buyer..."
-                                    value="{{ request('search') }}"
+                                <input type="text" name="search" id="search"
+                                    placeholder="Search by name, variety, or buyer..." value="{{ request('search') }}"
                                     class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
                             </div>
                         </div>
 
                         {{-- Status Filter --}}
                         <div class="w-40">
-                            <label for="status" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Product Status</label>
+                            <label for="status"
+                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Product
+                                Status</label>
                             <select name="status" id="status"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
                                 <option value="">All Status</option>
-                                <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available</option>
-                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                <option value="Sold Out" {{ request('status') == 'Sold Out' ? 'selected' : '' }}>Sold Out</option>
+                                <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available
+                                </option>
+                                <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending
+                                </option>
+                                <option value="Sold Out" {{ request('status') == 'Sold Out' ? 'selected' : '' }}>Sold Out
+                                </option>
                             </select>
                         </div>
 
                         {{-- Show Entries --}}
                         <div class="w-32">
-                            <label for="per_page" class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Show</label>
+                            <label for="per_page"
+                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Show</label>
                             <select name="per_page" id="per_page" onchange="this.form.submit()"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                <option value="9" {{ request('per_page') == '9' || !request('per_page') ? 'selected' : '' }}>9 per page</option>
+                                <option value="9" {{ request('per_page') == '9' || !request('per_page') ? 'selected' : '' }}>9
+                                    per page</option>
                                 <option value="18" {{ request('per_page') == '18' ? 'selected' : '' }}>18 per page</option>
                                 <option value="27" {{ request('per_page') == '27' ? 'selected' : '' }}>27 per page</option>
                                 <option value="45" {{ request('per_page') == '45' ? 'selected' : '' }}>45 per page</option>
@@ -137,14 +146,20 @@
                                     alt="{{ $product->product_name ?: $product->egg_type ?: 'Product image' }}"
                                     class="h-52 w-full object-cover">
                             @else
-                                <div
-                                    class="h-52 w-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+                                <div class="h-52 w-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
                                     <i class="fas fa-seedling text-green-300 text-5xl"></i>
                                 </div>
                             @endif
                             <div class="absolute inset-x-0 top-0 flex justify-between items-center p-4">
-                                <span class="bg-black/60 text-white text-xs uppercase tracking-wide px-3 py-1 rounded">
-                                    {{ $product->status }}</span>
+                                <span class=" font-bold text-xs uppercase tracking-wide  rounded">
+                                    @if ($product->status == 'Available')
+                                        <span class="text-green-100 bg-green-600 px-3 py-1  rounded">Available</span>
+                                    @elseif ($product->status == 'Reserved')
+                                        <span class="text-yellow-100 bg-yellow-600 px-3 py-1  rounded">Reserved</span>
+                                    @elseif ($product->status == 'Sold')
+                                        <span class="text-red-100 bg-red-600 px-3 py-1  rounded">Sold</span>
+                                    @endif
+                                </span>
                                 <a href="{{ route('farmer.products.edit', $product) }}"
                                     class="rounded-full bg-white/90 px-3 py-2 text-xs font-semibold text-indigo-700 shadow-sm hover:bg-white">
                                     <i class="fas fa-edit mr-1"></i>Edit</a>
@@ -185,9 +200,10 @@
                                 </span>
                             </div>
                             <div class="mt-5">
-                                <div class="text-left pt-2">
+                                <div
+                                    class=" bg-indigo-700 flex justify-center py-2 mb-2 items-center rounded-md hover:bg-indigo-600">
                                     <a href="{{ route('farmer.product.matches', $product) }}"
-                                        class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                        class="text-white  text-sm font-medium">
                                         View All {{ $product->matches->count() }} Matches &rarr;
                                     </a>
                                 </div>
@@ -229,11 +245,11 @@
                                                     {{-- Status Badge --}}
                                                     <span
                                                         class="text-xs px-2 py-1 rounded shrink-0 whitespace-nowrap
-                                                    @if ($match->status == 'Pending') bg-yellow-100 text-yellow-800
-                                                    @elseif($match->status == 'Matched') bg-green-100 text-green-800
-                                                    @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
-                                                    @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
-                                                    @else bg-red-100 text-red-800 @endif">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @if ($match->status == 'Pending') bg-yellow-100 text-yellow-800
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @elseif($match->status == 'Matched') bg-green-100 text-green-800
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @elseif($match->status == 'Transaction Started') bg-indigo-100 text-indigo-800
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @elseif($match->status == 'Ordered') bg-purple-100 text-purple-800
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @else bg-red-100 text-red-800 @endif">
                                                         {{ $match->status }}
                                                     </span>
                                                 </div>
@@ -244,16 +260,14 @@
                                                     @if ($match->demand->variety_size)
                                                         <div>
                                                             <span class="text-gray-500">Variety/Size:</span>
-                                                            <span
-                                                                class="font-medium text-gray-900">{{ $match->demand->variety_size }}</span>
+                                                            <span class="font-medium text-gray-900">{{ $match->demand->variety_size }}</span>
                                                         </div>
                                                     @endif
 
                                                     {{-- Quantity --}}
                                                     <div>
                                                         <span class="text-gray-500">Quantity:</span>
-                                                        <span
-                                                            class="font-medium text-gray-900">{{ $match->demand->quantity }}
+                                                        <span class="font-medium text-gray-900">{{ $match->demand->quantity }}
                                                             {{ $match->demand->unit }}</span>
                                                     </div>
                                                 </div>

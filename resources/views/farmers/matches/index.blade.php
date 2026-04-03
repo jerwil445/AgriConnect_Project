@@ -4,7 +4,18 @@
     <div class="ml-64">
         <div
             class="flex flex-col sm:flex-row mt-4 sm:mt-5 justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b-2 border-green-200">
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Product Matches</h1>
+            <div class="flex items-center gap-4">
+                <span class="  ">
+                    <svg class="w-16 h-16 p-2 text-gray-800 dark:text-white bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg shadow-lg shadow-emerald-600/20 text-2xl" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M16 19h4a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-2m-2.236-4a3 3 0 1 0 0-4M3 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                    </svg> 
+                </span>
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800">Product Matches</h1>
+                    <p class="text-gray-500 font-medium mt-1">Enhance your farm's identity to attract more high-volume matches.
+                    </p>
+                </div>
+            </div>
             <a href="{{ route('farmer.dashboard') }}"
                 class="inline-flex items-center gap-2 text-sm font-medium text-green-800 border border-green-300 px-4 py-2 rounded-full hover:bg-green-200 transition-colors duration-200 whitespace-nowrap">
                 &larr; Back to Dashboard

@@ -43,9 +43,10 @@
                     <img class="h-9 w-9 rounded-full object-cover border border-white/20 shadow-sm"
                         src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&background=dcfce7&color=14532d' }}"
                         alt="User profile">
-                    <span class="text-white hidden md:block font-medium">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-200" id="user-menu-arrow" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                    <span class="text-white hidden md:block font-medium">{{ Auth::user()->first_name }}
+                        {{ Auth::user()->last_name }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-200"
+                        id="user-menu-arrow" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
@@ -56,7 +57,8 @@
                     <div class="px-4 py-2 border-b border-gray-50 mb-1">
                         <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Management</p>
                     </div>
-                    <a href="{{ route('admin.profile') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors">
+                    <a href="{{ route('admin.profile') }}"
+                        class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors">
                         <i class="fas fa-user-circle opacity-50"></i> Profile
                     </a>
                     <a href="{{ route('admin.settings') }}"
@@ -67,8 +69,8 @@
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
                             @csrf
                         </form>
-                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
-                           class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                            class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
                             <i class="fas fa-sign-out-alt opacity-50"></i> Sign out
                         </a>
                     </div>
@@ -87,7 +89,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9.83892 12.4543s1.24988-3.08822-.21626-5.29004C8.15656 4.96245 4.58671 4.10885 4.39794 4.2436c-.18877.13476-1.11807 3.32546.34803 5.52727 1.4661 2.20183 5.09295 2.68343 5.09295 2.68343Zm0 0C10.3389 13.4543 12 15 12 18v2c0-2-.4304-3.4188 2.0696-5.9188m0 0s-.4894-2.7888 1.1206-4.35788c1.6101-1.56907 4.4903-1.54682 4.6701-1.28428.1798.26254.4317 2.84376-1.0809 4.31786-1.61 1.5691-4.7098 1.3243-4.7098 1.3243Z" />
                 </svg>
-                <span>AgriConnect</span>
+                <span
+                    class="text-2xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-green-800 to-emerald-500">AgriConnect</span>
             </h1>
             <button id="close-btn" class="md:hidden text-gray-500">
                 <i class="fa-solid fa-xmark text-xl"></i>
@@ -145,8 +148,7 @@
                 <i class="fa-regular fa-handshake text-base text-gray-800 dark:text-black"></i>
                 Transactions
             </a>
-            <a href="{{ route('admin.settings') }}"
-                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+            <a href="{{ route('admin.settings') }}" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
                 {{ request()->routeIs('admin.settings') ? 'bg-green-100 text-green-600' : '' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -188,7 +190,7 @@
         const userMenuButton = document.getElementById('user-menu-button');
         const userDropdown = document.getElementById('user-dropdown');
         const userMenuArrow = document.getElementById('user-menu-arrow');
-        
+
         userMenuButton.addEventListener('click', (e) => {
             e.stopPropagation();
             userDropdown.classList.toggle('hidden');

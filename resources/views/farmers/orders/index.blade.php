@@ -38,7 +38,7 @@
 
                 <!-- Toolbar / Filters -->
                 <div class="relative z-[60] bg-white/60 backdrop-blur-lg rounded-[2rem] border border-white shadow-sm p-6 mb-8 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <form action="{{ route('farmer.orders') }}" method="GET" class="flex flex-wrap items-center gap-4 w-full">
+                    <form act   ion="{{ route('farmer.orders') }}" method="GET" class="flex flex-wrap items-center gap-4 w-full">
                         <div class="flex items-center gap-3">
                             <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Show</label>
                             <select name="per_page" onchange="this.form.submit()"

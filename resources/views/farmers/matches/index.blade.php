@@ -44,8 +44,8 @@
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 mb-6 overflow-hidden">
             <div class="px-4 lg:px-6 py-4 border-b border-gray-100 bg-gray-50">
                 <form method="GET" action="{{ route('farmer.matches') }}" class="space-y-4">
-                    <div class="flex flex-wrap items-end gap-2 lg:gap-4">
-                        {{-- Search Box --}}
+                    <div class="flex flex-wrap items-center justify-center gap-2 lg:gap-4">
+                        <!-- {{-- Search Box --}}
                         <div class="flex-1 min-w-[200px]">
                             <label for="search"
                                 class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Search
@@ -58,15 +58,15 @@
                                     placeholder="Search by name, variety, or buyer..." value="{{ request('search') }}"
                                     class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
                             </div>
-                        </div>
+                        </div> -->
 
                         {{-- Status Filter --}}
-                        <div class="w-40">
+                        <div class=" flex justify-center items-center w-40 gap-3">
                             <label for="status"
-                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Product
+                                class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Product
                                 Status</label>
                             <select name="status" id="status"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                                class="bg-white border border-gray-200 rounded-xl px-4 py-2 w-72 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-emerald-400 focus:outline-none transition-all shadow-sm">
                                 <option value="">All Status</option>
                                 <option value="Available" {{ request('status') == 'Available' ? 'selected' : '' }}>Available
                                 </option>
@@ -78,23 +78,38 @@
                         </div>
 
                         {{-- Show Entries --}}
-                        <div class="w-32">
+                        <div class=" flex  justify-center items-center gap-3">
                             <label for="per_page"
-                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Show</label>
+                                class="text-[10px]  font-black text-gray-400 uppercase tracking-widest">Show</label>
                             <select name="per_page" id="per_page" onchange="this.form.submit()"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                                <option value="9" {{ request('per_page') == '9' || !request('per_page') ? 'selected' : '' }}>9
-                                    per page</option>
-                                <option value="18" {{ request('per_page') == '18' ? 'selected' : '' }}>18 per page</option>
-                                <option value="27" {{ request('per_page') == '27' ? 'selected' : '' }}>27 per page</option>
-                                <option value="45" {{ request('per_page') == '45' ? 'selected' : '' }}>45 per page</option>
+                                class="wbg-white w-14 border border-gray-200 rounded-xl px-4 py-2 text-xs font-bold text-gray-600 focus:ring-2 focus:ring-emerald-400 focus:outline-none transition-all shadow-sm">
+                                <option value="9" {{ request('per_page') == '9' || !request('per_page') ? 'selected' : '' }}>9</option>
+                                <option value="18" {{ request('per_page') == '18' ? 'selected' : '' }}>18</option>
+                                <option value="27" {{ request('per_page') == '27' ? 'selected' : '' }}>27</option>
+                                <option value="45" {{ request('per_page') == '45' ? 'selected' : '' }}>45</option>
                             </select>
+                        </div>
+
+
+                        {{-- Search Box --}}
+                        <div class="relative flex-1 lg:max-w-md group ml-auto">
+                            <!-- <label for="search"
+                                class="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">Search
+                                Products or Buyers</label> -->
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" name="search" id="search"
+                                    placeholder="Search by name, variety, or buyer..." value="{{ request('search') }}"
+                                    class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent transition-all shadow-sm text-sm font-medium">
+                            </div>
                         </div>
 
                         {{-- Action Buttons --}}
                         <div class="flex gap-2">
                             <button type="submit"
-                                class="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 shadow-md shadow-green-200 transition-all duration-200">
+                                class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
                                 <i class="fas fa-filter"></i>
                                 <span class="hidden lg:inline">Filter</span>
                             </button>

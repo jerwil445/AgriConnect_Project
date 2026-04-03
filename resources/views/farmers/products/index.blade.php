@@ -182,10 +182,11 @@
                                                 Harvest Date</div>
                                         </td>
                                         <td class="px-8 py-6 whitespace-nowrap">
-                                            <span class="px-3 py-1 text-[10px] font-black uppercase tracking-tight rounded-full border shadow-sm
-                                                                @if($product->status == 'Available') bg-emerald-50 text-emerald-700 border-emerald-100
-                                                                @elseif($product->status == 'Sold Out') bg-red-50 text-red-700 border-red-100
-                                                                @else bg-amber-50 text-amber-700 border-amber-100 @endif">
+                                            <span
+                                                class="px-3 py-1 text-[10px] font-black uppercase tracking-tight rounded-full border shadow-sm
+                                                                                @if($product->status == 'Available') bg-emerald-50 text-emerald-700 border-emerald-100
+                                                                                @elseif($product->status == 'Sold Out') bg-red-50 text-red-700 border-red-100
+                                                                                @else bg-amber-50 text-amber-700 border-amber-100 @endif">
                                                 <i class="fas fa-circle text-[6px] mr-1.5 align-middle"></i>
                                                 {{ $product->status }}
                                             </span>

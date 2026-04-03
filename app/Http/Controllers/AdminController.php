@@ -845,4 +845,92 @@ class AdminController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
+
+    /**
+     * Display the admin profile.
+     */
+    public function showProfile()
+    {
+        $user = auth()->user();
+
+        // Calculate account completeness based on core identity fields
+        $fields = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'profile_picture'];
+        $filledFields = 0;
+        foreach ($fields as $field) {
+            if (!empty($user->$field)) {
+                $filledFields++;
+            }
+        }
+        $completeness = round(($filledFields / count($fields)) * 100);
+
+        // Representative Ecosystem Metrics for Admin Stat Cards
+        $totalUsers = User::count();
+        $pendingVerifications = User::where('kyc_status', 'pending')
+            ->whereIn('role', ['farmer', 'buyer'])
+            ->count();
+        $activeProducts = Product::where('status', 'Available')->count();
+
+        return view('admin.profile', compact(
+            'user', 
+            'completeness', 
+            'totalUsers', 
+            'pendingVerifications', 
+            'activeProducts'
+        ));
+    }
+
+    /**
+     * Show the form for editing the admin profile.
+     */
+    public function editProfile()
+    {
+        $user = auth()->user();
+        return view('admin.profile-edit', compact('user'));
+    }
+
+    /**
+     * Update the admin profile.
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone_number' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $userData = $request->only(['first_name', 'last_name', 'email', 'phone_number', 'address']);
+
+        if ($request->hasFile('profile_picture')) {
+            if ($user->profile_picture) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+            $userData['profile_picture'] = $request->file('profile_picture')->store('profile_pictures', 'public');
+        }
+
+        if ($request->filled('password')) {
+            $request->validate([
+                'password' => 'required|string|min:8|confirmed',
+            ]);
+            $userData['password'] = bcrypt($request->password);
+        }
+
+        $user->update($userData);
+
+        return redirect()->route('admin.profile')->with('success', 'Profile updated successfully.');
+    }
+
+    /**
+     * Display admin settings.
+     */
+    public function settings()
+    {
+        $user = auth()->user();
+        return view('admin.profile-edit', compact('user'));
+    }
 }

@@ -43,6 +43,12 @@ Route::get('/admin/users/{user}/edit', [AdminController::class, 'edit'])->name('
 Route::put('/admin/users/{user}', [AdminController::class, 'update'])->name('admin.users.update');
 Route::delete('/admin/users/{user}', [AdminController::class, 'destroy'])->name('admin.users.destroy');
 
+// Admin Profile & Settings Routes
+Route::get('/admin/profile', [AdminController::class, 'showProfile'])->name('admin.profile');
+Route::get('/admin/profile/edit', [AdminController::class, 'editProfile'])->name('admin.profile.edit');
+Route::put('/admin/profile/update', [AdminController::class, 'updateProfile'])->name('admin.profile.update');
+Route::get('/admin/settings', [AdminController::class, 'settings'])->name('admin.settings');
+
 // Admin Product Routes
 Route::get('/admin/products', [AdminController::class, 'products'])->name('admin.products.index');
 Route::get('/admin/products/{product}', [AdminController::class, 'viewProduct'])->name('admin.products.view');
@@ -75,21 +81,21 @@ Route::get('/admin/transactions/{transaction}', [AdminController::class, 'viewTr
 Route::middleware('auth')->group(function () {
     Route::get('/farmer', [FarmerController::class, 'dashboard'])->name('farmer.dashboard');
     Route::get('/farmer/analytics', [FarmerController::class, 'analytics'])->name('farmer.analytics');
-    
+
     Route::get('/farmer/profile', [FarmerController::class, 'showProfile'])->name('farmer.profile');
     Route::get('/farmer/profile/edit', [FarmerController::class, 'editProfile'])->name('farmer.profile.edit');
     Route::put('/farmer/profile', [FarmerController::class, 'updateProfile'])->name('farmer.profile.update');
-    
+
     Route::get('/farmer/notifications', [FarmerController::class, 'notifications'])->name('farmer.notifications');
     Route::post('/farmer/notifications/{id}/read', [FarmerController::class, 'markNotificationAsRead'])->name('farmer.notifications.read');
-    
+
     Route::resource('/farmer/products', ProductController::class)->names('farmer.products');
     Route::get('/farmer/products/{product}/orders', [ProductController::class, 'orders'])->name('farmer.products.orders');
     Route::put('/farmer/products/{product}/status', [ProductController::class, 'updateStatus'])->name('farmer.products.updateStatus');
-    
+
     // Farmer messages route
     Route::get('/farmer/messages', [DemandMatchingController::class, 'listTransactions'])->name('farmer.messages');
-    
+
     // Order tracking route for farmer
     Route::get('/farmer/orders', [DemandMatchingController::class, 'listOrders'])->name('farmer.orders');
 });
@@ -104,10 +110,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/buyer/products/{product}', [BuyerController::class, 'showProduct'])->name('buyer.products.show');
     Route::get('/buyer/notifications', [BuyerController::class, 'notifications'])->name('buyer.notifications');
     Route::post('/buyer/notifications/{id}/read', [BuyerController::class, 'markNotificationAsRead'])->name('buyer.notifications.read');
-    
+
     // Buyer messages route
     Route::get('/buyer/messages', [DemandMatchingController::class, 'listTransactions'])->name('buyer.messages');
-    
+
     // Order tracking route for buyer
     Route::get('/buyer/orders', [DemandMatchingController::class, 'listOrders'])->name('buyer.orders');
 });
@@ -118,16 +124,16 @@ Route::middleware('auth')->group(function () {
     Route::post('/demands', [DemandMatchingController::class, 'store'])->name('demands.store');
     Route::get('/demands/{demand}', [DemandMatchingController::class, 'show'])->name('demands.show');
     Route::delete('/demands/{demand}', [DemandMatchingController::class, 'destroy'])->name('demands.destroy');
-    
+
     Route::get('/farmer/matches', [DemandMatchingController::class, 'farmerMatches'])->name('farmer.matches');
     Route::get('/farmer/products/{product}/matches', [DemandMatchingController::class, 'farmerProductMatches'])->name('farmer.product.matches');
     Route::post('/buyer/products/{product}/message-farmer', [DemandMatchingController::class, 'messageFarmer'])->name('buyer.message-farmer');
-    
+
     Route::post('/matches/{demandMatch}/accept', [DemandMatchingController::class, 'acceptMatch'])->name('matches.accept');
     Route::post('/matches/{demandMatch}/reject', [DemandMatchingController::class, 'rejectMatch'])->name('matches.reject');
     Route::delete('/matches/{demandMatch}', [DemandMatchingController::class, 'destroyMatch'])->name('matches.destroy');
     Route::post('/matches/{demandMatch}/start-conversation', [DemandMatchingController::class, 'startConversation'])->name('matches.startConversation');
-    
+
     // Transaction and Messaging Routes
     Route::post('/matches/{demandMatch}/start-transaction', [DemandMatchingController::class, 'startTransaction'])->name('matches.startTransaction');
     Route::get('/transactions/{transaction}', [DemandMatchingController::class, 'showTransaction'])->name('transactions.show');
@@ -137,10 +143,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/unread-count-by-conversation', [DemandMatchingController::class, 'getUnreadMessagesCountByConversation'])->name('messages.unreadCountByConversation');
     Route::get('/messages/conversation/{transaction}', [DemandMatchingController::class, 'loadConversation'])->name('messages.loadConversation');
     Route::get('/messages/transaction-details/{transaction}', [DemandMatchingController::class, 'loadTransactionDetails'])->name('messages.loadTransactionDetails');
-    
+
     // Order placement route
     Route::post('/transactions/{transaction}/order', [DemandMatchingController::class, 'placeOrder'])->name('transactions.order');
-    
+
     // Order action routes
     Route::post('/transactions/{transaction}/mark-paid', [DemandMatchingController::class, 'markOrderAsPaid'])->name('transactions.markPaid');
     Route::post('/transactions/{transaction}/mark-delivered', [DemandMatchingController::class, 'markOrderAsDelivered'])->name('transactions.markDelivered');
@@ -149,7 +155,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/transactions/{transaction}/mark-prepared', [DemandMatchingController::class, 'markOrderAsPrepared'])->name('transactions.markPrepared');
     Route::post('/transactions/{transaction}/assign-logistics', [DemandMatchingController::class, 'assignLogistics'])->name('transactions.assignLogistics');
     Route::post('/transactions/{transaction}/mark-delivered-by-buyer', [DemandMatchingController::class, 'markOrderAsDeliveredByBuyer'])->name('transactions.markDeliveredByBuyer');
-    
+
     // List all transactions for a user
     Route::get('/transactions', [DemandMatchingController::class, 'listTransactions'])->name('transactions.index');
 });

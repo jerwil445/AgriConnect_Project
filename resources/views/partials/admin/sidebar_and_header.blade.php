@@ -40,24 +40,38 @@
             <!-- User Dropdown -->
             <div class="relative" id="user-menu">
                 <button class="flex items-center space-x-2 focus:outline-none" id="user-menu-button">
-                    <img class="h-9 w-9 rounded-full object-cover"
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&w=256&h=256&q=80"
+                    <img class="h-9 w-9 rounded-full object-cover border border-white/20 shadow-sm"
+                        src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->first_name . ' ' . Auth::user()->last_name) . '&background=dcfce7&color=14532d' }}"
                         alt="User profile">
-                    <span class="text-white hidden md:block font-medium">John Doe</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"
+                    <span class="text-white hidden md:block font-medium">{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-200" id="user-menu-arrow" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 p-2"
+                <div class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl py-2 z-50 border border-gray-100 transform origin-top-right transition-all duration-200"
                     id="user-dropdown">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-100 rounded-md">Profile</a>
-                    <a href="#"
-                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-100  rounded-md">Settings</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-green-100 rounded-md">Sign
-                        out</a>
+                    <div class="px-4 py-2 border-b border-gray-50 mb-1">
+                        <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Management</p>
+                    </div>
+                    <a href="{{ route('admin.profile') }}" class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-user-circle opacity-50"></i> Profile
+                    </a>
+                    <a href="{{ route('admin.settings') }}"
+                        class="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-green-50 hover:text-green-600 transition-colors">
+                        <i class="fas fa-cog opacity-50"></i> Settings
+                    </a>
+                    <div class="border-t border-gray-50 mt-1 pt-1">
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                            @csrf
+                        </form>
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" 
+                           class="flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                            <i class="fas fa-sign-out-alt opacity-50"></i> Sign out
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -131,8 +145,9 @@
                 <i class="fa-regular fa-handshake text-base text-gray-800 dark:text-black"></i>
                 Transactions
             </a>
-            <a href="#"
-                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-50 hover:text-green-600 font-medium transition-all duration-300">
+            <a href="{{ route('admin.settings') }}"
+                class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.settings') ? 'bg-green-100 text-green-600' : '' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="currentColor" stroke-linecap="square" stroke-linejoin="round" stroke-width="2"
@@ -172,11 +187,22 @@
         // User dropdown toggle
         const userMenuButton = document.getElementById('user-menu-button');
         const userDropdown = document.getElementById('user-dropdown');
+        const userMenuArrow = document.getElementById('user-menu-arrow');
+        
+        userMenuButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+            if (userMenuArrow) {
+                userMenuArrow.classList.toggle('rotate-180');
+            }
+        });
+
         document.addEventListener('click', (e) => {
-            if (userMenuButton.contains(e.target)) {
-                userDropdown.classList.toggle('hidden');
-            } else {
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
                 userDropdown.classList.add('hidden');
+                if (userMenuArrow) {
+                    userMenuArrow.classList.remove('rotate-180');
+                }
             }
         });
     </script>

@@ -44,8 +44,7 @@
                             <div
                                 class="relative rounded-2xl overflow-hidden bg-white shadow-lg border border-green-100 aspect-[4/3] cursor-zoom-in group">
                                 @if ($product->images->count() > 0)
-                                    <img id="mainImage"
-                                        src="{{ asset('storage/' . $product->images->first()->image_path) }}"
+                                    <img id="mainImage" src="{{ asset('storage/' . $product->images->first()->image_path) }}"
                                         alt="{{ $product->product_name }}"
                                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         onclick="openImageModal(this.src)">
@@ -71,16 +70,14 @@
 
                             <!-- Status & hint row -->
                             <div class="mt-4 flex items-center justify-between">
-                                <span
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
-                                @if ($product->status == 'Available') bg-green-100 text-green-700 border border-green-200
-                                @elseif($product->status == 'Sold Out') bg-red-100 text-red-700 border border-red-200
-                                @else bg-amber-100 text-amber-700 border border-amber-200 @endif">
-                                    <span
-                                        class="w-1.5 h-1.5 rounded-full animate-pulse
-                                    @if ($product->status == 'Available') bg-green-500
-                                    @elseif($product->status == 'Sold Out') bg-red-500
-                                    @else bg-amber-500 @endif"></span>
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                                    @if ($product->status == 'Available') bg-green-100 text-green-700 border border-green-200
+                                    @elseif($product->status == 'Sold Out') bg-red-100 text-red-700 border border-red-200
+                                    @else bg-amber-100 text-amber-700 border border-amber-200 @endif">
+                                    <span class="w-1.5 h-1.5 rounded-full animate-pulse
+                                        @if ($product->status == 'Available') bg-green-500
+                                        @elseif($product->status == 'Sold Out') bg-red-500
+                                        @else bg-amber-500 @endif"></span>
                                     {{ $product->status }}
                                 </span>
                                 <span class="text-xs text-gray-400 italic">Click image to zoom</span>
@@ -128,7 +125,7 @@
                                 </div>
                             </div>
                             <div
-                                class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/20">
+                                class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center border border-white/20 hover:rotate-12 transition-transform   ">
                                 <i class="fas fa-tag text-white text-2xl"></i>
                             </div>
                         </div>
@@ -150,7 +147,8 @@
                                 </div>
                                 <div>
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-purple-400">
-                                        {{ $isSize ? 'Size' : 'Variety' }}</p>
+                                        {{ $isSize ? 'Size' : 'Variety' }}
+                                    </p>
                                     <p class="text-sm font-bold text-purple-700 mt-0.5 leading-tight">
                                         {{ $varietySize ? ucfirst($varietySize) : '—' }}
                                     </p>
@@ -194,7 +192,7 @@
                             <div>
                                 <p class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Farm Location</p>
                                 <p class="text-sm font-semibold text-gray-700 mt-0.5">
-                                    {{ collect([$product->purok_street, $product->barangay, $product->municipality_city, $product->province])->filter()->implode(', ') ?:'Location not specified' }}
+                                    {{ collect([$product->purok_street, $product->barangay, $product->municipality_city, $product->province])->filter()->implode(', ') ?: 'Location not specified' }}
                                 </p>
                             </div>
                         </div>
@@ -280,8 +278,7 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3 p-3 bg-purple-50 rounded-xl border border-purple-100">
-                                    <div
-                                        class="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
+                                    <div class="w-8 h-8 bg-purple-100 rounded-xl flex items-center justify-center shrink-0">
                                         <i class="fas fa-home text-purple-600 text-xs"></i>
                                     </div>
                                     <div>

@@ -411,67 +411,95 @@
 
     {{-- ── Buyer Profile Modal ── --}}
     <div id="buyerProfileModal"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden animate-scale-in">
+        class="fixed inset-0 bg-gray-900/40 backdrop-blur-md hidden items-center justify-center z-[100] p-4 transition-all duration-300 opacity-0">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden transform scale-95 transition-all duration-300 relative border border-white/20">
+            
+            {{-- Close Button --}}
+            <button onclick="closeBuyerModal()"
+                class="absolute top-5 right-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-black/10 hover:bg-black/20 text-white backdrop-blur-md transition-all duration-200 group">
+                <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
+            </button>
 
-            <div class="flex justify-between items-center px-6 py-4 bg-green-50 border-b border-green-200">
-                <h2 class="text-lg font-bold text-green-950">Buyer Profile</h2>
-                <button onclick="closeBuyerModal()"
-                    class="text-stone-400 hover:text-stone-700 hover:bg-green-100 p-1.5 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M18 6L6 18M6 6l12 12" />
+            {{-- Profile Cover --}}
+            <div class="h-32 bg-gradient-to-r from-indigo-600 via-blue-600 to-sky-600 relative overflow-hidden text-white">
+                <div class="absolute inset-0 opacity-20">
+                    <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" fill="currentColor">
+                        <path d="M0 100 C 20 0 50 0 100 100 Z" />
                     </svg>
-                </button>
+                </div>
             </div>
 
-            <div class="p-6 space-y-5">
-                <div class="flex items-center gap-4 bg-green-50 border border-green-100 rounded-xl p-4">
-                    <img id="modal-avatar" src="" alt="Avatar"
-                        class="w-14 h-14 rounded-full object-cover border-2 border-green-300">
-                    <div>
-                        <h3 id="modal-buyer-name" class="font-bold text-green-950 text-base"></h3>
-                        <p class="text-xs text-stone-400 mt-0.5">Buyer Account</p>
+            <div class="px-8 pb-10 -mt-12 relative text-left">
+                {{-- Avatar --}}
+                <div class="mb-6 relative inline-block">
+                    <div class="w-24 h-24 rounded-3xl bg-white p-1.5 shadow-2xl relative z-10 overflow-hidden ring-4 ring-white/10">
+                        <img id="modal-avatar" src="https://ui-avatars.com/api/?name=Buyer&background=e0f2fe&color=0369a1&size=128" 
+                            alt="Avatar"
+                            class="w-full h-full rounded-2xl object-cover border border-gray-100 bg-sky-50">
                     </div>
                 </div>
 
-                <div>
-                    <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Personal Information</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1">First Name</label>
-                            <p id="modal-first-name" class="text-sm font-semibold text-green-950"></p>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1">Last Name</label>
-                            <p id="modal-last-name" class="text-sm font-semibold text-green-950"></p>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1">Email</label>
-                            <p id="modal-email" class="text-sm font-semibold text-green-950 break-all"></p>
-                        </div>
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1">Phone</label>
-                            <p id="modal-phone" class="text-sm font-semibold text-green-950"></p>
-                        </div>
+                <div class="mb-8">
+                    <h3 id="modal-buyer-name" class="text-3xl font-black text-gray-900 tracking-tight leading-none mb-2"></h3>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-xs font-black uppercase tracking-widest">
+                            <i class="fas fa-check-circle mr-1 animate-pulse"></i>
+                            Verified Partner
+                        </span>
                     </div>
                 </div>
 
-                <div class="border-t border-green-100"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {{-- Contact Info Card --}}
+                    <div class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                                <i class="fas fa-id-badge text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contact Identity</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Primary Email</label>
+                                <p id="modal-email" class="text-xs font-bold text-gray-900 break-all"></p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Mobile Number</label>
+                                <p id="modal-phone" class="text-xs font-bold text-gray-900"></p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div>
-                    <p class="text-xs font-bold text-stone-400 uppercase tracking-widest mb-3">Business Information</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs text-stone-400 mb-1">Company</label>
-                            <p id="modal-company" class="text-sm font-semibold text-green-950"></p>
+                    {{-- Business Info Card --}}
+                    <div class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-sky-500 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                <i class="fas fa-building text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Business Identity</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Company Name</label>
+                                <p id="modal-company" class="text-xs font-bold text-gray-900"></p>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Business Type</label>
+                                <p id="modal-business-type" class="text-xs font-bold text-gray-900"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Address Card --}}
+                    <div class="col-span-1 md:col-span-2 p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                <i class="fas fa-map-marked-alt text-xs"></i>
+                            </div>
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Operational Location</p>
                         </div>
                         <div>
-                            <label class="block text-xs text-stone-400 mb-1">Business Type</label>
-                            <p id="modal-business-type" class="text-sm font-semibold text-green-950"></p>
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-xs text-stone-400 mb-1">Address</label>
-                            <p id="modal-address" class="text-sm font-semibold text-green-950"></p>
+                            <p id="modal-address" class="text-xs font-bold text-gray-900"></p>
                         </div>
                     </div>
                 </div>
@@ -479,49 +507,47 @@
         </div>
     </div>
 
-    <style>
-        @keyframes scale-in {
-            from {
-                opacity: 0;
-                transform: scale(0.95) translateY(8px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .animate-scale-in {
-            animation: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-    </style>
-
     <script>
         function openBuyerModal(id, firstName, lastName, email, phone, company, businessType, address) {
             const fullName = firstName + ' ' + lastName;
             document.getElementById('modal-buyer-name').textContent = fullName;
-            document.getElementById('modal-first-name').textContent = firstName;
-            document.getElementById('modal-last-name').textContent = lastName;
             document.getElementById('modal-email').textContent = email;
             document.getElementById('modal-phone').textContent = phone;
             document.getElementById('modal-company').textContent = company;
             document.getElementById('modal-business-type').textContent = businessType;
             document.getElementById('modal-address').textContent = address;
             document.getElementById('modal-avatar').src =
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=dcfce7&color=14532d&size=128`;
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=e0f2fe&color=0369a1&size=200&bold=true`;
 
             const modal = document.getElementById('buyerProfileModal');
+            const card = modal.querySelector('div');
+            
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+            
+            // Intersection Delay
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            });
+            
             document.body.style.overflow = 'hidden';
         }
 
         function closeBuyerModal() {
             const modal = document.getElementById('buyerProfileModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            document.body.style.overflow = '';
+            const card = modal.querySelector('div');
+            
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
         }
 
         document.getElementById('buyerProfileModal').addEventListener('click', function(e) {

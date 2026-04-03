@@ -423,159 +423,165 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>        <!-- Farmer Profile Modal -->
+        <div id="farmerProfileModal"
+            class="fixed inset-0 bg-gray-900/40 backdrop-blur-md hidden items-center justify-center z-[100] p-4 transition-all duration-300 opacity-0">
+            <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl overflow-hidden transform scale-95 transition-all duration-300 relative border border-white/20">
+                
+                {{-- Close Button --}}
+                <button id="closeFarmerModalBtn"
+                    class="absolute top-5 right-5 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-black/10 hover:bg-black/20 text-white backdrop-blur-md transition-all duration-200 group">
+                    <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
+                </button>
 
-        <!-- Farmer Profile Modal -->
-        <div id="farmerProfileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
-            style="display: none;">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 w-full max-w-2xl mx-4 relative">
-                <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
-                    <h2 class="text-lg font-semibold text-gray-900">Farmer Profile</h2>
-                    <button id="closeFarmerModalBtn" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12">
-                            </path>
+                {{-- Profile Cover --}}
+                <div class="h-32 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 relative overflow-hidden text-white">
+                    <div class="absolute inset-0 opacity-20">
+                        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" fill="currentColor">
+                            <path d="M0 100 C 20 0 50 0 100 100 Z" />
                         </svg>
-                    </button>
+                    </div>
                 </div>
 
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-1">
-                            <div class="bg-gray-50 rounded-lg p-6 text-center">
-                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                    alt="Profile" class="w-24 h-24 rounded-full mx-auto object-cover">
-                                <h3 id="modal-farmer-name" class="text-lg font-medium text-gray-900 mt-4"></h3>
-                                <p class="text-gray-500 text-sm">Farmer</p>
+                <div class="px-8 pb-10 -mt-12 relative">
+                    {{-- Avatar --}}
+                    <div class="mb-6 relative inline-block">
+                        <div class="w-24 h-24 rounded-3xl bg-white p-1.5 shadow-2xl relative z-10 overflow-hidden ring-4 ring-white/10">
+                            <img id="modal-avatar" src="https://ui-avatars.com/api/?name=Farmer&background=dcfce7&color=14532d&size=200&bold=true" 
+                                alt="Avatar"
+                                class="w-full h-full rounded-2xl object-cover border border-gray-100 bg-emerald-50">
+                        </div>
+                    </div>
+
+                    <div class="mb-8 text-left">
+                        <h3 id="modal-farmer-name" class="text-3xl font-black text-gray-900 tracking-tight leading-none mb-2"></h3>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-widest">
+                                <i class="fas fa-tractor mr-1 animate-bounce"></i>
+                                Verified Producer
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {{-- Personal Info Card --}}
+                        <div class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group text-left">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                    <i class="fas fa-address-card text-xs"></i>
+                                </div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Contact Identity</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Primary Email</label>
+                                    <p id="modal-email" class="text-xs font-bold text-gray-900 break-all"></p>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Mobile Number</label>
+                                    <p id="modal-phone" class="text-xs font-bold text-gray-900"></p>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="md:col-span-2">
-                            <div class="space-y-6">
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                                            <p id="modal-first-name" class="text-gray-900"></p>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                                            <p id="modal-last-name" class="text-gray-900"></p>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                            <p id="modal-email" class="text-gray-900"></p>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone
-                                                Number</label>
-                                            <p id="modal-phone" class="text-gray-900"></p>
-                                        </div>
-                                    </div>
+                        {{-- Farm Info Card --}}
+                        <div class="p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group text-left">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                    <i class="fas fa-seedling text-xs"></i>
                                 </div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Agricultural Data</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Farm Enterprise</label>
+                                    <p id="modal-farm-name" class="text-xs font-bold text-gray-900"></p>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-0.5">Product Category</label>
+                                    <p id="modal-product-type" class="text-xs font-bold text-gray-900"></p>
+                                </div>
+                            </div>
+                        </div>
 
-                                <div>
-                                    <h3 class="text-lg font-medium text-gray-900 mb-4">Farmer Information</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
-                                            <p id="modal-farm-name" class="text-gray-900"></p>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Product
-                                                Type</label>
-                                            <p id="modal-product-type" class="text-gray-900"></p>
-                                        </div>
-                                        <div class="md:col-span-2">
-                                            <label class="block text-sm font-medium text-gray-700 mb-1">Farm
-                                                Address</label>
-                                            <p id="modal-farm-address" class="text-gray-900"></p>
-                                        </div>
-                                    </div>
+                        {{-- Address Card --}}
+                        <div class="col-span-1 md:col-span-2 p-5 rounded-3xl bg-gray-50 border border-gray-100 hover:bg-white hover:shadow-xl hover:shadow-gray-200/40 hover:-translate-y-1 transition-all duration-300 group text-left">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-gray-200 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                                    <i class="fas fa-map-location-dot text-xs"></i>
                                 </div>
+                                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Facility Location</p>
+                            </div>
+                            <div>
+                                <p id="modal-farm-address" class="text-xs font-bold text-gray-900"></p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-
-
 
     <script>
-        // Function to open farmer modal with data
+        // Enhanced Modal Reveal
         function openFarmerModal(firstName, lastName, email, phone, farmName, productType, farmAddress) {
-            document.getElementById('modal-farmer-name').textContent = firstName + ' ' + lastName;
-            document.getElementById('modal-first-name').textContent = firstName;
-            document.getElementById('modal-last-name').textContent = lastName;
+            const fullName = firstName + ' ' + lastName;
+            document.getElementById('modal-farmer-name').textContent = fullName;
             document.getElementById('modal-email').textContent = email;
             document.getElementById('modal-phone').textContent = phone;
             document.getElementById('modal-farm-name').textContent = farmName;
             document.getElementById('modal-product-type').textContent = productType;
             document.getElementById('modal-farm-address').textContent = farmAddress;
+            document.getElementById('modal-avatar').src = 
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=dcfce7&color=14532d&size=200&bold=true`;
 
             const modal = document.getElementById('farmerProfileModal');
-            if (modal) {
-                modal.style.display = 'flex';
-            }
+            const card = modal.querySelector('div');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Interaction Delay
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+            });
+            
+            document.body.style.overflow = 'hidden';
         }
 
-        // Initialize modal functionality after DOM is loaded
+        function closeFarmerModal() {
+            const modal = document.getElementById('farmerProfileModal');
+            const card = modal.querySelector('div');
+            
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Ensure modal is hidden initially
-            var modal = document.getElementById('farmerProfileModal');
+            // Close Button Logic
+            const closeBtn = document.getElementById('closeFarmerModalBtn');
+            if (closeBtn) closeBtn.addEventListener('click', closeFarmerModal);
+
+            // Backdrop click
+            const modal = document.getElementById('farmerProfileModal');
             if (modal) {
-                modal.style.display = 'none';
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) closeFarmerModal();
+                });
             }
 
-            // Add event listeners to all "View Profile" buttons
-            var viewProfileButtons = document.querySelectorAll('.view-profile-btn');
-            viewProfileButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    // Get data from button attributes
-                    var firstName = this.getAttribute('data-first-name');
-                    var lastName = this.getAttribute('data-last-name');
-                    var email = this.getAttribute('data-email');
-                    var phone = this.getAttribute('data-phone');
-                    var farmName = this.getAttribute('data-farm-name');
-                    var productType = this.getAttribute('data-product-type');
-                    var farmAddress = this.getAttribute('data-farm-address');
-
-                    // Use the openFarmerModal function
-                    openFarmerModal(firstName, lastName, email, phone, farmName, productType,
-                        farmAddress);
-                });
+            // ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeFarmerModal();
             });
-
-            // Add event listener to close button
-            var closeBtn = document.getElementById('closeFarmerModalBtn');
-            if (closeBtn && modal) {
-                closeBtn.addEventListener('click', function() {
-                    modal.style.display = 'none';
-                });
-            }
-
-            // Close modal when clicking outside of it
-            if (modal) {
-                modal.addEventListener('click', function(event) {
-                    if (event.target === modal) {
-                        modal.style.display = 'none';
-                    }
-                });
-            }
-
-            // Close modal with Escape key
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape' && modal && modal.style.display === 'flex') {
-                    modal.style.display = 'none';
-                }
-            });
-
-
         });
-    </script>
+    </script>t>
 @endsection

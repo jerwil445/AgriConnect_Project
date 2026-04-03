@@ -203,7 +203,7 @@
                             </div>
                             <div class="mt-5">
                                 <div
-                                    class=" bg-indigo-700 flex justify-center py-2 mb-2 items-center rounded-md hover:bg-indigo-600">
+                                    class="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex justify-center py-2 mb-2 items-center rounded-md">
                                     <a href="{{ route('farmer.product.matches', $product) }}"
                                         class="text-white  text-sm font-medium">
                                         View All {{ $product->matches->count() }} Matches &rarr;

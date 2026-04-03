@@ -1,7 +1,7 @@
 @extends('layouts.farmers_page')
 
 @section('content')
-    <div class="ml-64 mr-5 mt-10 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden">
+    <div class="ml-64 mr-5 mt-5 relative bg-gradient-to-br from-emerald-50/50 via-white to-green-50/50 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden">
         
         <!-- Subtle Background Elements -->
         <div class="absolute top-0 right-0 w-96 h-96 bg-green-200/20 rounded-full blur-3xl -mt-20 -mr-20 pointer-events-none"></div>
@@ -11,7 +11,7 @@
             <div class="max-w-7xl mx-auto">
                 
                 <!-- Header -->
-                <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-10 pb-6 border-b border-gray-100 gap-6">
+                <div class="flex flex-col md:flex-row md:justify-between md:items-end mb-5 pb-6 border-b border-gray-100 gap-6">
                     <div class="flex items-center gap-5">
                         <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-600/20 text-2xl">
                             <i class="fas fa-shopping-cart"></i>

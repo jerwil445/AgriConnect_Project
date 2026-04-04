@@ -142,7 +142,7 @@
                                                 <div class="relative">
                                                     <button type="button" onclick="toggleOrderDropdown({{ $order->id }}, 'farmer')" 
                                                             class="w-9 h-9 rounded-xl bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition-all duration-300 flex items-center justify-center border border-gray-200 shadow-sm">
-                                                        <i class="fas fa-ellipsis-v text-xs"></i>
+                                                        <i class="fas fa-ellipsis-h text-sm group-hover/action:scale-110 transition-transform"></i>
                                                     </button>
                                                     <div id="farmer-order-dropdown-menu-{{ $order->id }}" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 text-left">
                                                         <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">

@@ -77,12 +77,13 @@ class DemandMatchingController extends Controller
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
+                'demand_id' => $demand->id,
                 'message' => 'Demand created successfully and matching process initiated.'
             ]);
         }
 
-        return redirect()->route('demands.index')
-            ->with('success', 'Demand created successfully and matching process initiated.');
+        return redirect()->route('demands.show', $demand)
+            ->with('success', 'Demand created successfully. Here are your matches!');
     }
 
     /**

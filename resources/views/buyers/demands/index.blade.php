@@ -229,7 +229,18 @@
                 </div>
 
                 <!-- Modal Form -->
-                <form action="{{ route('demands.store') }}" method="POST" class="px-8 py-6">
+                <form id="demandForm" action="{{ route('demands.store') }}" method="POST" class="px-8 py-6 relative">
+                    <!-- Loading Overlay -->
+                    <div id="loadingOverlay" class="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-b-3xl hidden">
+                        <div class="relative w-16 h-16 flex items-center justify-center mb-4">
+                            <div class="absolute inset-0 border-4 border-green-100 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-green-500 rounded-full border-t-transparent animate-spin"></div>
+                            <i class="fas fa-search text-green-500 text-lg"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-gray-900 leading-tight">Finding Matches...</h4>
+                        <p class="text-sm text-gray-500 mt-2">Scanning the ecosystem for farmers</p>
+                    </div>
+
                     @csrf
 
                     @if ($errors->any())
@@ -407,9 +418,9 @@
                             class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
                             Cancel
                         </button>
-                        <button type="submit"
+                        <button type="submit" id="submitBtn"
                             class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-md shadow-green-600/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-                            <i class="fas fa-paper-plane text-xs"></i> Post Demand
+                            <i class="fas fa-paper-plane text-xs" id="submitIcon"></i> <span id="submitText">Post Demand</span>
                         </button>
                     </div>
                 </form>
@@ -440,9 +451,24 @@
             document.getElementById('closeModal')?.addEventListener('click', closeModal);
             document.getElementById('cancelModal')?.addEventListener('click', closeModal);
             backdrop?.addEventListener('click', closeModal);
+            
+            // Handle Loading State on Submit
+            const demandForm = document.getElementById('demandForm');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const submitBtn = document.getElementById('submitBtn');
+
+            demandForm?.addEventListener('submit', function(e) {
+                // Ensure form falls back to natural post but shows spinner first
+                loadingOverlay.classList.remove('hidden');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                
+                // Allow the standard form submission to continue
+                // which will then redirect to route('demands.show')
+            });
 
             document.addEventListener('keydown', e => {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+                if (e.key === 'Escape' && !modal.classList.contains('hidden') && loadingOverlay.classList.contains('hidden')) closeModal();
             });
 
             document.querySelectorAll('.delete-demand-form').forEach(form => {

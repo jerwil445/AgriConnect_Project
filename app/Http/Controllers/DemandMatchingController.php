@@ -301,6 +301,74 @@ class DemandMatchingController extends Controller
     }
 
     /**
+     * Run the matching engine to find suitable buyer demands for a newly added product
+     */
+    public function runMatchingEngineForProduct(Product $product)
+    {
+        $productName = $product->product_name;
+
+        if (!$productName || $product->status !== 'Available') {
+            return;
+        }
+
+        $availableQuantity = $product->remainingInventory ? (int)$product->remainingInventory->remaining_quantity : (int)$product->quantity;
+        
+        if ($availableQuantity <= 0) {
+            return;
+        }
+
+        $matchingDemands = Demand::where('product_name', $productName);
+
+        if (!empty($product->variety_size)) {
+            $matchingDemands->where(function($query) use ($product) {
+                $query->whereNull('variety_size')
+                      ->orWhere('variety_size', '')
+                      ->orWhereRaw("? LIKE CONCAT('%', variety_size, '%')", [$product->variety_size]);
+            });
+        }
+
+        if (Schema::hasColumn('demands', 'status')) {
+            $matchingDemands->where('status', 'Available');
+        }
+
+        $matchingDemands->where('quantity', '<=', $availableQuantity);
+
+        $matchingDemands = $matchingDemands->get()->filter(function ($demand) use ($product) {
+            if (empty($demand->province) && empty($demand->municipality_city) && empty($demand->barangay)) {
+                return true;
+            }
+
+            $farmerAddress = $product->farmer ? $product->farmer->farm_address : '';
+            $productProvince = $product->province ?? '';
+            $productCity = $product->municipality_city ?? '';
+            $productBarangay = $product->barangay ?? '';
+
+            $addressStrings = strtolower($farmerAddress . ' ' . $productProvince . ' ' . $productCity . ' ' . $productBarangay);
+
+            if (!empty($demand->province) && str_contains($addressStrings, strtolower($demand->province))) return true;
+            if (!empty($demand->municipality_city) && str_contains($addressStrings, strtolower($demand->municipality_city))) return true;
+            if (!empty($demand->barangay) && str_contains($addressStrings, strtolower($demand->barangay))) return true;
+
+            return false;
+        });
+
+        foreach ($matchingDemands as $demand) {
+            $existingMatch = DemandMatch::where('product_id', $product->id)
+                ->where('demand_id', $demand->id)
+                ->first();
+
+            if (!$existingMatch) {
+                DemandMatch::create([
+                    'product_id' => $product->id,
+                    'demand_id' => $demand->id,
+                    'status' => 'New',
+                    'matched_date' => now(),
+                ]);
+            }
+        }
+    }
+
+    /**
      * Accept a match (by either buyer or farmer)
      */
     public function acceptMatch(DemandMatch $demandMatch)

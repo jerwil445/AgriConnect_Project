@@ -147,6 +147,9 @@ class ProductController extends Controller
         $this->syncImages($request, $product);
         $this->syncRemainingInventory($product);
 
+        // Run matching engine to automatically find buyers with demands matching this new product
+        app(\App\Http\Controllers\DemandMatchingController::class)->runMatchingEngineForProduct($product);
+
         return redirect()->route('farmer.products.index')
             ->with('success', 'Product created successfully.');
     }
@@ -231,6 +234,9 @@ class ProductController extends Controller
         $this->syncImages($request, $product, true);
         $this->syncRemainingInventory($product);
 
+        // Run matching engine in case updating properties makes it match new demands
+        app(\App\Http\Controllers\DemandMatchingController::class)->runMatchingEngineForProduct($product);
+
         return redirect()->route('farmer.products.index')
             ->with('success', 'Product updated successfully.');
     }
@@ -290,6 +296,10 @@ class ProductController extends Controller
         $product->save();
 
         $inventory = $this->syncRemainingInventory($product);
+
+        if ($product->status === 'Available') {
+            app(\App\Http\Controllers\DemandMatchingController::class)->runMatchingEngineForProduct($product);
+        }
 
         return response()->json([
             'success' => true,

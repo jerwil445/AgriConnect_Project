@@ -306,6 +306,7 @@
                                 <h4 class="font-medium text-gray-900">{{ $item->demand->product_name }}</h4>
                                 <p class="text-sm text-gray-600">Matched with your: {{ $item->product->product_name }}</p>
                                 <p class="text-sm text-gray-600">{{ $item->demand->quantity }} {{ $item->demand->unit }} {{ $item->demand->variety_size ? '(' . $item->demand->variety_size . ')' : '' }}</p>
+                                 
                             @else
                                 <h4 class="font-medium text-gray-900">{{ $item->product->product_name }}</h4>
                                 <p class="text-sm text-gray-600">{{ $item->product->variety_size ?: 'No variety/size' }}</p>
@@ -338,7 +339,7 @@
                                         data-price="{{ number_format($item->final_price, 2) }}"
                                         data-total="{{ number_format($item->total_amount, 2) }}"
                                         data-status="{{ $item->product->status ?? 'Available' }}"
-                                        data-harvest="{{ $item->product->harvest_date ? $item->product->harvest_date->format('M d, Y') : 'N/A' }}"
+                                        data-harvest="{{ $item->product->harvest_date ? \Carbon\Carbon::parse($item->product->harvest_date)->format('M d, Y') : 'N/A' }}"
                                         data-location="{{ implode(', ', array_filter([$item->product->barangay, $item->product->municipality_city])) ?: 'Location not specified' }}"
                                         data-image="{{ $item->product->image ? asset('storage/' . $item->product->image) : '' }}"
                                         data-farmer="{{ $transaction->farmer->first_name }} {{ $transaction->farmer->last_name }}"

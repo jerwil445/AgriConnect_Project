@@ -51,10 +51,10 @@
                 <div class="relative mb-6">
                     @php($emailError = $errors->first('email'))
                     <input type="email" id="email" name="email"
-                        class="peer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         placeholder=" " value="{{ old('email') }}" required autocomplete="email" />
                     <label for="email"
-                        class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+                        class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
                         Admin Email
                     </label>
                     @if($emailError)
@@ -66,10 +66,10 @@
                 <div class="relative mb-4">
                     @php($passwordError = $errors->first('password'))
                     <input type="password" id="password" name="password"
-                        class="peer w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         placeholder=" " required autocomplete="current-password" />
                     <label for="password"
-                        class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
+                        class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
                         Password
                     </label>
                     @if($passwordError)
@@ -88,7 +88,7 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 mt-4">
+                    class="w-full rounded-md bg-gradient-to-r from-green-500 to-green-600 px-3 py-3 text-sm font-semibold text-white shadow hover:bg-green-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600 mt-4">
                     Sign into Dashboard
                 </button>
 

@@ -37,23 +37,27 @@ body {
     padding: 0 4px;
 }
 
-.business_type select:focus ~ label,
-.business_type select:valid ~ label {
+.business_type select:focus~label,
+.business_type select:valid~label {
     top: -8px;
     left: 8px;
     font-size: 13px;
-    color: #16a34a; /* green shade */
+    color: #16a34a;
+    /* green shade */
     border-radius: 3px;
 }
 
 .farm-h4 {
     display: flex;
-    justify-content: center; /* centers horizontally */
+    justify-content: center;
+    /* centers horizontally */
     align-items: center;
 }
+
 .buyer-h4 {
     display: none;
-    justify-content: center; /* centers horizontally */
+    justify-content: center;
+    /* centers horizontally */
     align-items: center;
 }
 

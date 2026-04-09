@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Switch between forms
     farmerBtn.addEventListener("click", () => {
-        highlight.style.left = "0";
+        highlight.style.left = "10px";
         farmerBtn.classList.add("text-white");
         buyerBtn.classList.remove("text-white");
         buyerBtn.classList.add("text-gray-700");
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     buyerBtn.addEventListener("click", () => {
-        highlight.style.left = "0%";
+        highlight.style.left = "-10px";
         buyerBtn.classList.add("text-white");
         farmerBtn.classList.remove("text-white");
         farmerBtn.classList.add("text-gray-700");

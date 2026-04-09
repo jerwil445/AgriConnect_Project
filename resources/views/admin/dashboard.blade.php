@@ -233,6 +233,51 @@
                     </div>
                 </div>
 
+                <!-- Performance & Supply/Demand Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
+                    <!-- Top Farmers -->
+                    <div
+                        class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-gray-800 flex items-center">
+                                <span class="w-2 h-6 bg-green-500 rounded-full mr-2"></span>
+                                Top Farmers
+                            </h2>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="topFarmersChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Buyers -->
+                    <div
+                        class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-gray-800 flex items-center">
+                                <span class="w-2 h-6 bg-blue-500 rounded-full mr-2"></span>
+                                Top Buyers
+                            </h2>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="topBuyersChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Supply vs Demand -->
+                    <div
+                        class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-bold text-gray-800 flex items-center">
+                                <span class="w-2 h-6 bg-orange-500 rounded-full mr-2"></span>
+                                Supply vs Demand
+                            </h2>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="supplyDemandChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Actionable Widgets Section -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
                     <!-- Pending KYC Verifications -->
@@ -256,14 +301,15 @@
                                     <div class="flex items-center">
                                         <div
                                             class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-4">
-                                            {{ substr($user->first_name, 0, 1) }}{{ substr($user->last_name, 0, 1) }}
+                                            {{ substr($user->first_name, 0, 1) . substr($user->last_name, 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="font-bold text-gray-800">{{ $user->first_name }}
-                                                {{ $user->last_name }}</p>
+                                            <p class="font-bold text-gray-800">
+                                                {{ $user->first_name }} {{ $user->last_name }}
+                                            </p>
                                             <p class="text-xs text-gray-500 font-medium uppercase tracking-tighter">
-                                                {{ $user->role }} • Joined
-                                                {{ $user->created_at->diffForHumans() }}</p>
+                                                {{ $user->role }} &bull; Joined {{ $user->created_at->diffForHumans() }}
+                                            </p>
                                         </div>
                                     </div>
                                     <a href="{{ route('admin.users.index', ['search' => $user->email]) }}"
@@ -275,8 +321,8 @@
                                 <div class="text-center py-8">
                                     <div
                                         class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 text-green-500 mb-4">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7" />
                                         </svg>
@@ -295,8 +341,7 @@
                                 <span class="w-2 h-6 bg-green-500 rounded-full mr-2"></span>
                                 Ecosystem Activity Feed
                             </h2>
-                            <button
-                                class="text-xs font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider">
+                            <button class="text-xs font-bold text-blue-500 hover:text-blue-600 uppercase tracking-wider">
                                 View Logs
                             </button>
                         </div>
@@ -375,6 +420,22 @@
         const orderStatusData = {
             labels: [@foreach($orderStatusDistribution as $status)'{{ $status->delivery_status }}', @endforeach],
             datasets: [@foreach($orderStatusDistribution as $status){{ $status->count }}, @endforeach]
+        };
+
+        const topFarmersData = {
+            labels: [@foreach($topFarmers as $farmer)'{{ $farmer->farmer_name }}', @endforeach],
+            datasets: [@foreach($topFarmers as $farmer){{ $farmer->total_sales }}, @endforeach]
+        };
+
+        const topBuyersData = {
+            labels: [@foreach($topBuyers as $buyer)'{{ $buyer->buyer_name }}', @endforeach],
+            datasets: [@foreach($topBuyers as $buyer){{ $buyer->total_spent }}, @endforeach]
+        };
+
+        const supplyDemandChartData = {
+            labels: [@foreach($supplyDemandData as $data)'{{ $data['name'] }}', @endforeach],
+            supply: [@foreach($supplyDemandData as $data){{ $data['supply'] }}, @endforeach],
+            demand: [@foreach($supplyDemandData as $data){{ $data['demand'] }}, @endforeach]
         };
 
         // Helper: Create Gradients
@@ -529,6 +590,99 @@
                 plugins: {
                     legend: { display: false },
                     datalabels: { anchor: 'end', align: 'top', color: 'rgba(153, 102, 255, 1)', font: { weight: 'bold' } }
+                },
+                scales: {
+                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // 6. Top Farmers
+        const topFarmersCtx = document.getElementById('topFarmersChart').getContext('2d');
+        const topFarmersGradient = createGradient(topFarmersCtx, 'rgba(34, 197, 94, 0.8)', 'rgba(34, 197, 94, 0.2)');
+        new Chart(topFarmersCtx, {
+            type: 'bar',
+            data: {
+                labels: topFarmersData.labels,
+                datasets: [{
+                    label: 'Sales (₱)',
+                    data: topFarmersData.datasets,
+                    backgroundColor: topFarmersGradient,
+                    borderRadius: 8,
+                    maxBarThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(34, 197, 94, 1)', font: { weight: 'bold' }, formatter: (value) => '₱' + Number(value).toLocaleString() }
+                },
+                scales: {
+                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }
+                }
+            }
+        });
+
+        // 7. Top Buyers
+        const topBuyersCtx = document.getElementById('topBuyersChart').getContext('2d');
+        const topBuyersGradient = createGradient(topBuyersCtx, 'rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.2)');
+        new Chart(topBuyersCtx, {
+            type: 'bar',
+            data: {
+                labels: topBuyersData.labels,
+                datasets: [{
+                    label: 'Spent (₱)',
+                    data: topBuyersData.datasets,
+                    backgroundColor: topBuyersGradient,
+                    borderRadius: 8,
+                    maxBarThickness: 30
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(59, 130, 246, 1)', font: { weight: 'bold' }, formatter: (value) => '₱' + Number(value).toLocaleString() }
+                },
+                scales: {
+                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
+                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }
+                }
+            }
+        });
+
+        // 8. Supply vs Demand
+        const supplyDemandCtx = document.getElementById('supplyDemandChart').getContext('2d');
+        new Chart(supplyDemandCtx, {
+            type: 'bar',
+            data: {
+                labels: supplyDemandChartData.labels,
+                datasets: [
+                    {
+                        label: 'Supply (Qty)',
+                        data: supplyDemandChartData.supply,
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Demand (Qty)',
+                        data: supplyDemandChartData.demand,
+                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                        borderRadius: 4,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' },
+                    datalabels: { display: false }
                 },
                 scales: {
                     y: { grid: { borderDash: [5, 5] }, beginAtZero: true },

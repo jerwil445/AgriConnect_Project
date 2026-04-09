@@ -67,6 +67,40 @@ class AdminController extends Controller
             ->groupBy('delivery_status')
             ->get();
 
+        // Top Performing Farmers
+        $topFarmers = Transaction::join('users', 'transactions.farmer_id', '=', 'users.id')
+            ->selectRaw("CONCAT(users.first_name, ' ', users.last_name) as farmer_name, SUM(transactions.total_amount) as total_sales")
+            ->groupBy('transactions.farmer_id', 'users.id', 'users.first_name', 'users.last_name')
+            ->orderBy('total_sales', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Top Performing Buyers
+        $topBuyers = Transaction::join('users', 'transactions.buyer_id', '=', 'users.id')
+            ->selectRaw("CONCAT(users.first_name, ' ', users.last_name) as buyer_name, SUM(transactions.total_amount) as total_spent")
+            ->groupBy('transactions.buyer_id', 'users.id', 'users.first_name', 'users.last_name')
+            ->orderBy('total_spent', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Supply and Demand per Product
+        $popularProductNames = Product::select('product_name')
+            ->groupBy('product_name')
+            ->orderByRaw('COUNT(*) DESC')
+            ->limit(8)
+            ->pluck('product_name');
+
+        $supplyDemandData = collect();
+        foreach ($popularProductNames as $name) {
+            $supply = Product::where('product_name', $name)->where('status', 'Available')->sum('quantity');
+            $demand = Demand::where('product_name', $name)->sum('quantity');
+            $supplyDemandData->push([
+                'name' => $name,
+                'supply' => (float)$supply,
+                'demand' => (float)$demand
+            ]);
+        }
+
         // Pending KYC Verifications
         $pendingKYCUsers = User::where('kyc_status', 'pending')
             ->whereIn('role', ['farmer', 'buyer'])
@@ -139,7 +173,10 @@ class AdminController extends Controller
             'matchStatusDistribution',
             'orderStatusDistribution',
             'pendingKYCUsers',
-            'recentActivities'
+            'recentActivities',
+            'topFarmers',
+            'topBuyers',
+            'supplyDemandData'
         ));
     }
 
@@ -871,10 +908,10 @@ class AdminController extends Controller
         $activeProducts = Product::where('status', 'Available')->count();
 
         return view('admin.profile', compact(
-            'user', 
-            'completeness', 
-            'totalUsers', 
-            'pendingVerifications', 
+            'user',
+            'completeness',
+            'totalUsers',
+            'pendingVerifications',
             'activeProducts'
         ));
     }

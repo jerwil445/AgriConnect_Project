@@ -122,7 +122,7 @@
                             <select name="status" id="status"
                                 class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
                                 <option value="">All Statuses</option>
-                                @foreach (['Available', 'Sold Out'] as $statusOption)
+                                @foreach (['Available'] as $statusOption)
                                     <option value="{{ $statusOption }}" {{ $statusFilter === $statusOption ? 'selected' : '' }}>
                                         {{ $statusOption }}
                                     </option>

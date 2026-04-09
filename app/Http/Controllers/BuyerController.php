@@ -28,7 +28,7 @@ class BuyerController extends Controller
         $sort = $request->input('sort', 'latest');
         $perPage = (int) $request->input('per_page', 12);
 
-        if (!in_array($statusFilter, ['Available', 'Sold Out'], true)) {
+        if (!in_array($statusFilter, ['Available'], true)) {
             $statusFilter = '';
         }
 
@@ -45,7 +45,7 @@ class BuyerController extends Controller
         }
 
         $productsQuery = Product::with('farmer.user', 'remainingInventory')
-            ->whereIn('status', ['Available', 'Sold Out']);
+            ->where('status', 'Available');
 
         if ($search !== '') {
             $productsQuery->where(function ($query) use ($search) {

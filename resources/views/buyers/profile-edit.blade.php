@@ -200,7 +200,6 @@
             </div>
         </form>
     </div>
-
     @vite('resources/js/buyer/buyer-profile-edit.js')
 
     <style>

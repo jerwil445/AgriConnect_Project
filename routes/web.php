@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/demands', [DemandMatchingController::class, 'index'])->name('demands.index');
     Route::post('/demands', [DemandMatchingController::class, 'store'])->name('demands.store');
     Route::get('/demands/{demand}', [DemandMatchingController::class, 'show'])->name('demands.show');
+    Route::get('/demands/{demand}/data', [DemandMatchingController::class, 'getDemandData'])->name('demands.data');
+    Route::put('/demands/{demand}', [DemandMatchingController::class, 'update'])->name('demands.update');
     Route::delete('/demands/{demand}', [DemandMatchingController::class, 'destroy'])->name('demands.destroy');
 
     Route::get('/farmer/matches', [DemandMatchingController::class, 'farmerMatches'])->name('farmer.matches');

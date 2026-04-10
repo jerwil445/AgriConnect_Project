@@ -107,6 +107,19 @@ class DemandMatchingController extends Controller
     }
 
     /**
+     * Get demand data for modal population.
+     */
+    public function getDemandData(Demand $demand)
+    {
+        // Ensure the demand belongs to the authenticated user
+        if ($demand->buyer_id !== Auth::id()) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($demand);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Demand $demand)
@@ -142,6 +155,58 @@ class DemandMatchingController extends Controller
 
         return redirect()->route('demands.index')
             ->with('success', 'Demand deleted successfully.');
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Demand $demand)
+    {
+        // Check if the user has a buyer profile
+        if (!Auth::user() || !Auth::user()->buyer) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must have a buyer profile to edit demands.'
+                ]);
+            }
+            return redirect()->route('buyer.dashboard')->with('error', 'You must have a buyer profile to edit demands.');
+        }
+
+        // Ensure the demand belongs to the authenticated user
+        if ($demand->buyer_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $validatedData = $request->validate([
+            'product_name' => 'required|string|max:255',
+            'variety_size' => 'nullable|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'unit' => 'nullable|string|max:50',
+            'purok_street' => 'nullable|string|max:255',
+            'barangay' => 'nullable|string|max:255',
+            'municipality_city' => 'nullable|string|max:255',
+            'province' => 'nullable|string|max:255',
+            'delivery_date' => 'required|date|after_or_equal:today',
+            'deadline' => 'nullable|date|after_or_equal:delivery_date',
+        ]);
+
+        $demand->update($validatedData);
+
+        // Re-run matching engine to find new matches for the updated demand
+        $this->runMatchingEngine($demand);
+
+        // Return JSON response for AJAX requests
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'demand_id' => $demand->id,
+                'message' => 'Demand updated successfully and matching process refreshed.'
+            ]);
+        }
+
+        return redirect()->route('demands.show', $demand)
+            ->with('success', 'Demand updated successfully.');
     }
 
     /**

@@ -182,8 +182,12 @@
                                 <div class="mt-auto flex gap-2 pt-2">
                                     <a href="{{ route('demands.show', $demand) }}"
                                         class="flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
-                                        <i class="fas fa-eye text-xs"></i> View Details
+                                        <i class="fas fa-eye text-xs"></i> View
                                     </a>
+                                    <button type="button" data-id="{{ $demand->id }}"
+                                        class="edit-demand-btn flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                                        <i class="fas fa-edit text-xs"></i> Edit
+                                    </button>
                                     <form action="{{ route('demands.destroy', $demand) }}" method="POST"
                                         class="delete-demand-form">
                                         @csrf
@@ -421,6 +425,160 @@
                         <button type="submit" id="submitBtn"
                             class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 shadow-md shadow-green-600/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                             <i class="fas fa-paper-plane text-xs" id="submitIcon"></i> <span id="submitText">Post Demand</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ EDIT DEMAND MODAL ══ -->
+    <div id="editDemandModal" class="fixed inset-0 z-50 hidden">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/60" id="editModalBackdrop"></div>
+
+        <!-- Modal Panel -->
+        <div class="fixed inset-0 flex items-start justify-center p-4 overflow-y-auto">
+            <div class="relative w-full max-w-4xl my-8 bg-white rounded-3xl shadow-2xl border border-gray-100">
+
+                <!-- Modal top accent -->
+                <div class="h-1.5 w-full bg-gradient-to-r from-amber-400 via-orange-500 to-red-400 rounded-t-3xl"></div>
+
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between px-8 pt-6 pb-4 border-b border-gray-100">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-widest text-amber-500 mb-0.5">Modify Request</p>
+                        <h3 class="text-xl font-extrabold text-gray-900">Edit Your Demand</h3>
+                        <p class="text-sm text-gray-400 mt-0.5">Update your product requirements.</p>
+                    </div>
+                    <button id="closeEditModal" type="button"
+                        class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200">
+                        <i class="fas fa-times text-gray-500 text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Form -->
+                <form id="editDemandForm" method="POST" class="px-8 py-6 relative">
+                    @csrf
+                    @method('PUT')
+                    
+                    <!-- Loading Overlay -->
+                    <div id="editLoadingOverlay" class="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-b-3xl hidden">
+                        <div class="relative w-16 h-16 flex items-center justify-center mb-4">
+                            <div class="absolute inset-0 border-4 border-amber-100 rounded-full"></div>
+                            <div class="absolute inset-0 border-4 border-amber-500 rounded-full border-t-transparent animate-spin"></div>
+                            <i class="fas fa-sync text-amber-500 text-lg"></i>
+                        </div>
+                        <h4 class="text-xl font-extrabold text-gray-900 leading-tight">Updating Demand...</h4>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Product Details</p>
+
+                            <div>
+                                <label for="edit_product_name" class="block text-sm font-bold text-gray-700 mb-1.5">
+                                    Product Name <span class="text-red-400">*</span>
+                                </label>
+                                <input type="text" name="product_name" id="edit_product_name"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                                    required>
+                            </div>
+
+                            <div>
+                                <label for="edit_variety_size"
+                                    class="block text-sm font-bold text-gray-700 mb-1.5">Variety / Size</label>
+                                <input type="text" name="variety_size" id="edit_variety_size"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="edit_quantity" class="block text-sm font-bold text-gray-700 mb-1.5">
+                                        Quantity <span class="text-red-400">*</span>
+                                    </label>
+                                    <input type="number" name="quantity" id="edit_quantity" min="1"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                                        required>
+                                </div>
+                                <div>
+                                    <label for="edit_unit"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Unit</label>
+                                    <select name="unit" id="edit_unit"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-white">
+                                        <option value="">Select</option>
+                                        <option value="pieces">Pieces</option>
+                                        <option value="trays">Trays</option>
+                                        <option value="dozen">Dozen</option>
+                                        <option value="kilos">Kilos</option>
+                                        <option value="boxes">Boxes</option>
+                                        <option value="bunches">Bunches</option>
+                                        <option value="sacks">Sacks</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="edit_delivery_date" class="block text-sm font-bold text-gray-700 mb-1.5">
+                                        Delivery Date <span class="text-red-400">*</span>
+                                    </label>
+                                    <input type="date" name="delivery_date" id="edit_delivery_date"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                                        required>
+                                </div>
+                                <div>
+                                    <label for="edit_deadline"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Deadline</label>
+                                    <input type="date" name="deadline" id="edit_deadline"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Delivery Address</p>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label for="edit_purok_street"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Purok / Street</label>
+                                    <input type="text" name="purok_street" id="edit_purok_street"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label for="edit_barangay"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Barangay</label>
+                                    <input type="text" name="barangay" id="edit_barangay"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label for="edit_municipality_city"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Municipality / City</label>
+                                    <input type="text" name="municipality_city" id="edit_municipality_city"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                                </div>
+                                <div>
+                                    <label for="edit_province"
+                                        class="block text-sm font-bold text-gray-700 mb-1.5">Province</label>
+                                    <input type="text" name="province" id="edit_province"
+                                        class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end gap-3 border-t border-gray-100 pt-5 mt-6">
+                        <button id="cancelEditModal" type="button"
+                            class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submitEditBtn"
+                            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 shadow-md shadow-amber-600/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                            <i class="fas fa-save text-xs"></i> Update Demand
                         </button>
                     </div>
                 </form>

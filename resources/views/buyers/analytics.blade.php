@@ -228,108 +228,20 @@
 
 {{-- Chart.js and Initialization --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. Sourcing Trend Chart (Line/Area)
-    const trendCtx = document.getElementById('sourcingTrendChart').getContext('2d');
-    const trendData = {
-        labels: @json($monthlySpending->pluck('month')),
-        datasets: [
-            {
-                label: 'Capital (₱)',
-                data: @json($monthlySpending->pluck('total')),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                borderWidth: 4,
-                tension: 0.4,
-                fill: true,
-                pointRadius: 6,
-                pointBackgroundColor: '#fff',
-                pointBorderWidth: 3,
-                yAxisID: 'y',
+    <script>
+        window.buyerAnalyticsData = {
+            monthlySpending: {
+                labels: @json($monthlySpending->pluck('month')),
+                spending: @json($monthlySpending->pluck('total')),
+                volume: @json($monthlySpending->pluck('volume'))
             },
-            {
-                label: 'Volume (kg)',
-                data: @json($monthlySpending->pluck('volume')),
-                borderColor: '#10b981',
-                borderWidth: 2,
-                borderDash: [5, 5],
-                tension: 0.4,
-                fill: false,
-                pointRadius: 2,
-                yAxisID: 'y1',
+            productStats: {
+                labels: @json($productStats->pluck('product_name')),
+                spent: @json($productStats->pluck('total_spent'))
             }
-        ]
-    };
-
-    new Chart(trendCtx, {
-        type: 'line',
-        data: trendData,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#111827',
-                    padding: 12,
-                    titleFont: { family: 'Inter', weight: 'bold', size: 12 },
-                    bodyFont: { family: 'Inter', size: 12 },
-                    usePointStyle: true,
-                }
-            },
-            scales: {
-                y: {
-                    grid: { display: false },
-                    ticks: { font: { family: 'Inter', weight: 'bold', size: 10 }, color: '#94a3b8' }
-                },
-                y1: {
-                    position: 'right',
-                    grid: { display: false },
-                    ticks: { display: false }
-                },
-                x: {
-                    grid: { display: false },
-                    ticks: { font: { family: 'Inter', weight: 'bold', size: 10 }, color: '#94a3b8' }
-                }
-            }
-        }
-    });
-
-    // 2. Category Allocation Chart (Donut)
-    const splitCtx = document.getElementById('categorySplitChart').getContext('2d');
-    new Chart(splitCtx, {
-        type: 'doughnut',
-        data: {
-            labels: @json($productStats->pluck('product_name')),
-            datasets: [{
-                data: @json($productStats->pluck('total_spent')),
-                backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'],
-                borderWidth: 0,
-                cutout: '80%',
-                hoverOffset: 15
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: '#111827',
-                    padding: 12,
-                    titleFont: { weight: 'bold' },
-                    callbacks: {
-                        label: function(item) {
-                            return ' ₱' + item.raw.toLocaleString();
-                        }
-                    }
-                }
-            }
-        }
-    });
-});
-</script>
+        };
+    </script>
+    @vite('resources/js/buyer/buyer-analytics.js')
 
 <style>
     .animate-fade-in {

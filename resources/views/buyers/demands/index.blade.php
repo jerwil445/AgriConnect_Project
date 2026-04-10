@@ -429,59 +429,8 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const modal = document.getElementById('demandModal');
-            const backdrop = document.getElementById('modalBackdrop');
-            const openBtns = [
-                document.getElementById('openDemandModal'),
-                document.getElementById('openDemandModalEmpty'),
-            ].filter(Boolean);
-
-            function openModal() {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeModal() {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }
-
-            openBtns.forEach(btn => btn.addEventListener('click', openModal));
-            document.getElementById('closeModal')?.addEventListener('click', closeModal);
-            document.getElementById('cancelModal')?.addEventListener('click', closeModal);
-            backdrop?.addEventListener('click', closeModal);
-            
-            // Handle Loading State on Submit
-            const demandForm = document.getElementById('demandForm');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const submitBtn = document.getElementById('submitBtn');
-
-            demandForm?.addEventListener('submit', function(e) {
-                // Ensure form falls back to natural post but shows spinner first
-                loadingOverlay.classList.remove('hidden');
-                submitBtn.disabled = true;
-                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-                
-                // Allow the standard form submission to continue
-                // which will then redirect to route('demands.show')
-            });
-
-            document.addEventListener('keydown', e => {
-                if (e.key === 'Escape' && !modal.classList.contains('hidden') && loadingOverlay.classList.contains('hidden')) closeModal();
-            });
-
-            document.querySelectorAll('.delete-demand-form').forEach(form => {
-                form.addEventListener('submit', e => {
-                    if (!confirm('Are you sure you want to delete this demand?')) e
-                        .preventDefault();
-                });
-            });
-
-            @if ($errors->any())
-                openModal();
-            @endif
-        });
+        window.hasValidationErrors = @json($errors->any());
     </script>
+    @vite('resources/js/buyer/demands/buyer-demands-index.js')
 
 @endsection

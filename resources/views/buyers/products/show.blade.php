@@ -313,33 +313,6 @@
         </div>
     </div>
 
-    <script>
-        function changeMainImage(src, btn) {
-            document.getElementById('mainImage').src = src;
-            document.querySelectorAll('[onclick^="changeMainImage"]').forEach(b => {
-                b.classList.remove('border-green-500');
-                b.classList.add('border-transparent');
-            });
-            if (btn) {
-                btn.classList.add('border-green-500');
-                btn.classList.remove('border-transparent');
-            }
-        }
-
-        function openImageModal(src) {
-            document.getElementById('modalImage').src = src;
-            document.getElementById('imageModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeImageModal();
-        });
-    </script>
+    @vite('resources/js/buyer/products/buyer-products-show.js')
 
 @endsection

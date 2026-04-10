@@ -201,25 +201,7 @@
         </form>
     </div>
 
-    <script>
-        // Modern Profile Preview with Scale Effect
-        document.getElementById('profile_picture').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                const preview = document.getElementById('profile-preview');
-                reader.onload = function (e) {
-                    preview.classList.add('scale-75', 'opacity-0');
-                    setTimeout(() => {
-                        preview.src = e.target.result;
-                        preview.classList.remove('scale-75', 'opacity-0');
-                        preview.classList.add('scale-100', 'opacity-100');
-                    }, 150);
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
+    @vite('resources/js/buyer/buyer-profile-edit.js')
 
     <style>
         .animate-fade-in-down {

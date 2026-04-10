@@ -193,20 +193,26 @@ class DemandMatchingController extends Controller
 
         $demand->update($validatedData);
 
-        // Re-run matching engine to find new matches for the updated demand
-        $this->runMatchingEngine($demand);
+        // Clear stale, un-actioned matches before re-running the engine.
+        // Matches tied to active transactions (Pending, Transaction Started, Ordered, Rejected) are preserved.
+        $demand->matches()
+            ->whereIn('status', ['New', 'Matched'])
+            ->delete();
+
+        // Re-run matching engine on the freshly updated demand
+        $this->runMatchingEngine($demand->fresh());
 
         // Return JSON response for AJAX requests
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'demand_id' => $demand->id,
-                'message' => 'Demand updated successfully and matching process refreshed.'
+                'message' => 'Demand updated successfully and matches have been refreshed.'
             ]);
         }
 
         return redirect()->route('demands.show', $demand)
-            ->with('success', 'Demand updated successfully.');
+            ->with('success', 'Demand updated! Your matches have been refreshed based on the new requirements.');
     }
 
     /**
@@ -286,10 +292,11 @@ class DemandMatchingController extends Controller
             return;
         }
 
-        $matchingProducts = Product::where('product_name', $demandProductName);
+        // Use ILIKE for case-insensitive product name matching
+        $matchingProducts = Product::whereRaw('LOWER(product_name) = LOWER(?)', [$demandProductName]);
 
         if (!empty($demand->variety_size)) {
-            $matchingProducts->where('variety_size', 'LIKE', '%' . $demand->variety_size . '%');
+            $matchingProducts->whereRaw('LOWER(variety_size) LIKE LOWER(?)', ['%' . $demand->variety_size . '%']);
         }
 
         if ($hasDemandStatus) {

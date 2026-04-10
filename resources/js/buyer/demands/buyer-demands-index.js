@@ -58,73 +58,34 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('cancelEditModal')?.addEventListener('click', closeEditModal);
     editBackdrop?.addEventListener('click', closeEditModal);
 
-    // Handle Edit Button Clicks (Using Event Delegation for better reliability)
-    document.addEventListener('click', async function(e) {
+    // Handle Edit Button Clicks (reads data from HTML attributes — instant, no network request)
+    document.addEventListener('click', function(e) {
         const btn = e.target.closest('.edit-demand-btn');
         if (!btn) return;
 
-        console.log('Edit Button Clicked, ID:', btn.dataset.id);
-        const demandId = btn.dataset.id;
-        
-        // Show some temporary loading state
-        const originalContent = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin text-xs"></i>...';
+        const d = btn.dataset;
 
-        try {
-            console.log(`Fetching data for demand ${demandId}...`);
-            const response = await fetch(`/demands/${demandId}/data`);
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            
-            const demand = await response.json();
-            console.log('Demand data received:', demand);
-            
-            // Populate Edit Form
-            if (editForm) editForm.action = `/demands/${demandId}`;
-            
-            const setVal = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.value = val || '';
-            };
+        // Set form action
+        if (editForm) editForm.action = `/demands/${d.id}`;
 
-            setVal('edit_product_name', demand.product_name);
-            setVal('edit_variety_size', demand.variety_size);
-            setVal('edit_quantity', demand.quantity);
-            setVal('edit_unit', demand.unit);
-            
-            // Format dates for input (YYYY-MM-DD)
-            if (demand.delivery_date) {
-                const d = new Date(demand.delivery_date);
-                if (!isNaN(d)) {
-                    // Adjust for local timezone to get correct YYYY-MM-DD
-                    const offset = d.getTimezoneOffset() * 60000;
-                    const localDate = new Date(d.getTime() - offset);
-                    setVal('edit_delivery_date', localDate.toISOString().split('T')[0]);
-                }
-            }
-            
-            if (demand.deadline) {
-                const d = new Date(demand.deadline);
-                if (!isNaN(d)) {
-                    const offset = d.getTimezoneOffset() * 60000;
-                    const localDate = new Date(d.getTime() - offset);
-                    setVal('edit_deadline', localDate.toISOString().split('T')[0]);
-                }
-            }
+        // Populate all fields instantly from data attributes
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val || '';
+        };
 
-            setVal('edit_purok_street', demand.purok_street);
-            setVal('edit_barangay', demand.barangay);
-            setVal('edit_municipality_city', demand.municipality_city);
-            setVal('edit_province', demand.province);
+        setVal('edit_product_name', d.productName);
+        setVal('edit_variety_size', d.varietySize);
+        setVal('edit_quantity', d.quantity);
+        setVal('edit_unit', d.unit);
+        setVal('edit_delivery_date', d.deliveryDate);
+        setVal('edit_deadline', d.deadline);
+        setVal('edit_purok_street', d.purokStreet);
+        setVal('edit_barangay', d.barangay);
+        setVal('edit_municipality_city', d.municipalityCity);
+        setVal('edit_province', d.province);
 
-            openEditModal();
-        } catch (error) {
-            console.error('Error fetching demand:', error);
-            alert('An error occurred while fetching demand data. Please check the console.');
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalContent;
-        }
+        openEditModal();
     });
 
     // Handle Update Submission

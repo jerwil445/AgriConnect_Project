@@ -184,8 +184,19 @@
                                         class="flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
                                         <i class="fas fa-eye text-xs"></i> View
                                     </a>
-                                    <button type="button" data-id="{{ $demand->id }}"
-                                        class="edit-demand-btn flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                                    <button type="button"
+                                        class="edit-demand-btn flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                                        data-id="{{ $demand->id }}"
+                                        data-product-name="{{ $demand->product_name }}"
+                                        data-variety-size="{{ $demand->variety_size }}"
+                                        data-quantity="{{ $demand->quantity }}"
+                                        data-unit="{{ $demand->unit }}"
+                                        data-delivery-date="{{ $demand->delivery_date ? $demand->delivery_date->format('Y-m-d') : '' }}"
+                                        data-deadline="{{ $demand->deadline ? \Carbon\Carbon::parse($demand->deadline)->format('Y-m-d') : '' }}"
+                                        data-purok-street="{{ $demand->purok_street }}"
+                                        data-barangay="{{ $demand->barangay }}"
+                                        data-municipality-city="{{ $demand->municipality_city }}"
+                                        data-province="{{ $demand->province }}">
                                         <i class="fas fa-edit text-xs"></i> Edit
                                     </button>
                                     <form action="{{ route('demands.destroy', $demand) }}" method="POST"

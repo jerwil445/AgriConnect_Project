@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -26,10 +28,18 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user) {
+            return back()->withErrors([
                 'email' => __('auth.failed'),
-            ]);
+            ])->withInput($request->only('email', 'password'));
+        }
+
+        if (!Auth::attempt($credentials)) {
+            return back()->withErrors([
+                'password' => 'The password you entered is incorrect.',
+            ])->withInput($request->only('email', 'password'));
         }
 
         $request->session()->regenerate();

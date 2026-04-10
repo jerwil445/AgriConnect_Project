@@ -27,7 +27,7 @@
                 <div class="relative mb-6">
                     @php($emailError = $errors->first('email'))
                     <input type="email" id="email" name="email"
-                        class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        class="peer w-full px-3 py-3 border {{ $emailError ? 'border-red-500' : 'border-gray-300' }} rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         placeholder=" " value="{{ old('email') }}" required autocomplete="email" />
                     <label for="email"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
@@ -42,8 +42,13 @@
                 <div class="relative mb-4">
                     @php($passwordError = $errors->first('password'))
                     <input type="password" id="password" name="password"
-                        class="peer w-full px-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                        placeholder=" " required autocomplete="current-password" />
+                        class="peer w-full px-3 pr-10 py-3 border {{ $passwordError ? 'border-red-500' : 'border-gray-300' }} rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                        placeholder=" " value="{{ old('password') }}" required autocomplete="current-password" />
+                    <button type="button" 
+                        class="absolute right-3 top-3.5 text-gray-400 hover:text-green-600 focus:outline-none"
+                        onclick="togglePasswordVisibility('password', this)">
+                        <i class="fa-solid fa-eye-slash"></i>
+                    </button>
                     <label for="password"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
                         Password

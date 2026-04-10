@@ -60,4 +60,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 300);
         });
     }
+
+    // Global function to toggle password visibility
+    window.togglePasswordVisibility = function (inputId, iconElement) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = iconElement.querySelector('i');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        }
+    };
 });

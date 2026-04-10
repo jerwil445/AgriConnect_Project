@@ -223,8 +223,13 @@
                             <div class="relative">
                                 @php($passwordError = $errors->first('password'))
                                 <input type="password" id="password" name="password"
-                                    class="peer w-full px-3 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                                    class="peer w-full px-3 pr-10 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                     placeholder=" " required />
+                                <button type="button" 
+                                    class="absolute right-3 top-3 text-gray-400 hover:text-green-600 focus:outline-none"
+                                    onclick="togglePasswordVisibility('password', this)">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </button>
                                 <label for="password"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Password
@@ -238,8 +243,13 @@
                             <div class="relative">
                                 @php($passwordConfirmationError = $errors->first('password_confirmation'))
                                 <input type="password" id="password_confirmation" name="password_confirmation"
-                                    class="peer w-full px-3 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
+                                    class="peer w-full px-3 pr-10 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                     placeholder=" " required />
+                                <button type="button" 
+                                    class="absolute right-3 top-3 text-gray-400 hover:text-green-600 focus:outline-none"
+                                    onclick="togglePasswordVisibility('password_confirmation', this)">
+                                    <i class="fa-solid fa-eye-slash"></i>
+                                </button>
                                 <label for="password_confirmation"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
                                     Confirm Password

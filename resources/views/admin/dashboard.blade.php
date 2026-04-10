@@ -382,313 +382,41 @@
     <!-- Include Chart.js Plugin for Data Labels -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
-        // Register the data labels plugin
-        Chart.register(ChartDataLabels);
-
-        // Global Chart Defaults
-        Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
-        Chart.defaults.color = '#64748b';
-        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-        Chart.defaults.plugins.tooltip.titleColor = '#1e293b';
-        Chart.defaults.plugins.tooltip.bodyColor = '#475569';
-        Chart.defaults.plugins.tooltip.borderColor = '#e2e8f0';
-        Chart.defaults.plugins.tooltip.borderWidth = 1;
-        Chart.defaults.plugins.tooltip.padding = 12;
-        Chart.defaults.plugins.tooltip.cornerRadius = 10;
-
-        // Parse data
-        const salesTrendsData = {
-            labels: [@foreach($salesTrends as $trend)'{{ $trend->date }}', @endforeach],
-            datasets: [@foreach($salesTrends as $trend){{ $trend->total }}, @endforeach]
-        };
-
-        const productPopularityData = {
-            labels: [@foreach($productPopularity as $product)'{{ $product->product_name }}', @endforeach],
-            datasets: [@foreach($productPopularity as $product){{ $product->transaction_count }}, @endforeach]
-        };
-
-        const regionalDemandData = {
-            labels: [@foreach($regionalDemand as $demand)'{{ $demand->province }}', @endforeach],
-            datasets: [@foreach($regionalDemand as $demand){{ $demand->demand_count }}, @endforeach]
-        };
-
-        const matchStatusData = {
-            labels: [@foreach($matchStatusDistribution as $status)'{{ $status->status }}', @endforeach],
-            datasets: [@foreach($matchStatusDistribution as $status){{ $status->count }}, @endforeach]
-        };
-
-        const orderStatusData = {
-            labels: [@foreach($orderStatusDistribution as $status)'{{ $status->delivery_status }}', @endforeach],
-            datasets: [@foreach($orderStatusDistribution as $status){{ $status->count }}, @endforeach]
-        };
-
-        const topFarmersData = {
-            labels: [@foreach($topFarmers as $farmer)'{{ $farmer->farmer_name }}', @endforeach],
-            datasets: [@foreach($topFarmers as $farmer){{ $farmer->total_sales }}, @endforeach]
-        };
-
-        const topBuyersData = {
-            labels: [@foreach($topBuyers as $buyer)'{{ $buyer->buyer_name }}', @endforeach],
-            datasets: [@foreach($topBuyers as $buyer){{ $buyer->total_spent }}, @endforeach]
-        };
-
-        const supplyDemandChartData = {
-            labels: [@foreach($supplyDemandData as $data)'{{ $data['name'] }}', @endforeach],
-            supply: [@foreach($supplyDemandData as $data){{ $data['supply'] }}, @endforeach],
-            demand: [@foreach($supplyDemandData as $data){{ $data['demand'] }}, @endforeach]
-        };
-
-        // Helper: Create Gradients
-        const createGradient = (ctx, colorStart, colorEnd) => {
-            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, colorStart);
-            gradient.addColorStop(1, colorEnd);
-            return gradient;
-        };
-
-        // 1. Sales Trends
-        const salesTrendsCtx = document.getElementById('salesTrendsChart').getContext('2d');
-        const salesTrendsGradient = createGradient(salesTrendsCtx, 'rgba(75, 192, 192, 0.5)', 'rgba(75, 192, 192, 0)');
-        new Chart(salesTrendsCtx, {
-            type: 'line',
-            data: {
-                labels: salesTrendsData.labels,
-                datasets: [{
-                    label: 'Revenue',
-                    data: salesTrendsData.datasets,
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: salesTrendsGradient,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#fff',
-                    pointBorderColor: 'rgb(75, 192, 192)',
-                    pointBorderWidth: 2,
-                    pointHoverRadius: 6,
-                }]
+        window.adminDashboardData = {
+            salesTrends: {
+                labels: [@foreach($salesTrends as $trend)'{{ $trend->date }}', @endforeach],
+                datasets: [@foreach($salesTrends as $trend){{ $trend->total }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { display: false }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 2. Product Popularity
-        const productPopularityCtx = document.getElementById('productPopularityChart').getContext('2d');
-        const productGradient = createGradient(productPopularityCtx, 'rgba(54, 162, 235, 0.8)', 'rgba(54, 162, 235, 0.2)');
-        new Chart(productPopularityCtx, {
-            type: 'bar',
-            data: {
-                labels: productPopularityData.labels,
-                datasets: [{
-                    label: 'Transactions',
-                    data: productPopularityData.datasets,
-                    backgroundColor: productGradient,
-                    borderRadius: 8,
-                    maxBarThickness: 40
-                }]
+            productPopularity: {
+                labels: [@foreach($productPopularity as $product)'{{ $product->product_name }}', @endforeach],
+                datasets: [@foreach($productPopularity as $product){{ $product->transaction_count }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(54, 162, 235, 1)', font: { weight: 'bold' } }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 3. Regional Demand (Doughnut)
-        const regionalDemandCtx = document.getElementById('regionalDemandChart').getContext('2d');
-        new Chart(regionalDemandCtx, {
-            type: 'doughnut',
-            data: {
-                labels: regionalDemandData.labels,
-                datasets: [{
-                    data: regionalDemandData.datasets,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)'
-                    ],
-                    borderWidth: 0,
-                    spacing: 5
-                }]
+            regionalDemand: {
+                labels: [@foreach($regionalDemand as $demand)'{{ $demand->province }}', @endforeach],
+                datasets: [@foreach($regionalDemand as $demand){{ $demand->demand_count }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
-                    datalabels: { display: false }
-                }
-            }
-        });
-
-        // 4. Match Status
-        const matchStatusCtx = document.getElementById('matchStatusChart').getContext('2d');
-        new Chart(matchStatusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: matchStatusData.labels,
-                datasets: [{
-                    data: matchStatusData.datasets,
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)'
-                    ],
-                    borderWidth: 0,
-                    spacing: 5
-                }]
+            matchStatusDistribution: {
+                labels: [@foreach($matchStatusDistribution as $status)'{{ $status->status }}', @endforeach],
+                datasets: [@foreach($matchStatusDistribution as $status){{ $status->count }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%',
-                plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
-                    datalabels: { display: false }
-                }
-            }
-        });
-
-        // 5. Active Orders
-        const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
-        const orderGradient = createGradient(orderStatusCtx, 'rgba(153, 102, 255, 0.8)', 'rgba(153, 102, 255, 0.2)');
-        new Chart(orderStatusCtx, {
-            type: 'bar',
-            data: {
-                labels: orderStatusData.labels,
-                datasets: [{
-                    label: 'Orders',
-                    data: orderStatusData.datasets,
-                    backgroundColor: orderGradient,
-                    borderRadius: 8,
-                    maxBarThickness: 40
-                }]
+            orderStatusDistribution: {
+                labels: [@foreach($orderStatusDistribution as $status)'{{ $status->delivery_status }}', @endforeach],
+                datasets: [@foreach($orderStatusDistribution as $status){{ $status->count }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(153, 102, 255, 1)', font: { weight: 'bold' } }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // 6. Top Farmers
-        const topFarmersCtx = document.getElementById('topFarmersChart').getContext('2d');
-        const topFarmersGradient = createGradient(topFarmersCtx, 'rgba(34, 197, 94, 0.8)', 'rgba(34, 197, 94, 0.2)');
-        new Chart(topFarmersCtx, {
-            type: 'bar',
-            data: {
-                labels: topFarmersData.labels,
-                datasets: [{
-                    label: 'Sales (₱)',
-                    data: topFarmersData.datasets,
-                    backgroundColor: topFarmersGradient,
-                    borderRadius: 8,
-                    maxBarThickness: 30
-                }]
+            topFarmers: {
+                labels: [@foreach($topFarmers as $farmer)'{{ $farmer->farmer_name }}', @endforeach],
+                datasets: [@foreach($topFarmers as $farmer){{ $farmer->total_sales }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(34, 197, 94, 1)', font: { weight: 'bold' }, formatter: (value) => '₱' + Number(value).toLocaleString() }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }
-                }
-            }
-        });
-
-        // 7. Top Buyers
-        const topBuyersCtx = document.getElementById('topBuyersChart').getContext('2d');
-        const topBuyersGradient = createGradient(topBuyersCtx, 'rgba(59, 130, 246, 0.8)', 'rgba(59, 130, 246, 0.2)');
-        new Chart(topBuyersCtx, {
-            type: 'bar',
-            data: {
-                labels: topBuyersData.labels,
-                datasets: [{
-                    label: 'Spent (₱)',
-                    data: topBuyersData.datasets,
-                    backgroundColor: topBuyersGradient,
-                    borderRadius: 8,
-                    maxBarThickness: 30
-                }]
+            topBuyers: {
+                labels: [@foreach($topBuyers as $buyer)'{{ $buyer->buyer_name }}', @endforeach],
+                datasets: [@foreach($topBuyers as $buyer){{ $buyer->total_spent }}, @endforeach]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    datalabels: { anchor: 'end', align: 'top', color: 'rgba(59, 130, 246, 1)', font: { weight: 'bold' }, formatter: (value) => '₱' + Number(value).toLocaleString() }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false }, ticks: { maxRotation: 45, minRotation: 45 } }
-                }
+            supplyDemandData: {
+                labels: [@foreach($supplyDemandData as $data)'{{ $data['name'] }}', @endforeach],
+                supply: [@foreach($supplyDemandData as $data){{ $data['supply'] }}, @endforeach],
+                demand: [@foreach($supplyDemandData as $data){{ $data['demand'] }}, @endforeach]
             }
-        });
-
-        // 8. Supply vs Demand
-        const supplyDemandCtx = document.getElementById('supplyDemandChart').getContext('2d');
-        new Chart(supplyDemandCtx, {
-            type: 'bar',
-            data: {
-                labels: supplyDemandChartData.labels,
-                datasets: [
-                    {
-                        label: 'Supply (Qty)',
-                        data: supplyDemandChartData.supply,
-                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
-                        borderRadius: 4,
-                    },
-                    {
-                        label: 'Demand (Qty)',
-                        data: supplyDemandChartData.demand,
-                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
-                        borderRadius: 4,
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top' },
-                    datalabels: { display: false }
-                },
-                scales: {
-                    y: { grid: { borderDash: [5, 5] }, beginAtZero: true },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
+        };
     </script>
+    @vite('resources/js/admin/admin-dashboard.js')
 @endsection

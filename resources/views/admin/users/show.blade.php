@@ -224,16 +224,5 @@
     </main>
 </div>
 
-<script>
-    // Confirm before deleting
-    document.querySelector('.delete-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const userName = this.getAttribute('data-user-name');
-        
-        // Let's make the alert slightly nicer if possible, or just use standard confirm
-        if (confirm(`⚠️ WARNING: Are you absolutely sure you want to permanently delete the user account for ${userName}?\n\nThis will erase all related data.`)) {
-            this.submit();
-        }
-    });
-</script>
+@vite('resources/js/admin/users/admin-users-show.js')
 @endsection

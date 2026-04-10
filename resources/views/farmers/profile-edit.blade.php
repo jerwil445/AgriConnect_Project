@@ -221,28 +221,8 @@
         </form>
     </div>
 
-    <script>
-        // Premium Profile Preview with smooth scaling
-        document.getElementById('profile_picture').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                const preview = document.getElementById('profile-preview');
-                reader.onload = function (e) {
-                    preview.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
-                    preview.style.transform = 'scale(0.8)';
-                    preview.style.opacity = '0.5';
+    @vite('resources/js/farmer/farmer-profile-edit.js')
 
-                    setTimeout(() => {
-                        preview.src = e.target.result;
-                        preview.style.transform = 'scale(1)';
-                        preview.style.opacity = '1';
-                    }, 300);
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
 
     <style>
         .animate-fade-in-down {

@@ -69,4 +69,5 @@
         @endif
     </div>
 
+    @vite('resources/js/farmer/farmer-notifications.js')
 @endsection

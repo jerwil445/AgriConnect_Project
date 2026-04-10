@@ -507,56 +507,5 @@
         </div>
     </div>
 
-    <script>
-        function openBuyerModal(id, firstName, lastName, email, phone, company, businessType, address) {
-            const fullName = firstName + ' ' + lastName;
-            document.getElementById('modal-buyer-name').textContent = fullName;
-            document.getElementById('modal-email').textContent = email;
-            document.getElementById('modal-phone').textContent = phone;
-            document.getElementById('modal-company').textContent = company;
-            document.getElementById('modal-business-type').textContent = businessType;
-            document.getElementById('modal-address').textContent = address;
-            document.getElementById('modal-avatar').src =
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=e0f2fe&color=0369a1&size=200&bold=true`;
-
-            const modal = document.getElementById('buyerProfileModal');
-            const card = modal.querySelector('div');
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            
-            // Intersection Delay
-            requestAnimationFrame(() => {
-                modal.classList.remove('opacity-0');
-                card.classList.remove('scale-95');
-                card.classList.add('scale-100');
-            });
-            
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeBuyerModal() {
-            const modal = document.getElementById('buyerProfileModal');
-            const card = modal.querySelector('div');
-            
-            modal.classList.add('opacity-0');
-            card.classList.remove('scale-100');
-            card.classList.add('scale-95');
-            
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.style.overflow = '';
-            }, 300);
-        }
-
-        document.getElementById('buyerProfileModal').addEventListener('click', function(e) {
-            if (e.target === this) closeBuyerModal();
-        });
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') closeBuyerModal();
-        });
-    </script>
-
+    @vite('resources/js/farmer/matches/farmer-matches-product_matches.js')
 @endsection

@@ -299,51 +299,8 @@
         </div>
     </div>
 
-    <script>
-        function changeMainImage(src, btn) {
-            const mainImg = document.getElementById('mainImage');
-            mainImg.classList.add('opacity-0');
+    @vite('resources/js/farmer/products/farmer-products-show.js')
 
-            // Handle active state for thumbnails
-            document.querySelectorAll('[onclick^="changeMainImage"]').forEach(b => {
-                b.classList.remove('border-green-500', 'ring-4', 'ring-green-500/10');
-                b.classList.add('border-white', 'opacity-60');
-            });
-
-            if (btn) {
-                btn.classList.add('border-green-500', 'ring-4', 'ring-green-500/10');
-                btn.classList.remove('border-white', 'opacity-60');
-            }
-
-            setTimeout(() => {
-                mainImg.src = src;
-                mainImg.classList.remove('opacity-0');
-            }, 300);
-        }
-
-        function openImageModal(src) {
-            document.getElementById('modalImage').src = src;
-            document.getElementById('imageModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-
-            // Animate modal entry
-            anime({
-                targets: '#imageModal',
-                opacity: [0, 1],
-                duration: 400,
-                easing: 'easeOutQuart'
-            });
-        }
-
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeImageModal();
-        });
-    </script>
 
     <style>
         #mainImage {

@@ -31,7 +31,7 @@
                 </a>
                 <a href="{{ route('register') }}"
                     class="bg-gradient-to-r from-green-600 to-emerald-500 text-white font-bold px-7 py-2.5 rounded-full shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)] hover:-translate-y-0.5 transition-all duration-300">
-                    Get Started
+                    Register    
                 </a>
             </div>
         </ul>

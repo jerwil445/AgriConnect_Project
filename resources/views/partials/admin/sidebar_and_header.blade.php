@@ -164,48 +164,6 @@
     <!-- Overlay (for mobile) -->
     <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-30 md:hidden"></div>
 
-    <script>
-        // Sidebar toggle for mobile
-        const menuBtn = document.getElementById('menu-btn');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('overlay');
-        const closeBtn = document.getElementById('close-btn');
+    @vite('resources/js/partials/admin/partial-admin-sidebar-header.js')
 
-        menuBtn.addEventListener('click', () => {
-            sidebar.classList.remove('-translate-x-full');
-            overlay.classList.remove('hidden');
-        });
-
-        closeBtn.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        });
-
-        overlay.addEventListener('click', () => {
-            sidebar.classList.add('-translate-x-full');
-            overlay.classList.add('hidden');
-        });
-
-        // User dropdown toggle
-        const userMenuButton = document.getElementById('user-menu-button');
-        const userDropdown = document.getElementById('user-dropdown');
-        const userMenuArrow = document.getElementById('user-menu-arrow');
-
-        userMenuButton.addEventListener('click', (e) => {
-            e.stopPropagation();
-            userDropdown.classList.toggle('hidden');
-            if (userMenuArrow) {
-                userMenuArrow.classList.toggle('rotate-180');
-            }
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
-                userDropdown.classList.add('hidden');
-                if (userMenuArrow) {
-                    userMenuArrow.classList.remove('rotate-180');
-                }
-            }
-        });
-    </script>
 </body>

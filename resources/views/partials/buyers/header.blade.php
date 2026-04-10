@@ -298,24 +298,4 @@
         </form>
     </div> --}}
 </div>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Mobile navigation dropdown toggle
-        var mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
-        var mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
-
-        if (mobileSidebarToggle && mobileNavDropdown) {
-            mobileSidebarToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                mobileNavDropdown.classList.toggle('hidden');
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function (e) {
-                if (!mobileSidebarToggle.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
-                    mobileNavDropdown.classList.add('hidden');
-                }
-            });
-        }
-    });
-</script>
+@vite('resources/js/partials/buyers/partial-buyers-header.js')

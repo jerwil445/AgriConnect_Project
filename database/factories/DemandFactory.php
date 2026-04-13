@@ -36,7 +36,6 @@ class DemandFactory extends Factory
             'buyer_id' => Buyer::factory(),
             'product_name' => $this->faker->randomElement($productNames),
             'quantity' => $this->faker->numberBetween(10, 1000),
-            'location' => $this->faker->city(),
             'delivery_date' => $this->faker->dateTimeBetween('+1 week', '+2 months'),
         ];
     }

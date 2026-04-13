@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @vite('resources/css/app.css')
+@vite('resources/js/role-toggle.js')
 
 <div id="loginModal"
     class="modal fixed text-center inset-0 bg-gray-100  flex items-center justify-center   transition-all duration-300">
@@ -44,7 +45,7 @@
                     <input type="password" id="password" name="password"
                         class="peer w-full px-3 pr-10 py-3 border {{ $passwordError ? 'border-red-500' : 'border-gray-300' }} rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
                         placeholder=" " value="{{ old('password') }}" required autocomplete="current-password" />
-                    <button type="button" 
+                    <button type="button"
                         class="absolute right-3 top-3.5 text-gray-400 hover:text-green-600 focus:outline-none"
                         onclick="togglePasswordVisibility('password', this)">
                         <i class="fa-solid fa-eye-slash"></i>

@@ -54,7 +54,6 @@ class DemandMatchSeeder extends Seeder
             'buyer_id' => $buyer->id,
             'product_name' => 'Corn',
             'quantity' => 50,
-            'location' => 'Town A',
             'delivery_date' => '2025-11-25',
         ]);
         

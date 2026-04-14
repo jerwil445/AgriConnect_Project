@@ -551,16 +551,6 @@ class DemandMatchingController extends Controller
             abort(403);
         }
 
-        // Check if there's already an existing transaction for this match
-        $existingTransaction = Transaction::where('demand_id', $demandMatch->demand_id)
-            ->where('product_id', $demandMatch->product_id)
-            ->first();
-
-        if ($existingTransaction) {
-            // If there's already a transaction, redirect to the messages page with that transaction
-            return redirect()->route('buyer.messages', ['transaction_id' => $existingTransaction->id]);
-        }
-
         // Get the farmer user
         $farmer = $demandMatch->product->farmer;
 
@@ -575,6 +565,24 @@ class DemandMatchingController extends Controller
         // Check if farmer user exists
         if (!$farmerUser) {
             return redirect()->back()->with('error', 'Unable to start conversation: Farmer account not found.');
+        }
+
+        // Unified Logic: Search for ANY existing transaction between these parties for this product
+        $existingTransaction = Transaction::where('buyer_id', Auth::id())
+            ->where('farmer_id', $farmerUser->id)
+            ->where('product_id', $demandMatch->product_id)
+            ->first();
+
+        if ($existingTransaction) {
+            // "Upgrade" the transaction if it was just a general inquiry (null demand_id)
+            if (is_null($existingTransaction->demand_id)) {
+                $existingTransaction->update([
+                    'demand_id' => $demandMatch->demand_id
+                ]);
+            }
+            
+            // Link to the conversation thread if not already linked (should be inherited)
+            return redirect()->route('buyer.messages', ['transaction_id' => $existingTransaction->id]);
         }
 
         // Create or get conversation thread
@@ -729,18 +737,25 @@ class DemandMatchingController extends Controller
         // Check if a specific transaction was requested
         $selectedTransaction = null;
         $transactionId = $request->query('transaction_id');
+        
         if ($transactionId) {
-            $selectedTransaction = $transactions->firstWhere('id', $transactionId);
+            // Check if the specific transaction exists and belongs to the user
+            $requestedOne = Transaction::where('id', $transactionId)
+                ->where(function ($query) use ($user) {
+                    $query->where('buyer_id', $user->id)
+                          ->orWhere('farmer_id', $user->id);
+                })
+                ->with('product', 'farmer', 'buyer', 'demand', 'conversationThread')
+                ->first();
+
+            if ($requestedOne) {
+                $selectedTransaction = $requestedOne;
+            }
         }
 
-        // If no selected transaction found but we have a transaction ID, 
-        // look for any transaction with the same conversation thread
-        if (!$selectedTransaction && $transactionId) {
-            $requestedTransaction = Transaction::find($transactionId);
-            if ($requestedTransaction) {
-                $conversationThreadId = $requestedTransaction->conversation_thread_id;
-                $selectedTransaction = $transactions->firstWhere('conversation_thread_id', $conversationThreadId);
-            }
+        // If no specific transaction was requested or found, use the first one from the sidebar as default
+        if (!$selectedTransaction && $transactions->count() > 0) {
+            $selectedTransaction = $transactions->first();
         }
 
         return view('messages.index', compact('transactions', 'unreadCounts', 'selectedTransaction'));

@@ -26,8 +26,13 @@
                 <div class="flex-1 overflow-y-auto">
                     @if(count($transactions ?? []) > 0)
                         @foreach($transactions as $transaction)
-                            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer conversation-item {{ isset($selectedTransaction) && $selectedTransaction->id == $transaction->id ? 'bg-indigo-100 border-l-4 border-l-indigo-500' : '' }}" 
-                                 data-transaction-id="{{ $transaction->id }}"
+                            @php
+                                // Ensure this sidebar item is highlighted if it belongs to the same thread as the selected transaction
+                                $isActiveThread = isset($selectedTransaction) && $selectedTransaction->conversation_thread_id == $transaction->conversation_thread_id;
+                                $displayTransactionId = $isActiveThread ? $selectedTransaction->id : $transaction->id;
+                            @endphp
+                            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer conversation-item {{ $isActiveThread ? 'bg-indigo-100 border-l-4 border-l-indigo-500' : '' }}" 
+                                 data-transaction-id="{{ $displayTransactionId }}"
                                  data-conversation-thread-id="{{ $transaction->conversation_thread_id }}"
                                  data-other-party-id="{{ Auth::id() == $transaction->buyer_id ? $transaction->farmer_id : $transaction->buyer_id }}">
                                 <div class="flex items-start">

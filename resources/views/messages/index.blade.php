@@ -92,28 +92,36 @@
 
             <!-- Middle Column - Messages Conversation -->
             <div class="w-2/4 flex flex-col" id="conversation-container">
-                <div class="flex-1 flex items-center justify-center">
-                    <div class="text-center p-8">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-lg font-medium text-gray-900">Select a conversation</h3>
-                        <p class="mt-1 text-sm text-gray-500">Choose a conversation from the list to start messaging</p>
+                @if(isset($selectedTransaction) && isset($messages))
+                    @include('messages.conversation', ['transaction' => $selectedTransaction, 'messages' => $messages])
+                @else
+                    <div class="flex-1 flex items-center justify-center">
+                        <div class="text-center p-8">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-lg font-medium text-gray-900">Select a conversation</h3>
+                            <p class="mt-1 text-sm text-gray-500">Choose a conversation from the list to start messaging</p>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
 
             <!-- Right Column - Transaction Details -->
             <div class="w-1/4 border-l border-gray-200 flex flex-col" id="transaction-details">
-                <div class="flex-1 flex items-center justify-center p-8">
-                    <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                        <h3 class="mt-2 text-lg font-medium text-gray-900">Transaction Details</h3>
-                        <p class="mt-1 text-sm text-gray-500">Select a conversation to view transaction details</p>
+                @if(isset($selectedTransaction))
+                    @include('messages.transaction-details', ['transaction' => $selectedTransaction])
+                @else
+                    <div class="flex-1 flex items-center justify-center p-8">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-lg font-medium text-gray-900">Transaction Details</h3>
+                            <p class="mt-1 text-sm text-gray-500">Select a conversation to view transaction details</p>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -121,24 +129,7 @@
 
 @vite('resources/js/messages/messages-index.js')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @if(session('selected_transaction_id'))
-            const id = {{ session('selected_transaction_id') }};
-            const item = document.querySelector(`.conversation-item[data-transaction-id="${id}"]`);
-            if (item) item.click();
-        @elseif(isset($selectedTransaction))
-            const id = {{ $selectedTransaction->id }};
-            const item = document.querySelector(`.conversation-item[data-transaction-id="${id}"]`);
-            if (item) item.click();
-        @else
-            const urlParams = new URLSearchParams(window.location.search);
-            const idParam = urlParams.get('transaction_id');
-            if (idParam) {
-                const item = document.querySelector(`.conversation-item[data-transaction-id="${idParam}"]`);
-                if (item) item.click();
-            }
-        @endif
-    });
+    // No manual click needed as conversation is pre-rendered on server
 </script>
 
 <style>

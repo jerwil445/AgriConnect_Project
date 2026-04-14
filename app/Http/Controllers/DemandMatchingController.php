@@ -758,7 +758,26 @@ class DemandMatchingController extends Controller
             $selectedTransaction = $transactions->first();
         }
 
-        return view('messages.index', compact('transactions', 'unreadCounts', 'selectedTransaction'));
+        // Load messages for the selected transaction to enable pre-rendering
+        $messages = collect();
+        if ($selectedTransaction) {
+            // Mark all messages in this conversation thread as read for the current user
+            Message::where('conversation_thread_id', $selectedTransaction->conversation_thread_id)
+                ->where('receiver_id', $user->id)
+                ->where('is_read', false)
+                ->update(['is_read' => true]);
+
+            // Load all messages for this conversation thread
+            $messages = Message::where('conversation_thread_id', $selectedTransaction->conversation_thread_id)
+                ->with('sender')
+                ->orderBy('created_at', 'asc')
+                ->get();
+            
+            // Ensure related models are loaded for the sidebar and details
+            $selectedTransaction->load('product', 'farmer', 'buyer', 'demand', 'conversationThread');
+        }
+
+        return view('messages.index', compact('transactions', 'unreadCounts', 'selectedTransaction', 'messages'));
     }
 
     /**

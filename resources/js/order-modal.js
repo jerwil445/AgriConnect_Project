@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeOrderModal();
 });
 
@@ -11,7 +11,7 @@ function initializeOrderModal() {
     const totalPreview = document.getElementById('order-total-preview');
 
     if (confirmOrderBtn) {
-        confirmOrderBtn.addEventListener('click', function() {
+        confirmOrderBtn.addEventListener('click', function () {
             if (orderModal) {
                 orderModal.classList.remove('hidden');
                 updateOrderPreview();
@@ -20,7 +20,7 @@ function initializeOrderModal() {
     }
 
     if (closeModal) {
-        closeModal.addEventListener('click', function() {
+        closeModal.addEventListener('click', function () {
             if (orderModal) {
                 orderModal.classList.add('hidden');
             }
@@ -28,7 +28,7 @@ function initializeOrderModal() {
     }
 
     if (cancelOrder) {
-        cancelOrder.addEventListener('click', function() {
+        cancelOrder.addEventListener('click', function () {
             if (orderModal) {
                 orderModal.classList.add('hidden');
             }
@@ -40,7 +40,22 @@ function initializeOrderModal() {
         orderQuantityInput.addEventListener('change', updateOrderPreview);
     }
 
-    window.addEventListener('click', function(event) {
+    const orderForm = document.getElementById('orderForm');
+    if (orderForm) {
+        orderForm.addEventListener('submit', function () {
+            const submitBtn = orderForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                const span = submitBtn.querySelector('span');
+                if (span) {
+                    span.textContent = 'Processing Order...';
+                }
+            }
+        });
+    }
+
+    window.addEventListener('click', function (event) {
         if (orderModal && event.target === orderModal) {
             orderModal.classList.add('hidden');
         }

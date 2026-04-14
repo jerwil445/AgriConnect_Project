@@ -956,6 +956,18 @@ class DemandMatchingController extends Controller
             'order_quantity' => 'required|integer|min:1',
         ]);
 
+        // Prevention of rapid duplicate orders (Idempotency check)
+        $recentOrder = Transaction::where('conversation_thread_id', $transaction->conversation_thread_id)
+            ->where('product_id', $transaction->product_id)
+            ->where('status', 'Ordered')
+            ->where('buyer_id', Auth::id())
+            ->where('created_at', '>=', now()->subSeconds(15))
+            ->first();
+
+        if ($recentOrder) {
+            return back()->with('warning', 'An order was already placed just a few seconds ago. Please check your orders page.');
+        }
+
         $orderedQuantity = $validatedData['order_quantity'];
         if (!is_numeric($orderedQuantity) || $orderedQuantity <= 0) {
             return back()->with('error', 'Invalid order quantity.');
@@ -970,22 +982,41 @@ class DemandMatchingController extends Controller
         $finalPrice = (float) $product->price;
         $totalAmount = $orderedQuantity * $finalPrice;
 
-        $newTransaction = Transaction::create([
-            'buyer_id' => $transaction->buyer_id,
-            'farmer_id' => $transaction->farmer_id,
-            'product_id' => $transaction->product_id,
-            'demand_id' => $transaction->demand_id,
-            'conversation_thread_id' => $transaction->conversation_thread_id,
-            'buyer_name' => $validatedData['buyer_name'],
-            'buyer_email' => $validatedData['buyer_email'],
-            'buyer_phone' => $validatedData['buyer_phone'],
-            'buyer_address' => $validatedData['buyer_address'],
-            'payment_method' => $validatedData['payment_method'],
-            'status' => 'Ordered',
-            'final_quantity' => $orderedQuantity,
-            'final_price' => $finalPrice,
-            'total_amount' => $totalAmount
-        ]);
+        // Refactor: Consolidate transaction records.
+        // If the current transaction is 'Active', update it instead of creating a new one.
+        if ($transaction->status === 'Active') {
+            $transaction->update([
+                'final_quantity' => $orderedQuantity,
+                'final_price' => $finalPrice,
+                'total_amount' => $totalAmount,
+                'status' => 'Ordered',
+                'buyer_name' => $validatedData['buyer_name'],
+                'buyer_email' => $validatedData['buyer_email'],
+                'buyer_phone' => $validatedData['buyer_phone'],
+                'buyer_address' => $validatedData['buyer_address'],
+                'payment_method' => $validatedData['payment_method'],
+            ]);
+            $newTransaction = $transaction;
+        } else {
+            // If already ordered or in another state, create a new record as a fallback
+            $newTransaction = Transaction::create([
+                'buyer_id' => $transaction->buyer_id,
+                'farmer_id' => $transaction->farmer_id,
+                'product_id' => $transaction->product_id,
+                'demand_id' => $transaction->demand_id,
+                'final_quantity' => $orderedQuantity,
+                'final_price' => $finalPrice,
+                'total_amount' => $totalAmount,
+                'status' => 'Ordered',
+                'initiator_id' => $transaction->initiator_id,
+                'conversation_thread_id' => $transaction->conversation_thread_id,
+                'buyer_name' => $validatedData['buyer_name'],
+                'buyer_email' => $validatedData['buyer_email'],
+                'buyer_phone' => $validatedData['buyer_phone'],
+                'buyer_address' => $validatedData['buyer_address'],
+                'payment_method' => $validatedData['payment_method'],
+            ]);
+        }
 
         // Update the match status to 'Ordered' if there's a demand associated with this transaction
         if ($transaction->demand_id) {

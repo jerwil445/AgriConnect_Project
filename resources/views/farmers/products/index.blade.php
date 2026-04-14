@@ -160,11 +160,22 @@
                                             </div>
                                         </td>
                                         <td class="px-8 py-6 whitespace-nowrap">
-                                            <div class="text-sm font-black text-gray-800">{{ $product->quantity }} <span
-                                                    class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $product->unit }}</span>
+                                            <div class="flex items-center justify-between gap-4">
+                                                <div>
+                                                    <div class="text-sm font-black text-gray-800">{{ $product->quantity }} <span
+                                                            class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{{ $product->unit }}</span>
+                                                    </div>
+                                                    <div class="text-[10px] font-medium text-gray-400 mt-1.5 uppercase tracking-widest">
+                                                        Total Supply</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-sm font-black text-emerald-600">{{ $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity }} <span
+                                                            class="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">{{ $product->unit }}</span>
+                                                    </div>
+                                                    <div class="text-[10px] font-medium text-emerald-600/70 mt-1.5 uppercase tracking-widest">
+                                                        Remaining</div>
+                                                </div>
                                             </div>
-                                            <div class="text-[10px] font-medium text-gray-400 mt-1.5 uppercase tracking-widest">
-                                                Available Supply</div>
                                         </td>
                                         <td class="px-8 py-6 whitespace-nowrap">
                                             <div class="text-sm font-black text-indigo-700">

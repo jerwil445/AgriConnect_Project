@@ -57,12 +57,18 @@ class FarmerController extends Controller
 
         // 3. Low Inventory Warnings
         $farmerId = $user->farmer ? $user->farmer->id : 0;
-        $lowInventory = \App\Models\Product::where('farmer_id', $farmerId)
+        $lowInventory = \App\Models\Product::with('remainingInventory')
+            ->where('farmer_id', $farmerId)
             ->where('status', 'Available')
-            ->where('quantity', '<=', 50) // Assumed generic threshold
-            ->orderBy('quantity', 'asc')
-            ->take(3)
-            ->get();
+            ->get()
+            ->filter(function ($product) {
+                $currentQty = $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
+                return $currentQty <= 50; // Assumed generic threshold
+            })
+            ->sortBy(function ($product) {
+                return $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity;
+            })
+            ->take(3);
 
         // 4. Upcoming Deliveries
         $upcomingDeliveries = \App\Models\Transaction::with(['buyer', 'product'])

@@ -225,7 +225,7 @@
                                 <input type="password" id="password" name="password"
                                     class="peer w-full px-3 pr-10 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                     placeholder=" " required />
-                                <button type="button" 
+                                <button type="button"
                                     class="absolute right-3 top-3 text-gray-400 hover:text-green-600 focus:outline-none"
                                     onclick="togglePasswordVisibility('password', this)">
                                     <i class="fa-solid fa-eye-slash"></i>
@@ -245,7 +245,7 @@
                                 <input type="password" id="password_confirmation" name="password_confirmation"
                                     class="peer w-full px-3 pr-10 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500"
                                     placeholder=" " required />
-                                <button type="button" 
+                                <button type="button"
                                     class="absolute right-3 top-3 text-gray-400 hover:text-green-600 focus:outline-none"
                                     onclick="togglePasswordVisibility('password_confirmation', this)">
                                     <i class="fa-solid fa-eye-slash"></i>
@@ -397,6 +397,22 @@
                                             {{ $preferredProductsError }}
                                         </p>
                                     </div>
+                                </div>
+
+                                <div class="relative w-full hidden" id="other_business_type_container">
+                                    @php($otherBusinessTypeError = $errors->first('other_business_type'))
+                                    <input type="text" id="other_business_type" name="other_business_type"
+                                        data-role-field="buyer" @disabled($activeRole !== 'buyer')
+                                        class="peer w-full px-2 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
+                                        placeholder=" " value="{{ old('other_business_type') }}" />
+                                    <label for="other_business_type"
+                                        class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-green-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
+                                        Please specify business type
+                                    </label>
+                                    <p class="input-error text-sm text-red-600 mt-1 {{ $otherBusinessTypeError ? '' : 'hidden' }}"
+                                        data-error-for="other_business_type">
+                                        {{ $otherBusinessTypeError }}
+                                    </p>
                                 </div>
                                 <div class="relative w-full">
                                     @php($buyerAddressError = $errors->first('buyer_address'))

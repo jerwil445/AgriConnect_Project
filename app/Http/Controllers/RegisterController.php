@@ -31,6 +31,7 @@ class RegisterController extends Controller
             // Buyer fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'required_if:role,buyer|string|max:50',
+            'other_business_type' => 'required_if:business_type,others|nullable|string|max:255',
             'preferred_products' => 'required_if:role,buyer|string|max:255',
             'buyer_address' => 'required_if:role,buyer|string|max:255',
         ]);
@@ -65,7 +66,7 @@ class RegisterController extends Controller
             Buyer::create([
                 'user_id' => $user->id,
                 'company_name' => $request->company_name ?? null,
-                'business_type' => $request->business_type ?? null,
+                'business_type' => $request->business_type === 'others' ? $request->other_business_type : $request->business_type,
                 'preferred_products' => $request->preferred_products ?? null,
                 'address' => $request->buyer_address ?? null,
             ]);

@@ -65,6 +65,17 @@ const fieldValidations = {
         rules: [{ type: "required", message: "Business address is required." }],
         dependsOnRole: "buyer",
     },
+    other_business_type: {
+        rules: [
+            {
+                type: "requiredIf",
+                target: "business_type",
+                targetValue: "others",
+                message: "Please specify your business type."
+            }
+        ],
+        dependsOnRole: "buyer",
+    },
 };
 
 const validators = {
@@ -96,6 +107,13 @@ const validators = {
         if (!value.trim()) return true;
         return Number(value) <= ruleValue;
     },
+    requiredIf(value, ruleValue, { form, rule }) {
+        const targetElement = form.querySelector(`[name="${rule.target}"]`);
+        if (targetElement && targetElement.value === rule.targetValue) {
+            return value.trim().length > 0;
+        }
+        return true;
+    },
 };
 
 function handleValidation(field, context) {
@@ -123,6 +141,7 @@ function handleValidation(field, context) {
             field: { target },
             form: context.form,
             input,
+            rule, // Added rule here to pass target and targetValue to requiredIf
         });
 
         if (!isValid) {
@@ -160,6 +179,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const farmH4 = document.querySelector(".farm-h4");
     const buyerH4 = document.querySelector(".buyer-h4");
     const businessTypeSelect = document.getElementById("business_type");
+    const otherBusinessTypeContainer = document.getElementById("other_business_type_container");
+    const otherBusinessTypeInput = document.getElementById("other_business_type");
 
     const roleScopedFields = form.querySelectorAll("[data-role-field]");
 
@@ -227,7 +248,23 @@ document.addEventListener("DOMContentLoaded", () => {
         businessTypeSelect?.setAttribute("required", "required");
         syncRoleRequiredFields("buyer");
         applyRoleFieldState("buyer");
+        handleBusinessTypeChange(); // Handle toggle on role switch
     }
+
+    function handleBusinessTypeChange() {
+        if (businessTypeSelect?.value === "others") {
+            otherBusinessTypeContainer?.classList.remove("hidden");
+            otherBusinessTypeInput?.setAttribute("required", "required");
+        } else {
+            otherBusinessTypeContainer?.classList.add("hidden");
+            otherBusinessTypeInput?.removeAttribute("required");
+            // Don't clear value if we are re-rendering due to server error, but usually we do
+        }
+    }
+
+    businessTypeSelect?.addEventListener("change", handleBusinessTypeChange);
+    // Initial check in case of "old" input
+    handleBusinessTypeChange();
 
     farmerBtn?.addEventListener("click", switchToFarmer);
     buyerBtn?.addEventListener("click", switchToBuyer);

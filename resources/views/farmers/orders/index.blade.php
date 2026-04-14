@@ -198,4 +198,4 @@
     @vite('resources/js/farmer/orders/farmer-orders-index.js')
 @endsection
 
-@endsection
+

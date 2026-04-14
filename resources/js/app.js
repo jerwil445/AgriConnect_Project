@@ -1,7 +1,6 @@
 import "../css/app.css"; // imports Tailwind
 import "./role-toggle.js";
 import "./register.js";
-import "./notifications.js";
 import './mark_as_done.js';
 import './order-modal.js';
 

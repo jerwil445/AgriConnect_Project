@@ -32,6 +32,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 notificationDropdown.classList.add('hidden');
             }
         });
+
+        // Close dropdown when pressing Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
     }
 
     // Ajax Mark as Read for Notifications

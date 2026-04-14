@@ -7,7 +7,6 @@ export default defineConfig({
             input: [
                 "resources/css/app.css",
                 "resources/js/app.js",
-                "resources/js/notifications.js",
                 "resources/js/register.js",
                 "resources/js/landing.js",
                 "resources/js/admin/demands/admin-demands-show.js",

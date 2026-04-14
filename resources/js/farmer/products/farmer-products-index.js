@@ -48,14 +48,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     // Reload the page to show updated status
-                    location.reload();
+                    window.showToast(data.message || `Product is now ${status}!`, 'success');
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    alert('Failed to update status: ' + data.message);
+                    window.showToast('Failed to update status: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Failed to update status. Please try again.');
+                window.showToast('Failed to update status. Please try again.', 'error');
             });
         }
     };

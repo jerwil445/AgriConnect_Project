@@ -271,31 +271,19 @@
 
 <div class="container mx-auto px-4 py-2">
     @if (session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {{ session('error') }}
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                window.showToast("{{ session('error') }}", 'error');
+            });
+        </script>
     @endif
 
     @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {{ session('success') }}
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                window.showToast("{{ session('success') }}", 'success');
+            });
+        </script>
     @endif
-
-    {{-- <div class="md:hidden mb-4 flex space-x-2">
-        <a href="{{ route('demands.index') }}"
-            class="flex-1 flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-semibold">
-            <i class="fas fa-list"></i>
-            My Demands
-        </a>
-        <form action="{{ route('logout') }}" method="POST" class="flex-1">
-            @csrf
-            <button type="submit"
-                class="w-full flex items-center justify-center gap-2 border border-primary-500 text-primary-700 px-4 py-2 rounded-lg hover:bg-primary-50 transition duration-200 text-sm font-semibold">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
-        </form>
-    </div> --}}
 </div>
 @vite('resources/js/partials/buyers/partial-buyers-header.js')

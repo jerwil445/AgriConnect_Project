@@ -41,15 +41,7 @@
                     </div>
                 </div>
 
-                @if (session('success'))
-                    <div
-                        class="mb-8 p-4 bg-emerald-50/80 backdrop-blur-md border border-emerald-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
-                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm">
-                            <i class="fas fa-check text-xs"></i>
-                        </div>
-                        <p class="text-sm font-bold text-emerald-800">{{ session('success') }}</p>
-                    </div>
-                @endif
+
 
                 <!-- Toolbar / Filters -->
                 <div

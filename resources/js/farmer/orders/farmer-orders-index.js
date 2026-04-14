@@ -17,14 +17,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    location.reload();
+                    window.showToast(data.message || 'Status updated successfully', 'success');
+                    setTimeout(() => location.reload(), 1500);
                 } else {
-                    alert('Failed to update status: ' + data.message);
+                    window.showToast('Failed to update status: ' + data.message, 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('An error occurred while updating the order status.');
+                window.showToast('An error occurred while updating the order status.', 'error');
             });
         }
     };
@@ -49,15 +50,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     })
                     .then(data => {
                         if (data.success) {
-                            alert(data.message);
-                            location.reload();
+                            window.showToast(data.message, 'success');
+                            setTimeout(() => location.reload(), 1500);
                         } else {
-                            alert('Error: ' + data.message);
+                            window.showToast('Error: ' + data.message, 'error');
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        alert('An error occurred while processing your request.');
+                        window.showToast('An error occurred while processing your request.', 'error');
                     });
                 }
             });

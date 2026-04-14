@@ -24,6 +24,7 @@
         </div>
     </div>
 
+    @include('partials.common.toast')
     @vite('resources/js/farmer/farmer-layout.js')
 </body>
 

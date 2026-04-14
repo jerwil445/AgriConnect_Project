@@ -384,8 +384,8 @@ class DemandMatchingController extends Controller
             return;
         }
 
-        $availableQuantity = $product->remainingInventory ? (int)$product->remainingInventory->remaining_quantity : (int)$product->quantity;
-        
+        $availableQuantity = $product->remainingInventory ? (int) $product->remainingInventory->remaining_quantity : (int) $product->quantity;
+
         if ($availableQuantity <= 0) {
             return;
         }
@@ -393,10 +393,10 @@ class DemandMatchingController extends Controller
         $matchingDemands = Demand::where('product_name', $productName);
 
         if (!empty($product->variety_size)) {
-            $matchingDemands->where(function($query) use ($product) {
+            $matchingDemands->where(function ($query) use ($product) {
                 $query->whereNull('variety_size')
-                      ->orWhere('variety_size', '')
-                      ->orWhereRaw("? LIKE CONCAT('%', variety_size, '%')", [$product->variety_size]);
+                    ->orWhere('variety_size', '')
+                    ->orWhereRaw("? LIKE CONCAT('%', variety_size, '%')", [$product->variety_size]);
             });
         }
 
@@ -418,9 +418,12 @@ class DemandMatchingController extends Controller
 
             $addressStrings = strtolower($farmerAddress . ' ' . $productProvince . ' ' . $productCity . ' ' . $productBarangay);
 
-            if (!empty($demand->province) && str_contains($addressStrings, strtolower($demand->province))) return true;
-            if (!empty($demand->municipality_city) && str_contains($addressStrings, strtolower($demand->municipality_city))) return true;
-            if (!empty($demand->barangay) && str_contains($addressStrings, strtolower($demand->barangay))) return true;
+            if (!empty($demand->province) && str_contains($addressStrings, strtolower($demand->province)))
+                return true;
+            if (!empty($demand->municipality_city) && str_contains($addressStrings, strtolower($demand->municipality_city)))
+                return true;
+            if (!empty($demand->barangay) && str_contains($addressStrings, strtolower($demand->barangay)))
+                return true;
 
             return false;
         });

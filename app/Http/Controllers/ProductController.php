@@ -370,43 +370,62 @@ class ProductController extends Controller
     private function syncRemainingInventory(Product $product): RemainingInventory
     {
         $product->loadMissing('remainingInventory');
-
         $inventory = $product->remainingInventory;
-        $soldQuantity = $inventory
-            ? max(0, (int) $inventory->original_quantity - (int) $inventory->remaining_quantity)
-            : 0;
 
+        if (!$inventory) {
+            return RemainingInventory::create([
+                'product_id' => $product->id,
+                'original_quantity' => (int) $product->quantity,
+                'original_price' => $this->calculateTotalAmount($product->quantity, $product->price),
+                'original_total_trays' => (int) $product->quantity,
+                'remaining_quantity' => (int) $product->quantity,
+                'remaining_price' => $this->calculateTotalAmount($product->quantity, $product->price),
+                'remaining_total_trays' => (int) $product->quantity,
+                'last_updated' => now(),
+            ]);
+        }
+
+        $oldOriginal = (int) $inventory->original_quantity;
+        $newOriginal = (int) $product->quantity;
+        $currentRemaining = (int) $inventory->remaining_quantity;
+
+        // Logic 1: Handle Quantity Delta (Add stock)
+        $diff = $newOriginal - $oldOriginal;
+        $newRemaining = $currentRemaining + $diff;
+
+        // Logic 2: Handle explicit "Available" toggle for sold-out items (Refill)
+        if ($product->status === 'Available' && $currentRemaining <= 0) {
+            // If they made it available but didn't increase total, assume a refill to current total
+            if ($diff <= 0) {
+                $newRemaining = $newOriginal;
+            }
+        }
+
+        // Logic 3: Handle "Sold Out" status override
         if ($product->status === 'Sold Out') {
-            $remainingQuantity = 0;
-        } else {
-            $remainingQuantity = max(0, (int) $product->quantity - $soldQuantity);
+            $newRemaining = 0;
         }
 
-        $payload = [
-            'product_id' => $product->id,
-            'original_quantity' => (int) $product->quantity,
-            'original_price' => $this->calculateTotalAmount($product->quantity, $product->price),
-            'original_total_trays' => (int) $product->quantity,
-            'remaining_quantity' => $remainingQuantity,
-            'remaining_price' => $this->calculateTotalAmount($remainingQuantity, $product->price),
-            'remaining_total_trays' => $remainingQuantity,
-            'per_size_remaining' => null,
+        // Bounds checking
+        $newRemaining = max(0, min($newRemaining, $newOriginal));
+
+        $inventory->update([
+            'original_quantity' => $newOriginal,
+            'original_price' => $this->calculateTotalAmount($newOriginal, $product->price),
+            'original_total_trays' => $newOriginal,
+            'remaining_quantity' => $newRemaining,
+            'remaining_price' => $this->calculateTotalAmount($newRemaining, $product->price),
+            'remaining_total_trays' => $newRemaining,
             'last_updated' => now(),
-        ];
+        ]);
 
-        if ($inventory) {
-            $inventory->update($payload);
-            $inventory = $inventory->fresh();
-        } else {
-            $inventory = RemainingInventory::create($payload);
-        }
-
-        if ($inventory->remaining_quantity <= 0 && $product->status !== 'Sold Out') {
+        // Auto-correct status if quantity is 0
+        if ($newRemaining <= 0 && $product->status !== 'Sold Out') {
             $product->status = 'Sold Out';
             $product->save();
         }
 
-        return $inventory;
+        return $inventory->fresh();
     }
 
     private function calculateTotalAmount($quantity, $price): string

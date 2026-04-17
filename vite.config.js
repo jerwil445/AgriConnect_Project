@@ -1,8 +1,44 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
+import fs from "fs";
+import path from "path";
 
 export default defineConfig({
     plugins: [
+        {
+            name: "security-hider",
+            enforce: "pre",
+            configureServer(server) {
+                server.middlewares.use((req, res, next) => {
+                    const rawUrl = req.url || "";
+                    const url = rawUrl.split("?")[0];
+
+                    // Detect requests for JS/CSS in the resources folder
+                    const isSourcePath =
+                        url.includes("/resources/") &&
+                        (url.endsWith(".js") || url.endsWith(".css"));
+
+                    // Detection: Browsers send 'text/html' for direct visits, View Source, and 'Open in new tab'
+                    const isBrowserViewing =
+                        req.headers["accept"] &&
+                        req.headers["accept"].includes("text/html");
+
+                    if (isSourcePath && isBrowserViewing) {
+                        const filePath = path.resolve(
+                            process.cwd(),
+                            "resources/js/404.html"
+                        );
+                        if (fs.existsSync(filePath)) {
+                            res.statusCode = 404;
+                            res.setHeader("Content-Type", "text/html");
+                            res.end(fs.readFileSync(filePath, "utf-8"));
+                            return;
+                        }
+                    }
+                    next();
+                });
+            },
+        },
         laravel({
             input: [
                 "resources/css/app.css",

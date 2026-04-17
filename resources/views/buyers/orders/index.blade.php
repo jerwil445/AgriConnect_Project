@@ -156,6 +156,12 @@
                                                 title="View Details">
                                                 <i class="fas fa-eye text-sm group-hover/btn:scale-110 transition-transform"></i>
                                             </a>
+
+                                            <a href="{{ route('buyer.messages') }}?transaction_id={{ $order->id }}"
+                                                class="w-10 h-10 rounded-2xl bg-white text-indigo-600 hover:text-white hover:bg-indigo-600 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center border border-indigo-100 shadow-sm group/btn"
+                                                title="Chat with Farmer">
+                                                <i class="fas fa-comment-dots text-sm group-hover/btn:scale-110 transition-transform"></i>
+                                            </a>
                                             
                                             <div class="relative">
                                                 <button type="button"

@@ -20,7 +20,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Change product status
-    window.changeProductStatus = function (productId, status) {
+    window.changeProductStatus = function (productId, status, currentRemaining) {
+        // If trying to set to Available but quantity is 0
+        if (status === 'Available' && currentRemaining <= 0) {
+            window.showToast('Product is sold out. You need to update the quantity first.', 'error');
+            return;
+        }
+
         // Close the dropdown
         const dropdown = document.getElementById('dropdown-menu-' + productId);
         if (dropdown) {

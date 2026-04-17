@@ -1,0 +1,20 @@
+# Disable directory browsing
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # If the user is trying to view a file directly in the browser
+    # (Checking for text/html in the Accept header)
+    RewriteCond %{HTTP_ACCEPT} text/html
+    RewriteCond %{REQUEST_URI} !404\.html$
+    RewriteRule ^.*$ 404.html [L,R=404]
+</IfModule>
+
+# Block all other direct web access as a fallback
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>

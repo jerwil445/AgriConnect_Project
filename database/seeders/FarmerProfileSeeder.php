@@ -25,7 +25,7 @@ class FarmerProfileSeeder extends Seeder
                 'farm_name' => $user->first_name . "'s Farm",
                 'farm_size' => rand(10, 100),
                 'product_type' => ['Vegetables', 'Fruits', 'Grains', 'Livestock'][rand(0, 3)],
-                'experience_years' => rand(1, 30),
+
                 'certification' => ['Organic', 'Non-GMO', 'Conventional', 'Biodynamic'][rand(0, 3)],
                 'farm_address' => 'Sample Address ' . rand(1, 100) . ', Sample City',
             ]);

@@ -809,7 +809,6 @@ class AdminController extends Controller
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
             'product_type' => 'nullable|string|max:255',
-            'experience_years' => 'nullable|integer|min:0',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
         ]);
@@ -820,7 +819,6 @@ class AdminController extends Controller
                 'farm_name',
                 'farm_size',
                 'product_type',
-                'experience_years',
                 'certification',
                 'farm_address'
             ]));
@@ -830,7 +828,6 @@ class AdminController extends Controller
                     'farm_name',
                     'farm_size',
                     'product_type',
-                    'experience_years',
                     'certification',
                     'farm_address'
                 ]),

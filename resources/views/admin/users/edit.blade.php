@@ -202,14 +202,7 @@
                                 </label>
                             </div>
 
-                            <div class="relative w-full">
-                                <input type="number" name="experience_years" id="experience_years" 
-                                       value="{{ old('experience_years', $farmer->experience_years ?? '') }}" placeholder=" "
-                                       class="peer w-full px-4 py-3 border border-white/60 rounded-xl bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-[0_2px_10px_rgb(0,0,0,0.02)]">
-                                <label for="experience_years" class="absolute left-4 -top-2.5 text-xs font-medium bg-emerald-50 px-1 text-gray-600 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-700 peer-focus:bg-white rounded cursor-text">
-                                    Experience (Years)
-                                </label>
-                            </div>
+
 
                             <div class="relative w-full">
                                 <input type="text" name="certification" id="certification" 

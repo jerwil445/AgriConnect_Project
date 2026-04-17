@@ -124,10 +124,7 @@
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Primary Specialization</label>
                             <p class="text-gray-900 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">{{ Auth::user()->farmer->product_type ?? 'Not specified' }}</p>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Agri Experience</label>
-                            <p class="text-gray-900 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">{{ Auth::user()->farmer->experience_years ?? '0' }} Years of Expertise</p>
-                        </div>
+
                         <div class="md:col-span-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Farm Operational Hub</label>
                             <div class="flex items-start gap-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">

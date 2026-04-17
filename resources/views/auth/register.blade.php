@@ -265,7 +265,7 @@
                         <div class="relative w-full mt-4">
                             <div class="farmer-info-container flex flex-col space-y-4 bg-white pb-2 border-green-400 rounded-sm w-full {{ $activeRole === 'buyer' ? 'hidden' : '' }}"
                                 id="farm-info">
-                                <h4 class="text-md font-bold text-gray-700 border-b-2 border-green-500 pb-2">
+                                <h4 class="text-md text-start font-bold text-gray-700 border-b-2 border-green-500 pb-2">
                                     Farm Information
                                 </h4>
 
@@ -298,22 +298,7 @@
                                         </p>
                                     </div>
 
-                                    <div class="relative w-full">
-                                        @php($experienceError = $errors->first('experience_years'))
-                                        <input type="number" name="experience_years" id="year-experience" min="0"
-                                            max="100" step="1" data-role-field="farmer" @disabled($activeRole === 'buyer')
-                                            class="peer w-full px-2 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                            placeholder=" " value="{{ old('experience_years') }}"
-                                            data-role-required="farmer" required />
-                                        <label for="year-experience"
-                                            class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                            Years of Experience
-                                        </label>
-                                        <p class="input-error text-sm text-red-600 mt-1 {{ $experienceError ? '' : 'hidden' }}"
-                                            data-error-for="experience_years">
-                                            {{ $experienceError }}
-                                        </p>
-                                    </div>
+
                                 </div>
 
                                 <div class="relative w-full">
@@ -353,7 +338,7 @@
                                         Business/Company Name (Optional)
                                     </label>
                                 </div>
-                                <div class="flex space-x-2">
+                                <div class="flex fle space-x-2">
                                     <div class="relative w-full">
                                         @php($businessTypeError = $errors->first('business_type'))
                                         <select name="business_type" id="business_type" data-role-field="buyer"
@@ -453,13 +438,13 @@
 
 
             <!-- Success/Error Messages -->
-            @if (session('success'))
+            <!-- @if (session('success'))
                 <div class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-md">
                     {{ session('success') }}
                 </div>
-            @endif
+            @endif -->
 
-            @if ($errors->any())
+            <!-- @if ($errors->any())
                 <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-md">
                     <ul class="list-disc list-inside">
                         @foreach ($errors->all() as $error)
@@ -467,7 +452,7 @@
                         @endforeach
                     </ul>
                 </div>
-            @endif
+            @endif -->
         </div>
     </div>
 </div>

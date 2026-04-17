@@ -134,10 +134,7 @@
                             <p class="text-xs font-semibold text-green-700/70 uppercase">Land Size</p>
                             <p class="font-semibold text-gray-900 text-lg">{{ $farmer->farm_size ?? 'N/A' }}</p>
                         </div>
-                        <div class="space-y-1">
-                            <p class="text-xs font-semibold text-green-700/70 uppercase">Experience</p>
-                            <p class="font-semibold text-gray-900 text-lg">{{ $farmer->experience_years ? $farmer->experience_years . ' Years' : 'N/A' }}</p>
-                        </div>
+
                         <div class="space-y-1 lg:col-span-2">
                             <p class="text-xs font-semibold text-green-700/70 uppercase">Certifications</p>
                             <p class="font-semibold text-gray-900 text-lg">{{ $farmer->certification ?? 'None specified' }}</p>

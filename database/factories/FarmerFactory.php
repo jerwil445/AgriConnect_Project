@@ -22,7 +22,7 @@ class FarmerFactory extends Factory
             'farm_name' => $this->faker->company(),
             'farm_size' => $this->faker->randomFloat(2, 1, 100),
             'product_type' => $this->faker->randomElement(['Vegetables', 'Fruits', 'Grains', 'Livestock']),
-            'experience_years' => $this->faker->numberBetween(1, 30),
+
             'certification' => $this->faker->randomElement(['Organic', 'Non-GMO', 'Conventional', 'Biodynamic']),
             'farm_address' => $this->faker->address(),
         ];

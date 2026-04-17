@@ -192,7 +192,6 @@ class FarmerController extends Controller
             $user->farmer?->farm_name,
             $user->farmer?->farm_size,
             $user->farmer?->product_type,
-            $user->farmer?->experience_years,
             $user->farmer?->farm_address
         ];
         $filled = count(array_filter($fields));
@@ -228,7 +227,6 @@ class FarmerController extends Controller
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
             'product_type' => 'nullable|string|max:255',
-            'experience_years' => 'nullable|integer|min:0|max:100',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
         ]);
@@ -261,7 +259,6 @@ class FarmerController extends Controller
                 'farm_name',
                 'farm_size',
                 'product_type',
-                'experience_years',
                 'certification',
                 'farm_address'
             ]));
@@ -271,7 +268,6 @@ class FarmerController extends Controller
                 'farm_name',
                 'farm_size',
                 'product_type',
-                'experience_years',
                 'certification',
                 'farm_address'
             ]));

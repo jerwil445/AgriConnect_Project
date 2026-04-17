@@ -14,16 +14,18 @@ class Farmer extends Model
         'farm_name',
         'farm_size',
         'product_type',
-        'experience_years',
+
         'certification',
         'farm_address',
     ];
 
-    public function user() {
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function products() {
+    public function products()
+    {
         return $this->hasMany(Product::class);
     }
 }

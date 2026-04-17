@@ -40,15 +40,7 @@ const fieldValidations = {
         ],
         dependsOnRole: "farmer",
     },
-    experience_years: {
-        rules: [
-            { type: "required", message: "Years of experience are required." },
-            { type: "number", message: "Please enter a valid number." },
-            { type: "minNumber", value: 0, message: "Experience cannot be negative." },
-            { type: "maxNumber", value: 100, message: "Experience must be 100 years or less." },
-        ],
-        dependsOnRole: "farmer",
-    },
+
     product_type: {
         rules: [{ type: "required", message: "Product type is required." }],
         dependsOnRole: "farmer",

@@ -180,17 +180,7 @@
                                             <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
                                         @enderror
                                     </div>
-                                    <div class="space-y-3">
-                                        <label for="experience_years"
-                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Years of
-                                            Agri Experience</label>
-                                        <input type="number" name="experience_years" id="experience_years"
-                                            value="{{ old('experience_years', Auth::user()->farmer->experience_years) }}"
-                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
-                                        @error('experience_years')
-                                            <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+
                                 </div>
                                 <div class="space-y-3">
                                     <label for="certification"

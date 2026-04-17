@@ -19,15 +19,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .then(data => {
                         if (data.success) {
-                            window.showToast(data.message, 'success');
-                            setTimeout(() => location.reload(), 1500);
+                            alert(data.message);
+                            location.reload();
                         } else {
-                            window.showToast('Error: ' + data.message, 'error');
+                            alert('Error: ' + data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        window.showToast('An error occurred while processing your request.', 'error');
+                        alert('An error occurred while processing your request.');
                     });
             }
         });
@@ -51,15 +51,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .then(data => {
                         if (data.success) {
-                            window.showToast(data.message, 'success');
-                            setTimeout(() => location.reload(), 1500); // Reload after toast is shown
+                            alert(data.message);
+                            location.reload();
                         } else {
-                            window.showToast('Error: ' + data.message, 'error');
+                            alert('Error: ' + data.message);
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
-                        window.showToast('An error occurred while processing your request.', 'error');
+                        alert('An error occurred while processing your request.');
                     });
             }
         });

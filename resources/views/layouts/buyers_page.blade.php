@@ -24,7 +24,6 @@
         </div>
     </div>
 
-    @include('partials.common.toast')
     @vite('resources/js/layouts/layout-buyers-page.js')
 
 </body>

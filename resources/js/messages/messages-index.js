@@ -8,8 +8,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const transactionId = this.getAttribute('data-transaction-id');
 
             // Update active state
-            conversationItems.forEach(i => i.classList.remove('bg-indigo-50'));
-            this.classList.add('bg-indigo-50');
+            conversationItems.forEach(i => i.classList.remove('bg-indigo-100', 'border-l-4', 'border-l-indigo-500'));
+            this.classList.add('bg-indigo-100', 'border-l-4', 'border-l-indigo-500');
 
             // Load conversation via AJAX
             Promise.all([

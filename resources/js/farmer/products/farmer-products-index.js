@@ -20,13 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Change product status
-    window.changeProductStatus = function (productId, status, currentRemaining) {
-        // If trying to set to Available but quantity is 0
-        if (status === 'Available' && currentRemaining <= 0) {
-            window.showToast('Product is sold out. You need to update the quantity first.', 'error');
-            return;
-        }
-
+    window.changeProductStatus = function (productId, status) {
         // Close the dropdown
         const dropdown = document.getElementById('dropdown-menu-' + productId);
         if (dropdown) {
@@ -54,15 +48,14 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data.success) {
                     // Reload the page to show updated status
-                    window.showToast(data.message || `Product is now ${status}!`, 'success');
-                    setTimeout(() => location.reload(), 1500);
+                    location.reload();
                 } else {
-                    window.showToast('Failed to update status: ' + data.message, 'error');
+                    alert('Failed to update status: ' + data.message);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                window.showToast('Failed to update status. Please try again.', 'error');
+                alert('Failed to update status. Please try again.');
             });
         }
     };

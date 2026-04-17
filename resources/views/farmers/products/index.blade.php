@@ -41,7 +41,15 @@
                     </div>
                 </div>
 
-
+                @if (session('success'))
+                    <div
+                        class="mb-8 p-4 bg-emerald-50/80 backdrop-blur-md border border-emerald-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-sm">
+                            <i class="fas fa-check text-xs"></i>
+                        </div>
+                        <p class="text-sm font-bold text-emerald-800">{{ session('success') }}</p>
+                    </div>
+                @endif
 
                 <!-- Toolbar / Filters -->
                 <div
@@ -237,15 +245,15 @@
                                                         <div
                                                             class="bg-gray-50/50 px-4 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest">
                                                             State Switching</div>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Available', {{ $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity }})"
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Available')"
                                                             class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700">
                                                             <i class="fas fa-check-circle text-emerald-500"></i> Mark Available
                                                         </button>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Pending', {{ $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity }})"
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Pending')"
                                                             class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-700">
                                                             <i class="fas fa-clock text-amber-500"></i> Mark Pending
                                                         </button>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Sold Out', {{ $product->remainingInventory ? $product->remainingInventory->remaining_quantity : $product->quantity }})"
+                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Sold Out')"
                                                             class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-red-50 hover:text-red-700">
                                                             <i class="fas fa-times-circle text-red-500"></i> Mark Sold Out
                                                         </button>

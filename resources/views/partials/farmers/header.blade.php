@@ -150,20 +150,11 @@
 
 <div class="container mx-auto px-4">
     @if (session('error'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                window.showToast("{{ session('error') }}", 'error');
-            });
-        </script>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
     @endif
 
-    @if (session('success'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                window.showToast("{{ session('success') }}", 'success');
-            });
-        </script>
-    @endif
 </div>
 
 @vite('resources/js/partials/farmers/partial-farmers-header.js')

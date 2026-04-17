@@ -242,21 +242,23 @@
                                                                 <i class="fas fa-trash"></i> Purge Record
                                                             </button>
                                                         </form>
-                                                        <div
-                                                            class="bg-gray-50/50 px-4 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                                                            State Switching</div>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Available')"
-                                                            class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700">
-                                                            <i class="fas fa-check-circle text-emerald-500"></i> Mark Available
-                                                        </button>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Pending')"
-                                                            class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-700">
-                                                            <i class="fas fa-clock text-amber-500"></i> Mark Pending
-                                                        </button>
-                                                        <button onclick="changeProductStatus({{ $product->id }}, 'Sold Out')"
-                                                            class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-red-50 hover:text-red-700">
-                                                            <i class="fas fa-times-circle text-red-500"></i> Mark Sold Out
-                                                        </button>
+                                                        @if($product->status !== 'Sold Out')
+                                                            <div
+                                                                class="bg-gray-50/50 px-4 py-2 text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                                                                State Switching</div>
+                                                            <button onclick="changeProductStatus({{ $product->id }}, 'Available')"
+                                                                class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-emerald-50 hover:text-emerald-700">
+                                                                <i class="fas fa-check-circle text-emerald-500"></i> Mark Available
+                                                            </button>
+                                                            <button onclick="changeProductStatus({{ $product->id }}, 'Pending')"
+                                                                class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-amber-50 hover:text-amber-700">
+                                                                <i class="fas fa-clock text-amber-500"></i> Mark Pending
+                                                            </button>
+                                                            <button onclick="changeProductStatus({{ $product->id }}, 'Sold Out')"
+                                                                class="w-full text-left flex items-center gap-2 px-4 py-2.5 text-[11px] font-bold text-gray-600 hover:bg-red-50 hover:text-red-700">
+                                                                <i class="fas fa-times-circle text-red-500"></i> Mark Sold Out
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>

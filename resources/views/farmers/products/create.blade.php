@@ -190,7 +190,7 @@
                                 <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                                 <select name="status" id="status"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                                    @foreach (['Available', 'Pending', 'Sold Out'] as $status)
+                                    @foreach (['Available', 'Pending'] as $status)
                                         <option value="{{ $status }}" {{ old('status', 'Available') === $status ? 'selected' : '' }}>
                                             {{ $status }}
                                         </option>

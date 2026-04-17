@@ -24,10 +24,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         const card = modal.querySelector('div');
-        
+
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        
+
         // Entry animation using requestAnimationFrame
         requestAnimationFrame(() => {
             modal.classList.remove('opacity-0');
@@ -36,22 +36,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 card.classList.add('scale-100');
             }
         });
-        
+
         document.body.style.overflow = 'hidden';
     };
 
     window.closeBuyerModal = function () {
         const modal = document.getElementById('buyerProfileModal');
         if (!modal) return;
-        
+
         const card = modal.querySelector('div');
-        
+
         modal.classList.add('opacity-0');
         if (card) {
             card.classList.remove('scale-100');
             card.classList.add('scale-95');
         }
-        
+
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex');

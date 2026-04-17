@@ -71,13 +71,13 @@
                             <!-- Status & hint row -->
                             <div class="mt-4 flex items-center justify-between">
                                 <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
-                                    @if ($product->status == 'Available') bg-green-100 text-green-700 border border-green-200
-                                    @elseif($product->status == 'Sold Out') bg-red-100 text-red-700 border border-red-200
-                                    @else bg-amber-100 text-amber-700 border border-amber-200 @endif">
+                                        @if ($product->status == 'Available') bg-green-100 text-green-700 border border-green-200
+                                        @elseif($product->status == 'Sold Out') bg-red-100 text-red-700 border border-red-200
+                                        @else bg-amber-100 text-amber-700 border border-amber-200 @endif">
                                     <span class="w-1.5 h-1.5 rounded-full animate-pulse
-                                        @if ($product->status == 'Available') bg-green-500
-                                        @elseif($product->status == 'Sold Out') bg-red-500
-                                        @else bg-amber-500 @endif"></span>
+                                            @if ($product->status == 'Available') bg-green-500
+                                            @elseif($product->status == 'Sold Out') bg-red-500
+                                            @else bg-amber-500 @endif"></span>
                                     {{ $product->status }}
                                 </span>
                                 <span class="text-xs text-gray-400 italic">Click image to zoom</span>

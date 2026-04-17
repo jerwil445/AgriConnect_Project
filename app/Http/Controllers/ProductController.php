@@ -380,6 +380,12 @@ class ProductController extends Controller
             $remainingQuantity = 0;
         } else {
             $remainingQuantity = max(0, (int) $product->quantity - $soldQuantity);
+            
+            // If the status is manually set to 'Available' but the calculated remaining quantity is 0 or less,
+            // we treat it as a restock/reset and set remaining to the full original quantity.
+            if ($product->status === 'Available' && $remainingQuantity <= 0) {
+                $remainingQuantity = (int) $product->quantity;
+            }
         }
 
         $payload = [

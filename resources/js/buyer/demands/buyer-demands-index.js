@@ -130,4 +130,33 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.hasValidationErrors) {
         openModal();
     }
+
+    // ══ QUANTITY VALIDATION ══
+    function validateQuantity(inputId, errorId, submitId) {
+        const input = document.getElementById(inputId);
+        const error = document.getElementById(errorId);
+        const submitBtn = document.getElementById(submitId);
+
+        if (input && error) {
+            input.addEventListener('input', function() {
+                const val = parseFloat(this.value);
+                if (this.value !== '' && val < 0) {
+                    error.classList.remove('hidden');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    }
+                } else {
+                    error.classList.add('hidden');
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                    }
+                }
+            });
+        }
+    }
+
+    validateQuantity('modal_quantity', 'modal_quantity_error', 'submitBtn');
+    validateQuantity('edit_quantity', 'edit_quantity_error', 'submitEditBtn');
 });

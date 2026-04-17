@@ -138,9 +138,6 @@
                                                 <a href="{{ route('orders.show', ['transaction' => $order->id]) }}" class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-blue-100 shadow-sm" title="View Details">
                                                     <i class="fas fa-eye text-xs"></i>
                                                 </a>
-                                                <a href="{{ route('farmer.messages') }}?transaction_id={{ $order->id }}" class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all duration-300 flex items-center justify-center border border-indigo-100 shadow-sm" title="Open Message Channel">
-                                                    <i class="fas fa-comment-dots text-xs"></i>
-                                                </a>
                                                 
                                                 <div class="relative">
                                                     <button type="button" onclick="toggleOrderDropdown({{ $order->id }}, 'farmer')" 

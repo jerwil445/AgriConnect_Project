@@ -246,7 +246,24 @@
             </div>
 
             <!-- Action Buttons -->
-            @if (auth()->user()->buyer || auth()->user()->farmer)
+            @php $hasActions = false; @endphp
+            @if (auth()->user()->buyer && $order->status == 'Ordered')
+                @php $hasActions = true; @endphp
+            @endif
+            @if (auth()->user()->farmer && $order->status == 'Ordered')
+                @php $hasActions = true; @endphp
+            @endif
+            @if (auth()->user()->buyer && $order->payment_status != 'Paid' && $order->status == 'Accepted')
+                @php $hasActions = true; @endphp
+            @endif
+            @if (auth()->user()->farmer && $order->status == 'Accepted')
+                @php $hasActions = true; @endphp
+            @endif
+            @if (auth()->user()->buyer && ($order->delivery_status == 'In Transit' || $order->delivery_status == 'Prepared'))
+                @php $hasActions = true; @endphp
+            @endif
+
+            @if ($hasActions)
                 <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
                     <div class="flex items-center gap-2.5 mb-5">
                         <div class="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
@@ -256,17 +273,10 @@
                     </div>
                     <div class="flex flex-wrap gap-3">
 
-                        @if (auth()->user()->buyer)
+                        @if (auth()->user()->buyer && $order->status == 'Ordered')
                             <a href="{{ route('buyer.messages') }}?transaction_id={{ $order->id }}"
                                 class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
                                 <i class="fas fa-comment-dots"></i> Chat with Farmer
-                            </a>
-                        @endif
-
-                        @if (auth()->user()->farmer)
-                            <a href="{{ route('farmer.messages') }}?transaction_id={{ $order->id }}"
-                                class="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-400 hover:to-indigo-500 shadow-md shadow-indigo-500/20 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-                                <i class="fas fa-comment-dots"></i> Chat with Buyer
                             </a>
                         @endif
 

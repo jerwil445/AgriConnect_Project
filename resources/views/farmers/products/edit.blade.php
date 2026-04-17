@@ -163,9 +163,10 @@
                             <div>
                                 <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
                                 <input type="number" name="quantity" id="quantity"
-                                    value="{{ old('quantity', $product->quantity) }}" min="1"
+                                    value="{{ old('quantity', $product->quantity) }}"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
+                                <p id="quantity-error" class="mt-1 text-sm text-red-600 hidden">Quantity cannot be negative.</p>
                                 @error('quantity')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -194,9 +195,10 @@
                                 <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price per Unit
                                     (₱)</label>
                                 <input type="number" name="price" id="price"
-                                    value="{{ old('price', $product->price) }}" step="0.01" min="0"
+                                    value="{{ old('price', $product->price) }}" step="0.01"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
+                                <p id="price-error" class="mt-1 text-sm text-red-600 hidden">Price per unit cannot be negative.</p>
                                 @error('price')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror

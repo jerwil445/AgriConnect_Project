@@ -16,11 +16,39 @@ document.addEventListener('DOMContentLoaded', function () {
         const quantityInput = document.getElementById('quantity');
         const priceInput = document.getElementById('price');
         const totalDisplay = document.getElementById('total_amount_display');
+        const quantityError = document.getElementById('quantity-error');
+        const priceError = document.getElementById('price-error');
 
         if (quantityInput && priceInput && totalDisplay) {
-            const quantity = parseFloat(quantityInput.value) || 0;
-            const price = parseFloat(priceInput.value) || 0;
-            totalDisplay.value = (quantity * price).toFixed(2);
+            const quantityVal = quantityInput.value;
+            const priceVal = priceInput.value;
+            
+            const quantity = parseFloat(quantityVal) || 0;
+            const price = parseFloat(priceVal) || 0;
+
+            let hasError = false;
+
+            // Validate Quantity
+            if (quantityVal !== '' && quantity < 0) {
+                if (quantityError) quantityError.classList.remove('hidden');
+                hasError = true;
+            } else {
+                if (quantityError) quantityError.classList.add('hidden');
+            }
+
+            // Validate Price
+            if (priceVal !== '' && price < 0) {
+                if (priceError) priceError.classList.remove('hidden');
+                hasError = true;
+            } else {
+                if (priceError) priceError.classList.add('hidden');
+            }
+
+            if (hasError) {
+                totalDisplay.value = "0.00";
+            } else {
+                totalDisplay.value = (quantity * price).toFixed(2);
+            }
         }
     };
 

@@ -117,11 +117,11 @@
 
                             <!-- Personal Information -->
                             <div class="personal-info text-center">
-                                <h4 class="farm-h4 text-md font-bold text-gray-700 border-b-2 border-green-500 pb-2">
+                                <h4 class="farm-h4 text-md font-bold text-gray-700 border-b border-green-500 pb-2">
                                     Farmer Personal Information
                                 </h4>
                                 <h4
-                                    class="buyer-h4 text-md font-bold text-gray-700 border-b-2 border-green-500 pb-2 hidden">
+                                    class="buyer-h4 text-md font-bold text-gray-700 border-b border-green-500 pb-2 hidden">
                                     Buyer Personal Information
                                 </h4>
                             </div>
@@ -265,7 +265,7 @@
                         <div class="relative w-full mt-4">
                             <div class="farmer-info-container flex flex-col space-y-4 bg-white pb-2 border-green-400 rounded-sm w-full {{ $activeRole === 'buyer' ? 'hidden' : '' }}"
                                 id="farm-info">
-                                <h4 class="text-md text-start font-bold text-gray-700 border-b-2 border-green-500 pb-2">
+                                <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
                                     Farm Information
                                 </h4>
 
@@ -301,28 +301,52 @@
 
                                 </div>
 
-                                <div class="relative w-full">
-                                    @php($productTypeError = $errors->first('product_type'))
-                                    <input type="text" name="product_type" id="product_type" data-role-field="farmer"
-                                        @disabled($activeRole === 'buyer')
-                                        class="peer w-full px-2 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                        placeholder=" " value="{{ old('product_type') }}" data-role-required="farmer"
-                                        required />
-                                    <label for="product_type"
-                                        class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                        Product Type/s
-                                    </label>
-                                    <p class="input-error text-sm text-red-600 mt-1 {{ $productTypeError ? '' : 'hidden' }}"
-                                        data-error-for="product_type">
-                                        {{ $productTypeError }}
+                                <!-- Crops Category -->
+                                <div class="space-y-4 mb-6" data-role-field="farmer">
+                                    <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
+                                        Crops Category
+                                    </h4>
+                                    <div class="flex flex-wrap gap-2.5" id="farmer-categories">
+                                        @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                            <button type="button" data-category="{{ $category }}"
+                                                class="category-chip px-6 py-3 rounded-2xl border-2 border-gray-100 bg-white text-sm font-bold text-gray-500 hover:border-green-400 hover:text-green-600 transition-all shadow-sm active:scale-95">
+                                                {{ $category }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                    <input type="hidden" name="categories" id="categories-input"
+                                        value="{{ old('categories') }}" data-role-field="farmer">
+                                    @php($categoriesError = $errors->first('categories'))
+                                    <p class="input-error text-sm text-red-600 mt-1 {{ $categoriesError ? '' : 'hidden' }}"
+                                        data-error-for="categories">
+                                        {{ $categoriesError }}
                                     </p>
+                                </div>
+
+                                <!-- Specific Produce Details -->
+                                <div class="space-y-4" data-role-field="farmer">
+                                    <h4 class="text-md  font-bold text-gray-700 border-b border-green-500 pb-2">
+                                        Specific Produce Details
+                                    </h4>
+                                    <div class="relative w-full">
+                                        @php($productTypeError = $errors->first('product_type'))
+                                        <textarea name="product_type" id="product_type" data-role-field="farmer"
+                                            @disabled($activeRole === 'buyer')
+                                            class="peer w-full px-4 py-4 border-2 border-gray-100 rounded-md focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-50 transition-all min-h-[140px] bg-white/50 font-medium placeholder-gray-300"
+                                            placeholder="e.g., Heirloom tomatoes, Winter wheat, Grade A Eggs"
+                                            data-role-required="farmer" required>{{ old('product_type') }}</textarea>
+                                        <p class="input-error text-sm text-red-600 mt-1 {{ $productTypeError ? '' : 'hidden' }}"
+                                            data-error-for="product_type">
+                                            {{ $productTypeError }}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
                             <!-- BUYER INFO -->
                             <div class="buyer-info-container flex flex-col space-y-4 bg-white w-full pb-2 border-green-400 rounded-sm {{ $activeRole === 'buyer' ? '' : 'hidden' }}"
                                 id="buyer-info">
-                                <h4 class="text-md font-bold text-gray-700 border-b-2 border-green-500 pb-2">
+                                <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
                                     Buyer Business Information
                                 </h4>
 
@@ -338,7 +362,7 @@
                                         Business/Company Name (Optional)
                                     </label>
                                 </div>
-                                <div class="flex fle space-x-2">
+                                <div class="flex flex-col space-y-2">
                                     <div class="relative w-full">
                                         @php($businessTypeError = $errors->first('business_type'))
                                         <select name="business_type" id="business_type" data-role-field="buyer"
@@ -366,21 +390,46 @@
                                         </p>
                                     </div>
 
-                                    <div class="relative w-full">
-                                        @php($preferredProductsError = $errors->first('preferred_products'))
-                                        <input type="text" id="preferred_products" name="preferred_products"
-                                            data-role-field="buyer" @disabled($activeRole !== 'buyer')
-                                            class="peer w-full px-2 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-                                            placeholder=" " value="{{ old('preferred_products') }}"
-                                            data-role-required="buyer" required />
-                                        <label for="preferred_products"
-                                            class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-green-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                            Preferred Products
-                                        </label>
-                                        <p class="input-error text-sm text-red-600 mt-1 {{ $preferredProductsError ? '' : 'hidden' }}"
-                                            data-error-for="preferred_products">
-                                            {{ $preferredProductsError }}
+                                    <!-- Buyer Interest Categories -->
+                                    <div class="space-y-4 mb-2" data-role-field="buyer">
+                                        <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
+                                            Interest Categories
+                                        </h4>
+                                        <div class="flex flex-wrap gap-2.5" id="buyer-categories">
+                                            @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                                <button type="button" data-category="{{ $category }}"
+                                                    class="category-chip px-6 py-3 rounded-2xl border-2 border-gray-100 bg-white text-sm font-bold text-gray-500 hover:border-green-400 hover:text-green-600 transition-all shadow-sm active:scale-95">
+                                                    {{ $category }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <input type="hidden" name="categories" id="buyer-categories-input"
+                                            value="{{ old('categories') }}" data-role-field="buyer">
+                                        @php($categoriesError = $errors->first('categories'))
+                                        <p class="input-error text-sm text-red-600 mt-1 {{ $categoriesError ? '' : 'hidden' }}"
+                                            data-error-for="categories">
+                                            {{ $categoriesError }}
                                         </p>
+                                    </div>
+
+                                    <!-- Detailed Product Preferences -->
+                                    <div class="space-y-4" data-role-field="buyer">
+                                        <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
+                                            Detailed Product Preferences
+                                        </h4>
+                                        <div class="relative w-full">
+                                            @php($preferredProductsError = $errors->first('preferred_products'))
+                                            <textarea name="preferred_products" id="preferred_products"
+                                                data-role-field="buyer" @disabled($activeRole !== 'buyer')
+                                                class="peer w-full px-4 py-4 border-2 border-gray-100 rounded-md focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-50 transition-all min-h-[140px] bg-white/50 font-medium placeholder-gray-300"
+                                                placeholder="e.g., Looking for organic highland vegetables, approximately 200kg weekly"
+                                                data-role-required="buyer"
+                                                required>{{ old('preferred_products') }}</textarea>
+                                            <p class="input-error text-sm text-red-600 mt-1 {{ $preferredProductsError ? '' : 'hidden' }}"
+                                                data-error-for="preferred_products">
+                                                {{ $preferredProductsError }}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 

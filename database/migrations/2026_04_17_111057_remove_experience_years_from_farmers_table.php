@@ -11,7 +11,7 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('farmers', function (Blueprint $table) {
-            //
+            // Field already removed manually or by previous configuration
         });
     }
 

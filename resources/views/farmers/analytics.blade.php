@@ -115,6 +115,53 @@
                 @endif
             </div>
         </div>
+
+        <!-- Comprehensive Market Insights -->
+        <div class="grid gap-6 lg:grid-cols-2 mb-8">
+            <!-- Regional Demand -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Regional Market Demand</h2>
+                    <i class="fas fa-globe-asia text-green-500"></i>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="regionalDemandChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Supply vs Demand -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Supply vs Market Demand</h2>
+                    <i class="fas fa-balance-scale text-orange-500"></i>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="supplyDemandChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Match Status -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Demand Match Insights</h2>
+                    <i class="fas fa-handshake text-blue-500"></i>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="matchStatusChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Detailed Delivery Status -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Delivery Status Distribution</h2>
+                    <i class="fas fa-truck text-purple-500"></i>
+                </div>
+                <div class="relative h-64 w-full">
+                    <canvas id="deliveryStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Chart.js Resources -->
@@ -126,7 +173,24 @@
             trendValues: {!! json_encode($trendValues) !!},
             productLabels: {!! json_encode($productLabels) !!},
             productRevenues: {!! json_encode($productRevenues) !!},
-            orderRateData: {!! json_encode($orderRateData) !!}
+            orderRateData: {!! json_encode($orderRateData) !!},
+            regionalDemand: {
+                labels: {!! json_encode($regionalDemand->pluck('province')) !!},
+                datasets: {!! json_encode($regionalDemand->pluck('demand_count')) !!}
+            },
+            matchStatus: {
+                labels: {!! json_encode($matchStatusDistribution->pluck('status')) !!},
+                datasets: {!! json_encode($matchStatusDistribution->pluck('count')) !!}
+            },
+            deliveryStatus: {
+                labels: {!! json_encode($orderStatusDistribution->pluck('status')) !!},
+                datasets: {!! json_encode($orderStatusDistribution->pluck('count')) !!}
+            },
+            supplyDemand: {
+                labels: {!! json_encode($supplyDemandData['labels']) !!},
+                supply: {!! json_encode(array_values($supplyDemandData['supply']->toArray())) !!},
+                demand: {!! json_encode(array_values($supplyDemandData['demand']->toArray())) !!}
+            }
         };
     </script>
     @vite('resources/js/farmer/farmer-analytics.js')

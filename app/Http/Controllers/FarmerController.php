@@ -101,7 +101,7 @@ class FarmerController extends Controller
         $revenueData = \App\Models\Transaction::where('farmer_id', $user->id)
             ->where('status', 'completed')
             ->where('created_at', '>=', now()->subDays(30))
-            ->selectRaw('DATE(updated_at) as date, SUM(final_price) as total_revenue')
+            ->selectRaw('DATE(updated_at) as date, SUM(total_amount) as total_revenue')
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get();
@@ -121,7 +121,7 @@ class FarmerController extends Controller
         $topProducts = \App\Models\Transaction::with('product')
             ->where('farmer_id', $user->id)
             ->where('status', 'completed')
-            ->selectRaw('product_id, COUNT(*) as sales_count, SUM(final_price) as total_revenue')
+            ->selectRaw('product_id, COUNT(*) as sales_count, SUM(total_amount) as total_revenue')
             ->groupBy('product_id')
             ->orderByDesc('total_revenue')
             ->take(5)
@@ -145,19 +145,55 @@ class FarmerController extends Controller
         $orderRateData = [$completed, $cancelled, $rejected];
 
         // Overall stats
-        $totalRevenue = \App\Models\Transaction::where('farmer_id', $user->id)->where('status', 'completed')->sum('final_price');
+        $totalRevenue = \App\Models\Transaction::where('farmer_id', $user->id)->where('status', 'completed')->sum('total_amount');
         $totalOrders = \App\Models\Transaction::where('farmer_id', $user->id)->count();
+
+        // 4. Regional Demand (Admin style)
+        $regionalDemand = \App\Models\Demand::selectRaw('province, COUNT(*) as demand_count')
+            ->whereNotNull('province')
+            ->groupBy('province')
+            ->orderBy('demand_count', 'desc')
+            ->limit(5)
+            ->get();
+
+        $matchStatusDistribution = \App\Models\DemandMatch::whereHas('product', function($q) use ($user) {
+                $q->where('farmer_id', $user->farmer->id);
+            })
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        $orderStatusDistribution = \App\Models\Transaction::where('farmer_id', $user->id)
+            ->selectRaw('delivery_status as status, COUNT(*) as count')
+            ->groupBy('delivery_status')
+            ->get();
+
+        $supplyDemandData = [
+            'labels' => $productLabels,
+            'supply' => \App\Models\Product::where('farmer_id', $user->farmer->id)
+                ->whereIn('product_name', $productLabels)
+                ->get()
+                ->pluck('quantity', 'product_name'),
+            'demand' => \App\Models\Demand::whereIn('product_name', $productLabels)
+                ->groupBy('product_name')
+                ->selectRaw('product_name, SUM(quantity) as total_demand')
+                ->get()
+                ->pluck('total_demand', 'product_name')
+        ];
 
         return view('farmers.analytics', compact(
             'totalRevenue',
             'totalOrders',
-            'topProducts',
             'trendLabels',
             'trendValues',
             'productLabels',
             'productRevenues',
             'orderRateData',
-            'user'
+            'user',
+            'regionalDemand',
+            'matchStatusDistribution',
+            'orderStatusDistribution',
+            'supplyDemandData'
         ));
     }
 
@@ -226,7 +262,8 @@ class FarmerController extends Controller
             // Farmer specific fields
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
-            'product_type' => 'nullable|string|max:255',
+            'categories' => 'nullable|string',
+            'product_type' => 'nullable|string',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
         ]);
@@ -258,6 +295,7 @@ class FarmerController extends Controller
             $user->farmer->update($request->only([
                 'farm_name',
                 'farm_size',
+                'categories',
                 'product_type',
                 'certification',
                 'farm_address'
@@ -267,6 +305,7 @@ class FarmerController extends Controller
             $user->farmer()->create($request->only([
                 'farm_name',
                 'farm_size',
+                'categories',
                 'product_type',
                 'certification',
                 'farm_address'

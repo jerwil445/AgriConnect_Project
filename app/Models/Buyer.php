@@ -13,6 +13,7 @@ class Buyer extends Model
         'user_id',
         'company_name',
         'business_type',
+        'categories',
         'preferred_products',
         'address',
         'verified',

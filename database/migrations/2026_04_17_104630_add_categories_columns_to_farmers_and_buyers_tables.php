@@ -11,7 +11,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('farmers', function (Blueprint $table) {
-            //
+            $table->text('categories')->nullable()->after('product_type');
+        });
+
+        Schema::table('buyers', function (Blueprint $table) {
+            $table->text('categories')->nullable()->after('preferred_products');
         });
     }
 

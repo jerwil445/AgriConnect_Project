@@ -120,9 +120,24 @@
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Land Area Coverage</label>
                             <p class="text-gray-900 font-bold bg-emerald-50/50 px-4 py-3 rounded-xl border border-emerald-100/50">{{ Auth::user()->farmer->farm_size ?? 'Not specified' }}</p>
                         </div>
-                        <div>
-                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Primary Specialization</label>
-                            <p class="text-gray-900 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">{{ Auth::user()->farmer->product_type ?? 'Not specified' }}</p>
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Crops Categories</label>
+                            <div class="flex flex-wrap gap-2">
+                                @if(Auth::user()->farmer->categories)
+                                    @foreach(explode(',', Auth::user()->farmer->categories) as $cat)
+                                        <span class="inline-flex items-center px-4 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
+                                            {{ trim($cat) }}
+                                        </span>
+                                    @endforeach
+                                @else
+                                    <p class="text-gray-400 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">None specified</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Specific Produce Details</label>
+                            <p class="text-gray-900 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 italic">{{ Auth::user()->farmer->product_type ?? 'Not specified' }}</p>
                         </div>
 
                         <div class="md:col-span-2">

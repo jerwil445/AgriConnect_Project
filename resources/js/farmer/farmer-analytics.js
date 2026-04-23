@@ -249,4 +249,110 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // 4. Regional Demand Chart
+    const regionalCanvas = document.getElementById('regionalDemandChart');
+    if (regionalCanvas) {
+        new Chart(regionalCanvas, {
+            type: 'doughnut',
+            data: {
+                labels: data.regionalDemand.labels,
+                datasets: [{
+                    data: data.regionalDemand.datasets,
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                    borderWidth: 0,
+                    spacing: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                }
+            }
+        });
+    }
+
+    // 5. Match Status Chart
+    const matchCanvas = document.getElementById('matchStatusChart');
+    if (matchCanvas) {
+        new Chart(matchCanvas, {
+            type: 'pie',
+            data: {
+                labels: data.matchStatus.labels,
+                datasets: [{
+                    data: data.matchStatus.datasets,
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+    }
+
+    // 6. Delivery Status Chart
+    const deliveryCanvas = document.getElementById('deliveryStatusChart');
+    if (deliveryCanvas) {
+        new Chart(deliveryCanvas, {
+            type: 'bar',
+            data: {
+                labels: data.deliveryStatus.labels,
+                datasets: [{
+                    label: 'Transactions',
+                    data: data.deliveryStatus.datasets,
+                    backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // 7. Supply vs Demand Chart
+    const supplyDemandCanvas = document.getElementById('supplyDemandChart');
+    if (supplyDemandCanvas) {
+        new Chart(supplyDemandCanvas, {
+            type: 'bar',
+            data: {
+                labels: data.supplyDemand.labels,
+                datasets: [
+                    {
+                        label: 'Your Supply',
+                        data: data.supplyDemand.supply,
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Market Demand',
+                        data: data.supplyDemand.demand,
+                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
 });
+

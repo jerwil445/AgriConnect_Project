@@ -168,14 +168,30 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div class="space-y-4" data-role-field="farmer">
+                                        <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                                            Crops Category
+                                        </h4>
+                                        <div class="flex flex-wrap gap-2.5 px-2" id="farmer-categories">
+                                            @php
+                                                $selectedCats = Auth::user()->farmer->categories ? explode(',', Auth::user()->farmer->categories) : [];
+                                            @endphp
+                                            @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                                @php $isActive = in_array($category, $selectedCats); @endphp
+                                                <button type="button" data-category="{{ $category }}"
+                                                    class="category-chip px-6 py-3 rounded-2xl border-2 {{ $isActive ? 'border-green-500 text-green-600 bg-green-50' : 'border-gray-100 bg-white text-gray-500' }} text-sm font-bold hover:border-green-400 hover:text-green-600 transition-all shadow-sm active:scale-95">
+                                                    {{ $category }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                        <input type="hidden" name="categories" id="categories-input" value="{{ Auth::user()->farmer->categories }}">
+                                    </div>
+
                                     <div class="space-y-3">
                                         <label for="product_type"
-                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Crop/Product
-                                            Core Category</label>
-                                        <input type="text" name="product_type" id="product_type"
-                                            value="{{ old('product_type', Auth::user()->farmer->product_type) }}"
-                                            placeholder="e.g. Fruits, Grains"
-                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                            class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Specific Produce Details</label>
+                                        <textarea name="product_type" id="product_type"
+                                            class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none min-h-[120px]">{{ old('product_type', Auth::user()->farmer->product_type) }}</textarea>
                                         @error('product_type')
                                             <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
                                         @enderror

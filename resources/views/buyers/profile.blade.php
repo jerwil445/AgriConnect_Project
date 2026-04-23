@@ -141,22 +141,24 @@
                             <div class="md:col-span-2">
                                 <label
                                     class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Sourcing
-                                    Interests</label>
+                                    Interest Categories</label>
                                 <div class="flex flex-wrap gap-2">
-                                    @php
-                                        $interests = explode(',', Auth::user()->buyer->preferred_products ?? '');
-                                    @endphp
-                                    @forelse($interests as $interest)
-                                        @if(trim($interest))
-                                            <span
-                                                class="px-4 py-2 bg-blue-50 text-blue-700 rounded-xl font-bold text-sm border border-blue-100">{{ trim($interest) }}</span>
-                                        @endif
-                                    @empty
-                                        <p
-                                            class="text-gray-400 italic font-medium p-4 bg-gray-50 w-full rounded-xl border border-dashed border-gray-200">
-                                            No interests specified yet.</p>
-                                    @endforelse
+                                    @if(Auth::user()->buyer->categories)
+                                        @foreach(explode(',', Auth::user()->buyer->categories) as $cat)
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
+                                                {{ trim($cat) }}
+                                            </span>
+                                        @endforeach
+                                    @else
+                                        <p class="text-gray-400 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">None specified</p>
+                                    @endif
                                 </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label
+                                    class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2">Detailed Sourcing Preferences</label>
+                                <p class="text-gray-900 font-bold bg-gray-50 px-4 py-3 rounded-xl border border-gray-100 italic">
+                                    {{ Auth::user()->buyer->preferred_products ?? 'Not specified' }}</p>
                             </div>
                             <div class="md:col-span-2">
                                 <label

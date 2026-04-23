@@ -164,14 +164,30 @@
                                         @enderror
                                     </div>
                                 </div>
+                                <div class="space-y-4" data-role-field="buyer">
+                                    <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">
+                                        Sourcing Interest Categories
+                                    </h4>
+                                    <div class="flex flex-wrap gap-2.5 px-2" id="buyer-categories">
+                                        @php
+                                            $selectedCats = Auth::user()->buyer->categories ? explode(',', Auth::user()->buyer->categories) : [];
+                                        @endphp
+                                        @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                            @php $isActive = in_array($category, $selectedCats); @endphp
+                                            <button type="button" data-category="{{ $category }}"
+                                                class="category-chip px-6 py-3 rounded-2xl border-2 {{ $isActive ? 'border-indigo-500 text-indigo-600 bg-indigo-50' : 'border-gray-100 bg-white text-gray-500' }} text-sm font-bold hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm active:scale-95">
+                                                {{ $category }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                    <input type="hidden" name="categories" id="buyer-categories-input" value="{{ Auth::user()->buyer->categories }}">
+                                </div>
+
                                 <div class="space-y-2">
                                     <label for="preferred_products"
-                                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Sourcing
-                                        Interests (Comma Separated)</label>
-                                    <input type="text" name="preferred_products" id="preferred_products"
-                                        value="{{ old('preferred_products', Auth::user()->buyer->preferred_products) }}"
-                                        placeholder="e.g. Banana, Chicken, Rice"
-                                        class="w-full bg-gray-50 border-gray-100 rounded-xl px-4 py-3.5 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all border outline-none">
+                                        class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-1">Detailed Sourcing Preferences</label>
+                                    <textarea name="preferred_products" id="preferred_products"
+                                        class="w-full bg-gray-50 border-gray-100 rounded-xl px-4 py-3.5 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-indigo-50/50 transition-all border outline-none min-h-[120px]">{{ old('preferred_products', Auth::user()->buyer->preferred_products) }}</textarea>
                                     @error('preferred_products')
                                         <p class="text-[10px] text-red-500 font-bold mt-1 px-1">{{ $message }}</p>
                                     @enderror

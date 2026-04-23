@@ -41,21 +41,20 @@ const fieldValidations = {
         dependsOnRole: "farmer",
     },
 
+    categories: {
+        rules: [{ type: "required", message: "Select at least one category." }],
+    },
     product_type: {
-        rules: [{ type: "required", message: "Product type is required." }],
-        dependsOnRole: "farmer",
+        rules: [{ type: "required", message: "Specific produce details are required." }],
     },
     business_type: {
         rules: [{ type: "required", message: "Business type is required for buyers." }],
-        dependsOnRole: "buyer",
     },
     preferred_products: {
         rules: [{ type: "required", message: "Preferred products are required." }],
-        dependsOnRole: "buyer",
     },
     buyer_address: {
         rules: [{ type: "required", message: "Business address is required." }],
-        dependsOnRole: "buyer",
     },
     other_business_type: {
         rules: [
@@ -176,12 +175,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const roleScopedFields = form.querySelectorAll("[data-role-field]");
 
-    const fieldEntries = Object.entries(fieldValidations).map(([name, config]) => ({
-        name,
-        input: form.querySelector(`[name="${name}"]`),
-        errorEl: form.querySelector(`[data-error-for="${name}"]`),
-        ...config,
-    }));
+    const fields = Array.from(form.querySelectorAll("[name]"));
+    const fieldEntries = fields.map((input) => {
+        const name = input.name;
+        const config = fieldValidations[name] || {};
+        return {
+            name,
+            input,
+            // Find error element associated with this specific field context if possible, otherwise fallback to form-wide
+            errorEl: input.closest('.space-y-4')?.querySelector(`[data-error-for="${name}"]`) || 
+                     form.querySelector(`[data-error-for="${name}"]`),
+            dependsOnRole: input.dataset.roleField || config.dependsOnRole,
+            ...config,
+        };
+    });
 
     function applyRoleFieldState(role) {
         roleScopedFields.forEach((field) => {
@@ -277,6 +284,48 @@ document.addEventListener("DOMContentLoaded", () => {
             handleValidation(field, { form, roleInput })
         );
     });
+
+    // Generic Category Chips Logic
+    function initializeCategoryChips(containerId, inputId) {
+        const container = document.getElementById(containerId);
+        const input = document.getElementById(inputId);
+        if (!container || !input) return;
+
+        const chips = container.querySelectorAll('.category-chip');
+        let selected = input.value ? input.value.split(',').filter(c => c.trim() !== "") : [];
+
+        // UI Initialization
+        chips.forEach(chip => {
+            if (selected.includes(chip.dataset.category)) {
+                chip.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
+                chip.classList.remove('border-gray-100', 'text-gray-500', 'bg-white');
+            }
+
+            chip.addEventListener('click', () => {
+                const category = chip.dataset.category;
+                if (selected.includes(category)) {
+                    selected = selected.filter(c => c !== category);
+                    chip.classList.remove('border-green-500', 'text-green-600', 'bg-green-50');
+                    chip.classList.add('border-gray-100', 'text-gray-500', 'bg-white');
+                } else {
+                    selected.push(category);
+                    chip.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
+                    chip.classList.remove('border-gray-100', 'text-gray-500', 'bg-white');
+                }
+                input.value = selected.join(',');
+                
+                // Trigger validation manually
+                const fieldName = input.name;
+                const fieldConfig = fieldEntries.find(f => f.name === fieldName);
+                if (fieldConfig) {
+                    handleValidation(fieldConfig, { form, roleInput });
+                }
+            });
+        });
+    }
+
+    initializeCategoryChips('farmer-categories', 'categories-input');
+    initializeCategoryChips('buyer-categories', 'buyer-categories-input');
 
     form.addEventListener("submit", (event) => {
         let formIsValid = true;

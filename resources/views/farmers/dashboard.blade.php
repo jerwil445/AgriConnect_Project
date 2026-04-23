@@ -121,7 +121,7 @@
         </section>
 
         <!-- Recent Activity -->
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col">
+        <!-- <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex flex-col">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
                     <i class="fas fa-clock-rotate-left text-gray-500"></i> Recent Activity
@@ -149,10 +149,10 @@
                     </div>
                 @endforelse
             </div>
-        </section>
+        </section> -->
 
         <!-- Market Insights -->
-        <section
+        <!-- <section
             class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow flex flex-col">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -193,6 +193,6 @@
                     </div>
                 @endforelse
             </div>
-        </section>
+        </section> -->
     </div>
 @endsection

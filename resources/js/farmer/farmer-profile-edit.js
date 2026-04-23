@@ -22,4 +22,33 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+    // Category Chips Logic
+    const categoryChips = document.querySelectorAll('.category-chip');
+    const categoriesInput = document.getElementById('categories-input');
+    let selectedCategories = [];
+
+    // Initialize from hidden input
+    if (categoriesInput && categoriesInput.value) {
+        selectedCategories = categoriesInput.value.split(',').filter(c => c.trim() !== "");
+    }
+
+    categoryChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const category = chip.dataset.category;
+            
+            if (selectedCategories.includes(category)) {
+                // Remove
+                selectedCategories = selectedCategories.filter(c => c !== category);
+                chip.classList.remove('border-green-500', 'text-green-600', 'bg-green-50');
+                chip.classList.add('border-gray-100', 'bg-white', 'text-gray-500');
+            } else {
+                // Add
+                selectedCategories.push(category);
+                chip.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
+                chip.classList.remove('border-gray-100', 'bg-white', 'text-gray-500');
+            }
+
+            categoriesInput.value = selectedCategories.join(',');
+        });
+    });
 });

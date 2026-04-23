@@ -151,6 +151,7 @@ class BuyerController extends Controller
             $user->profile_picture,
             $user->buyer?->company_name,
             $user->buyer?->business_type,
+            $user->buyer?->categories,
             $user->buyer?->preferred_products,
             $user->buyer?->address
         ];
@@ -228,7 +229,8 @@ class BuyerController extends Controller
             // Buyer specific fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'nullable|string|max:255',
-            'preferred_products' => 'nullable|string|max:255',
+            'categories' => 'nullable|string',
+            'preferred_products' => 'nullable|string',
             'buyer_address' => 'nullable|string|max:255',
         ]);
 
@@ -258,6 +260,7 @@ class BuyerController extends Controller
             $user->buyer->update([
                 'company_name' => $request->input('company_name'),
                 'business_type' => $request->input('business_type'),
+                'categories' => $request->input('categories'),
                 'preferred_products' => $request->input('preferred_products'),
                 'address' => $request->input('buyer_address'),
             ]);
@@ -266,6 +269,7 @@ class BuyerController extends Controller
             $user->buyer()->create([
                 'company_name' => $request->input('company_name'),
                 'business_type' => $request->input('business_type'),
+                'categories' => $request->input('categories'),
                 'preferred_products' => $request->input('preferred_products'),
                 'address' => $request->input('buyer_address'),
             ]);
@@ -360,6 +364,26 @@ class BuyerController extends Controller
             ->take(5)
             ->get();
 
+        // Admin-style charts for Buyer Analytics
+        $regionalDemand = \App\Models\Demand::selectRaw('province, COUNT(*) as demand_count')
+            ->whereNotNull('province')
+            ->groupBy('province')
+            ->orderBy('demand_count', 'desc')
+            ->limit(5)
+            ->get();
+
+        $matchStatusDistribution = \App\Models\DemandMatch::whereHas('demand', function($q) use ($user) {
+                $q->where('buyer_id', $user->id);
+            })
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->get();
+
+        $orderStatusDistribution = \App\Models\Transaction::where('buyer_id', $user->id)
+            ->selectRaw('delivery_status as status, COUNT(*) as count')
+            ->groupBy('delivery_status')
+            ->get();
+
         return view('buyers.analytics', compact(
             'totalSpent',
             'activeDemandsCount',
@@ -368,7 +392,10 @@ class BuyerController extends Controller
             'productStats',
             'monthlySpending',
             'spendingTrend',
-            'topSuppliers'
+            'topSuppliers',
+            'regionalDemand',
+            'matchStatusDistribution',
+            'orderStatusDistribution'
         ));
     }
 }

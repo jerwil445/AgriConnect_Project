@@ -13,6 +13,7 @@ class Farmer extends Model
         'user_id',
         'farm_name',
         'farm_size',
+        'categories',
         'product_type',
 
         'certification',

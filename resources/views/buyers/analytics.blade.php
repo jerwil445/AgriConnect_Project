@@ -146,6 +146,49 @@
         </div>
     </div>
 
+    {{-- Market Intelligence Grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        {{-- Regional Demand --}}
+        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-globe-asia text-xs"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 tracking-tight">Regional Demand Signaling</h3>
+            </div>
+            <div class="h-[300px]">
+                <canvas id="regionalDemandChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Match Status --}}
+        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-handshake text-xs"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 tracking-tight">Market Match Efficiency</h3>
+            </div>
+            <div class="h-[300px]">
+                <canvas id="matchStatusChart"></canvas>
+            </div>
+        </div>
+
+        {{-- Order Status Bar --}}
+        <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center gap-4 mb-10">
+                <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-truck-loading text-xs"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 tracking-tight">Procurement Status Distribution</h3>
+            </div>
+            <div class="h-[300px]">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
     {{-- Supplier Performance Table --}}
     <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden mb-10">
         <div class="px-10 py-8 border-b border-gray-50 flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -238,6 +281,18 @@
             productStats: {
                 labels: @json($productStats->pluck('product_name')),
                 spent: @json($productStats->pluck('total_spent'))
+            },
+            regionalDemand: {
+                labels: {!! json_encode($regionalDemand->pluck('province')) !!},
+                datasets: {!! json_encode($regionalDemand->pluck('demand_count')) !!}
+            },
+            matchStatus: {
+                labels: {!! json_encode($matchStatusDistribution->pluck('status')) !!},
+                datasets: {!! json_encode($matchStatusDistribution->pluck('count')) !!}
+            },
+            orderStatus: {
+                labels: {!! json_encode($orderStatusDistribution->pluck('status')) !!},
+                datasets: {!! json_encode($orderStatusDistribution->pluck('count')) !!}
             }
         };
     </script>

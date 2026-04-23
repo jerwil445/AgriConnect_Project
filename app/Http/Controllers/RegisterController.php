@@ -26,12 +26,14 @@ class RegisterController extends Controller
             // Farmer fields
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'required_if:role,farmer|numeric|min:0',
-            'product_type' => 'required_if:role,farmer|string|max:255',
+            'categories' => 'required_if:role,farmer|string',
+            'product_type' => 'required_if:role,farmer|string',
             // Buyer fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'required_if:role,buyer|string|max:50',
             'other_business_type' => 'required_if:business_type,others|nullable|string|max:255',
-            'preferred_products' => 'required_if:role,buyer|string|max:255',
+            'categories' => 'required_if:role,buyer|string',
+            'preferred_products' => 'required_if:role,buyer|string',
             'buyer_address' => 'required_if:role,buyer|string|max:255',
         ]);
 
@@ -56,6 +58,7 @@ class RegisterController extends Controller
                 'user_id' => $user->id,
                 'farm_name' => $request->farm_name ?? 'Unnamed Farm',
                 'farm_size' => $request->farm_size !== null ? (float) $request->farm_size : null,
+                'categories' => $request->categories ?? null,
                 'product_type' => $request->product_type ?? null,
                 'certification' => null,
                 'farm_address' => $request->address ?? null,
@@ -65,6 +68,7 @@ class RegisterController extends Controller
                 'user_id' => $user->id,
                 'company_name' => $request->company_name ?? null,
                 'business_type' => $request->business_type === 'others' ? $request->other_business_type : $request->business_type,
+                'categories' => $request->categories ?? null,
                 'preferred_products' => $request->preferred_products ?? null,
                 'address' => $request->buyer_address ?? null,
             ]);

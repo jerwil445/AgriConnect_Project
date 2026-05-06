@@ -42,11 +42,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#111827',
+                        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                        titleColor: '#111827',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
                         padding: 12,
-                        titleFont: { family: 'Inter', weight: 'bold', size: 12 },
-                        bodyFont: { family: 'Inter', size: 12 },
+                        cornerRadius: 12,
+                        titleFont: { family: 'Inter', weight: 'bold', size: 14 },
+                        bodyFont: { family: 'Inter', size: 13 },
                         usePointStyle: true,
+                        displayColors: true,
+                        boxPadding: 6,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (context.datasetIndex === 0) { // Capital
+                                    label = 'Capital: ' + new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                                } else { // Volume
+                                    label = 'Volume: ' + context.parsed.y.toLocaleString() + ' kg';
+                                }
+                                return label;
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -90,9 +108,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 plugins: {
                     legend: { display: false },
                     tooltip: {
-                        backgroundColor: '#111827',
+                        backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                        titleColor: '#111827',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e2e8f0',
+                        borderWidth: 1,
                         padding: 12,
+                        cornerRadius: 12,
                         titleFont: { weight: 'bold' },
+                        displayColors: true,
+                        usePointStyle: true,
+                        boxPadding: 6,
                         callbacks: {
                             label: function(item) {
                                 return ' ₱' + item.raw.toLocaleString();

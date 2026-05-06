@@ -97,24 +97,54 @@ class FarmerController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Revenue Trends (Last 30 days)
-        $revenueData = \App\Models\Transaction::where('farmer_id', $user->id)
-            ->where('status', 'completed')
-            ->where('created_at', '>=', now()->subDays(30))
-            ->selectRaw('DATE(updated_at) as date, SUM(total_amount) as total_revenue')
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->get();
+        $range = request('revenue_range', 'daily');
+        $query = \App\Models\Transaction::where('farmer_id', $user->id)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics']);
 
         $trendLabels = [];
         $trendValues = [];
-        for ($i = 29; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
-            $displayDate = now()->subDays($i)->format('M d');
-            $trendLabels[] = $displayDate;
 
-            $record = $revenueData->firstWhere('date', $date);
-            $trendValues[] = $record ? (float) $record->total_revenue : 0;
+        if ($range === 'yearly') {
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subYears(5))
+                ->selectRaw("to_char(transactions.created_at, 'YYYY') as period, SUM(total_amount) as total_revenue")
+                ->groupBy('period')
+                ->orderBy('period', 'asc')
+                ->get();
+
+            for ($i = 4; $i >= 0; $i--) {
+                $period = now()->subYears($i)->format('Y');
+                $trendLabels[] = $period;
+                $record = $revenueData->firstWhere('period', $period);
+                $trendValues[] = $record ? (float) $record->total_revenue : 0;
+            }
+        } elseif ($range === 'monthly') {
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subMonths(12))
+                ->selectRaw("to_char(transactions.created_at, 'YYYY-MM') as period, SUM(total_amount) as total_revenue")
+                ->groupBy('period')
+                ->orderBy('period', 'asc')
+                ->get();
+
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $period = $date->format('Y-m');
+                $trendLabels[] = $date->format('M Y');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendValues[] = $record ? (float) $record->total_revenue : 0;
+            }
+        } else { // daily
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subDays(30))
+                ->selectRaw("DATE(transactions.created_at) as period, SUM(total_amount) as total_revenue")
+                ->groupBy('period')
+                ->orderBy('period', 'asc')
+                ->get();
+
+            for ($i = 29; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $period = $date->format('Y-m-d');
+                $trendLabels[] = $date->format('M d');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendValues[] = $record ? (float) $record->total_revenue : 0;
+            }
         }
 
         // 2. Top Performing Products

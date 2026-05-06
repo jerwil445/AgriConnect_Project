@@ -325,16 +325,43 @@ class BuyerController extends Controller
             ->get();
 
         // 4. Monthly Spending & Volume Trends
-        $monthlySpending = Transaction::where('transactions.buyer_id', $user->id)
-            ->select(
-                DB::raw("to_char(transactions.created_at, 'Mon') as month"),
-                DB::raw('SUM(transactions.total_amount) as total'),
-                DB::raw('SUM(transactions.final_quantity) as volume'),
-                DB::raw('MIN(transactions.created_at) as sort_date')
-            )
-            ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon')"))
-            ->orderBy('sort_date')
-            ->get();
+        $range = request('sourcing_range', 'monthly');
+        $query = Transaction::where('transactions.buyer_id', $user->id);
+
+        if ($range === 'yearly') {
+            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subYears(5))
+                ->select(
+                    DB::raw("to_char(transactions.created_at, 'YYYY') as month"),
+                    DB::raw('SUM(transactions.total_amount) as total'),
+                    DB::raw('SUM(transactions.final_quantity) as volume'),
+                    DB::raw('MIN(transactions.created_at) as sort_date')
+                )
+                ->groupBy(DB::raw("to_char(transactions.created_at, 'YYYY')"))
+                ->orderBy('sort_date')
+                ->get();
+        } elseif ($range === 'daily') {
+            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subDays(30))
+                ->select(
+                    DB::raw("to_char(transactions.created_at, 'Mon DD') as month"),
+                    DB::raw('SUM(transactions.total_amount) as total'),
+                    DB::raw('SUM(transactions.final_quantity) as volume'),
+                    DB::raw('MIN(transactions.created_at) as sort_date')
+                )
+                ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon DD')"))
+                ->orderBy('sort_date')
+                ->get();
+        } else { // monthly (default)
+            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subMonths(12))
+                ->select(
+                    DB::raw("to_char(transactions.created_at, 'Mon YYYY') as month"),
+                    DB::raw('SUM(transactions.total_amount) as total'),
+                    DB::raw('SUM(transactions.final_quantity) as volume'),
+                    DB::raw('MIN(transactions.created_at) as sort_date')
+                )
+                ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon YYYY')"))
+                ->orderBy('sort_date')
+                ->get();
+        }
 
         // 5. Calculate Spending Trend (vs Last Month)
         $thisMonthSpent = Transaction::where('buyer_id', $user->id)

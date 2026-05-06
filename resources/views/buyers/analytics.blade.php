@@ -98,6 +98,11 @@
                         <i class="fas fa-chart-area text-xs"></i>
                     </div>
                     <h3 class="text-xl font-black text-gray-900 tracking-tight">Sourcing Volume Trend</h3>
+                    <select id="sourcingRangeFilter" class="ml-4 text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
+                        <option value="daily" {{ request('sourcing_range') == 'daily' ? 'selected' : '' }}>Daily</option>
+                        <option value="monthly" {{ request('sourcing_range', 'monthly') == 'monthly' ? 'selected' : '' }}>Monthly</option>
+                        <option value="yearly" {{ request('sourcing_range') == 'yearly' ? 'selected' : '' }}>Yearly</option>
+                    </select>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-2">
@@ -272,6 +277,13 @@
 {{-- Chart.js and Initialization --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        document.getElementById('sourcingRangeFilter').addEventListener('change', function() {
+            const range = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('sourcing_range', range);
+            window.location.href = url.toString();
+        });
+
         window.buyerAnalyticsData = {
             monthlySpending: {
                 labels: @json($monthlySpending->pluck('month')),

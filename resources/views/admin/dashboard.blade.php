@@ -167,6 +167,11 @@
                                 <span class="w-2 h-6 bg-blue-500 rounded-full mr-2"></span>
                                 Sales Trends
                             </h2>
+                            <select id="salesRangeFilter" class="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
+                                <option value="daily" {{ request('sales_range') == 'daily' ? 'selected' : '' }}>Daily (30 Days)</option>
+                                <option value="monthly" {{ request('sales_range') == 'monthly' ? 'selected' : '' }}>Monthly (12 Months)</option>
+                                <option value="yearly" {{ request('sales_range') == 'yearly' ? 'selected' : '' }}>Yearly (5 Years)</option>
+                            </select>
                         </div>
                         <div class="h-80">
                             <canvas id="salesTrendsChart"></canvas>
@@ -382,6 +387,13 @@
     <!-- Include Chart.js Plugin for Data Labels -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
+        document.getElementById('salesRangeFilter').addEventListener('change', function() {
+            const range = this.value;
+            const url = new URL(window.location.href);
+            url.searchParams.set('sales_range', range);
+            window.location.href = url.toString();
+        });
+
         window.adminDashboardData = {
             salesTrends: {
                 labels: [@foreach($salesTrends as $trend)'{{ $trend->date }}', @endforeach],

@@ -33,12 +33,29 @@ class AdminController extends Controller
         // Pending notifications (simplified - in a real app, you might want to count unread messages, pending orders, etc.)
         $pendingNotifications = DemandMatch::where('status', 'Pending')->count();
 
-        // Sales/Revenue Trends (last 7 days)
-        $salesTrends = Transaction::selectRaw('DATE(created_at) as date, SUM(total_amount) as total')
-            ->where('created_at', '>=', now()->subDays(7))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+        // Sales/Revenue Trends
+        $range = request('sales_range', 'daily');
+        $salesQuery = Transaction::query();
+
+        if ($range === 'yearly') {
+            $salesTrends = $salesQuery->where('created_at', '>=', now()->subYears(5))
+                ->selectRaw("to_char(created_at, 'YYYY') as date, SUM(total_amount) as total")
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+        } elseif ($range === 'monthly') {
+            $salesTrends = $salesQuery->where('created_at', '>=', now()->subMonths(12))
+                ->selectRaw("to_char(created_at, 'Mon YYYY') as date, SUM(total_amount) as total")
+                ->groupBy('date')
+                ->orderByRaw("MIN(created_at)")
+                ->get();
+        } else { // daily
+            $salesTrends = $salesQuery->where('created_at', '>=', now()->subDays(30))
+                ->selectRaw("to_char(created_at, 'Mon DD') as date, SUM(total_amount) as total")
+                ->groupBy('date')
+                ->orderByRaw("MIN(created_at)")
+                ->get();
+        }
 
         // Product Popularity (top 5 products by transaction count)
         $productPopularity = Transaction::join('products', 'transactions.product_id', '=', 'products.id')

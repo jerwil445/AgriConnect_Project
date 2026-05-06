@@ -60,8 +60,17 @@
             <!-- Revenue Trend Chart -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-2">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold text-gray-900">Revenue Trend</h2>
-                    <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">30 Days</span>
+                    <h2 class="text-lg font-semibold text-gray-900">Revenue Trend
+                        ({{ ucfirst(request('revenue_range', 'daily')) }})</h2>
+                    <select id="revenueRangeFilter"
+                        class="text-xs font-semibold text-gray-500 uppercase tracking-wider bg-gray-50 border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer">
+                        <option value="daily" {{ request('revenue_range') == 'daily' ? 'selected' : '' }}>Daily (30 Days)
+                        </option>
+                        <option value="monthly" {{ request('revenue_range') == 'monthly' ? 'selected' : '' }}>Monthly (12
+                            Months)</option>
+                        <option value="yearly" {{ request('revenue_range') == 'yearly' ? 'selected' : '' }}>Yearly (5 Years)
+                        </option>
+                    </select>
                 </div>
                 <!-- If there's absolutely NO revenue, show a placeholder, else show canvas -->
                 @if($totalRevenue == 0)
@@ -192,7 +201,108 @@
                 demand: {!! json_encode(array_values($supplyDemandData['demand']->toArray())) !!}
             }
         };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Dropdown handler
+            const filter = document.getElementById('revenueRangeFilter');
+            if (filter) {
+                filter.addEventListener('change', function () {
+                    const range = this.value;
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('revenue_range', range);
+                    window.location.href = url.toString();
+                });
+            }
+        });
     </script>
     @vite('resources/js/farmer/farmer-analytics.js')
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('revenueChart');
+            if (!canvas) return;
+
+            const rtx = canvas.getContext('2d');
+            const gradient = rtx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(22, 163, 74, 0.2)');
+            gradient.addColorStop(1, 'rgba(22, 163, 74, 0)');
+
+            // Clean up any existing chart instance
+            const existingChart = Chart.getChart(canvas);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
+            new Chart(rtx, {
+                type: 'line',
+                data: {
+                    labels: {!! json_encode($trendLabels) !!},
+                    datasets: [{
+                        label: 'Revenue (₱)',
+                        data: {!! json_encode($trendValues) !!},
+                        borderColor: '#16a34a',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#16a34a',
+                        pointBorderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 10,
+                        pointHoverBackgroundColor: '#16a34a',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onHover: (event, chartElement) => {
+                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: true,
+                    },
+                    plugins: {
+                        datalabels: { display: false },
+                        legend: { display: true, position: 'top' },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                            titleColor: '#111827',
+                            bodyColor: '#4b5563',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 12,
+                            displayColors: true,
+                            usePointStyle: true,
+                            boxPadding: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                                    return 'Revenue: ' + value;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6', borderDash: [5, 5] },
+                            ticks: {
+                                callback: function(value) {
+                                    return '₱' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 @endsection

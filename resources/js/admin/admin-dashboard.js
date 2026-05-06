@@ -9,13 +9,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Global Chart Defaults
     Chart.defaults.font.family = "'Plus Jakarta Sans', 'Inter', sans-serif";
     Chart.defaults.color = '#64748b';
-    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-    Chart.defaults.plugins.tooltip.titleColor = '#1e293b';
-    Chart.defaults.plugins.tooltip.bodyColor = '#475569';
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(255, 255, 255, 0.98)';
+    Chart.defaults.plugins.tooltip.titleColor = '#111827';
+    Chart.defaults.plugins.tooltip.bodyColor = '#4b5563';
     Chart.defaults.plugins.tooltip.borderColor = '#e2e8f0';
     Chart.defaults.plugins.tooltip.borderWidth = 1;
     Chart.defaults.plugins.tooltip.padding = 12;
-    Chart.defaults.plugins.tooltip.cornerRadius = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 12;
+    Chart.defaults.plugins.tooltip.displayColors = true;
+    Chart.defaults.plugins.tooltip.usePointStyle = true;
+    Chart.defaults.plugins.tooltip.boxPadding = 6;
 
     const data = window.adminDashboardData || {};
 
@@ -47,15 +50,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     pointBackgroundColor: '#fff',
                     pointBorderColor: 'rgb(75, 192, 192)',
                     pointBorderWidth: 2,
-                    pointHoverRadius: 6,
+                    pointHoverRadius: 7,
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'nearest',
+                    intersect: true,
+                },
                 plugins: {
                     legend: { display: false },
-                    datalabels: { display: false }
+                    datalabels: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                const value = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                                return 'Revenue: ' + value;
+                            }
+                        }
+                    }
                 },
                 scales: {
                     y: { grid: { borderDash: [5, 5] }, beginAtZero: true },

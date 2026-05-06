@@ -218,91 +218,310 @@
     @vite('resources/js/farmer/farmer-analytics.js')
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const canvas = document.getElementById('revenueChart');
-            if (!canvas) return;
-
-            const rtx = canvas.getContext('2d');
-            const gradient = rtx.createLinearGradient(0, 0, 0, 400);
-            gradient.addColorStop(0, 'rgba(22, 163, 74, 0.2)');
-            gradient.addColorStop(1, 'rgba(22, 163, 74, 0)');
-
-            // Clean up any existing chart instance
-            const existingChart = Chart.getChart(canvas);
-            if (existingChart) {
-                existingChart.destroy();
+        document.addEventListener('DOMContentLoaded', function () {
+            // Register datalabels plugin globally
+            if (typeof ChartDataLabels !== 'undefined') {
+                Chart.register(ChartDataLabels);
             }
+            
+            const data = window.farmerAnalyticsData;
+            if (!data) return;
 
-            new Chart(rtx, {
-                type: 'line',
-                data: {
-                    labels: {!! json_encode($trendLabels) !!},
-                    datasets: [{
-                        label: 'Revenue (₱)',
-                        data: {!! json_encode($trendValues) !!},
-                        borderColor: '#16a34a',
-                        backgroundColor: gradient,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.4,
-                        pointBackgroundColor: '#ffffff',
-                        pointBorderColor: '#16a34a',
-                        pointBorderWidth: 2.5,
-                        pointRadius: 5,
-                        pointHoverRadius: 10,
-                        pointHoverBackgroundColor: '#16a34a',
-                        pointHoverBorderColor: '#ffffff',
-                        pointHoverBorderWidth: 3,
-                        pointHitRadius: 15
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    onHover: (event, chartElement) => {
-                        event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+            // 1. Revenue Trend Chart (Large dots, premium tooltips)
+            const revenueCanvas = document.getElementById('revenueChart');
+            if (revenueCanvas) {
+                const rtx = revenueCanvas.getContext('2d');
+                const gradient = rtx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, 'rgba(22, 163, 74, 0.2)');
+                gradient.addColorStop(1, 'rgba(22, 163, 74, 0)');
+
+                new Chart(rtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.trendLabels,
+                        datasets: [{
+                            label: 'Revenue (₱)',
+                            data: data.trendValues,
+                            borderColor: '#16a34a',
+                            backgroundColor: gradient,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#ffffff',
+                            pointBorderColor: '#16a34a',
+                            pointBorderWidth: 2.5,
+                            pointRadius: 5,
+                            pointHoverRadius: 10,
+                            pointHoverBackgroundColor: '#16a34a',
+                            pointHoverBorderColor: '#ffffff',
+                            pointHoverBorderWidth: 3,
+                            pointHitRadius: 15
+                        }]
                     },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: true,
-                    },
-                    plugins: {
-                        datalabels: { display: false },
-                        legend: { display: true, position: 'top' },
-                        tooltip: {
-                            enabled: true,
-                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
-                            titleColor: '#111827',
-                            bodyColor: '#4b5563',
-                            borderColor: '#e2e8f0',
-                            borderWidth: 1,
-                            padding: 12,
-                            cornerRadius: 12,
-                            displayColors: true,
-                            usePointStyle: true,
-                            boxPadding: 6,
-                            callbacks: {
-                                label: function(context) {
-                                    const value = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
-                                    return 'Revenue: ' + value;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        onHover: (event, chartElement) => {
+                            event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                        },
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: true,
+                        },
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                align: 'top',
+                                color: '#16a34a',
+                                font: { weight: 'bold', size: 10 },
+                                formatter: (value) => value > 0 ? '₱' + value.toLocaleString() : ''
+                            },
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                enabled: true,
+                                backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                                titleColor: '#111827',
+                                bodyColor: '#4b5563',
+                                borderColor: '#e2e8f0',
+                                borderWidth: 1,
+                                padding: 12,
+                                cornerRadius: 12,
+                                displayColors: true,
+                                usePointStyle: true,
+                                boxPadding: 6,
+                                callbacks: {
+                                    label: function (context) {
+                                        const value = new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                                        return 'Revenue: ' + value;
+                                    }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false } },
-                        y: { 
-                            beginAtZero: true,
-                            grid: { color: '#f3f4f6', borderDash: [5, 5] },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₱' + value.toLocaleString();
+                        },
+                        scales: {
+                            x: { grid: { display: false } },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#f3f4f6', borderDash: [5, 5] },
+                                ticks: {
+                                    callback: function (value) {
+                                        return '₱' + value.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
+
+            // 2. Top Products Bar Chart
+            const productsCanvas = document.getElementById('productsChart');
+            if (productsCanvas) {
+                new Chart(productsCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: data.productLabels,
+                        datasets: [{
+                            label: 'Total Revenue (₱)',
+                            data: data.productRevenues,
+                            backgroundColor: ['#4ade80', '#22c55e', '#16a34a', '#15803d', '#166534'],
+                            borderRadius: 8,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                color: '#fff',
+                                font: { weight: 'bold' },
+                                formatter: (value) => '₱' + value.toLocaleString()
+                            },
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                                callbacks: {
+                                    label: function (context) {
+                                        return '₱' + context.parsed.y.toLocaleString();
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // 3. Order Rate Doughnut
+            const orderRateCanvas = document.getElementById('orderRateChart');
+            if (orderRateCanvas) {
+                new Chart(orderRateCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Cancelled', 'Rejected'],
+                        datasets: [{
+                            data: data.orderRateData,
+                            backgroundColor: ['#16a34a', '#f97316', '#ef4444'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                color: '#fff',
+                                font: { weight: 'bold' },
+                                formatter: (value, ctx) => {
+                                    let sum = 0;
+                                    let dataArr = ctx.chart.data.datasets[0].data;
+                                    dataArr.map(data => { sum += data; });
+                                    let percentage = (value * 100 / sum).toFixed(1) + "%";
+                                    return value > 0 ? percentage : '';
+                                }
+                            },
+                            legend: { position: 'right' }
+                        }
+                    }
+                });
+            }
+
+            // 4. Regional Demand
+            const regionalCanvas = document.getElementById('regionalDemandChart');
+            if (regionalCanvas) {
+                new Chart(regionalCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.regionalDemand.labels,
+                        datasets: [{
+                            data: data.regionalDemand.datasets,
+                            backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                color: '#fff',
+                                font: { weight: 'bold' }
+                            },
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
+
+            // 5. Match Status
+            const matchCanvas = document.getElementById('matchStatusChart');
+            if (matchCanvas) {
+                new Chart(matchCanvas, {
+                    type: 'pie',
+                    data: {
+                        labels: data.matchStatus.labels,
+                        datasets: [{
+                            data: data.matchStatus.datasets,
+                            backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                color: '#fff',
+                                font: { weight: 'bold' }
+                            },
+                            legend: { position: 'right' }
+                        }
+                    }
+                });
+            }
+
+            // 6. Delivery Status
+            const deliveryCanvas = document.getElementById('deliveryStatusChart');
+            if (deliveryCanvas) {
+                new Chart(deliveryCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: data.deliveryStatus.labels,
+                        datasets: [{
+                            label: 'Orders',
+                            data: data.deliveryStatus.datasets,
+                            backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#6b7280',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
+
+            // 7. Supply vs Demand
+            const supplyDemandCanvas = document.getElementById('supplyDemandChart');
+            if (supplyDemandCanvas) {
+                new Chart(supplyDemandCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: data.supplyDemand.labels,
+                        datasets: [
+                            {
+                                label: 'Your Supply',
+                                data: data.supplyDemand.supply,
+                                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                                borderRadius: 4
+                            },
+                            {
+                                label: 'Market Demand',
+                                data: data.supplyDemand.demand,
+                                backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: true,
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#6b7280',
+                                font: { size: 10, weight: 'bold' }
+                            }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+            }
         });
     </script>
 @endsection

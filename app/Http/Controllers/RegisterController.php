@@ -27,13 +27,13 @@ class RegisterController extends Controller
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'required_if:role,farmer|numeric|min:0',
             'categories' => 'required_if:role,farmer|string',
-            'product_type' => 'required_if:role,farmer|string',
+            'product_type' => 'nullable|string',
             // Buyer fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'required_if:role,buyer|string|max:50',
             'other_business_type' => 'required_if:business_type,others|nullable|string|max:255',
             'categories' => 'required_if:role,buyer|string',
-            'preferred_products' => 'required_if:role,buyer|string',
+            'preferred_products' => 'nullable|string',
             'buyer_address' => 'required_if:role,buyer|string|max:255',
         ]);
 

@@ -45,13 +45,13 @@ const fieldValidations = {
         rules: [{ type: "required", message: "Select at least one category." }],
     },
     product_type: {
-        rules: [{ type: "required", message: "Specific produce details are required." }],
+        rules: [],
     },
     business_type: {
         rules: [{ type: "required", message: "Business type is required for buyers." }],
     },
     preferred_products: {
-        rules: [{ type: "required", message: "Preferred products are required." }],
+        rules: [],
     },
     buyer_address: {
         rules: [{ type: "required", message: "Business address is required." }],
@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Find error element associated with this specific field context if possible, otherwise fallback to form-wide
             errorEl: input.closest('.space-y-4')?.querySelector(`[data-error-for="${name}"]`) || 
                      form.querySelector(`[data-error-for="${name}"]`),
-            dependsOnRole: input.dataset.roleField || config.dependsOnRole,
+            dependsOnRole: input.dataset.roleRequired || config.dependsOnRole,
             ...config,
         };
     });

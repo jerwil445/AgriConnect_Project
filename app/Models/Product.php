@@ -12,7 +12,10 @@ class Product extends Model
     
     protected $fillable = [
         'farmer_id',
+        'category',
         'product_name',
+        'variety',
+        'size_grade',
         'variety_size',
         'description',
         'quantity',

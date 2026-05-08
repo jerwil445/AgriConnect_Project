@@ -1,0 +1,50 @@
+<?php
+
+return [
+    'Vegetables' => [
+        'Leafy Greens' => ['Pechay', 'Cabbage', 'Kangkong', 'Lettuce', 'Spinach', 'Mustard (Mustasa)', 'Malunggay'],
+        'Fruit-bearing' => ['Eggplant (Talong)', 'Tomato (Kamatis)', 'Ampalaya (Bitter Gourd)', 'Squash (Kalabasa)', 'Okra', 'Sitao (String Beans)', 'Bell Pepper', 'Chili (Siling Labuyo/Siling Haba)'],
+        'Root & Tuber' => ['Carrots', 'Potatoes', 'Radish (Labanos)', 'Sweet Potato (Camote)', 'Cassava (Kamoteng Kahoy)', 'Gabi (Taro)', 'Sayote'],
+        'Bulbs' => ['Onion (Red/White)', 'Garlic (Bawang)', 'Ginger (Luya)', 'Shallots'],
+    ],
+    'Fruits' => [
+        'Tropical' => ['Mango (Carabao/Pico)', 'Banana (Saba/Lacatan/Latundan)', 'Pineapple', 'Papaya', 'Watermelon', 'Honeydew'],
+        'Citrus' => ['Calamansi', 'Pomelo (Suha)', 'Dalandan', 'Orange'],
+        'Seasonal & Specialty' => ['Durian', 'Mangosteen', 'Rambutan', 'Lanzones', 'Guava (Bayabas)', 'Avocado', 'Jackfruit (Langka)', 'Dragon Fruit', 'Strawberry'],
+    ],
+    'Grains' => [
+        'Rice (Palay)' => ['Dinorado', 'Sinandomeng', 'Jasmine', 'Wagwag', 'Red Rice', 'Brown Rice', 'Sticky Rice (Malagkit)'],
+        'Corn' => ['White Corn', 'Yellow Corn (Sweet Corn)', 'Sticky Corn'],
+        'Alternative Grains' => ['Sorghum', 'Adlai'],
+    ],
+    'Livestock' => [
+        'Large Animals' => ['Cattle (Beef)', 'Cattle (Dairy)', 'Carabao', 'Horse'],
+        'Small Animals' => ['Goat', 'Sheep', 'Pig (Native)', 'Pig (Commercial)'],
+    ],
+    'Seafood' => [
+        'Freshwater Fish' => ['Tilapia', 'Catfish (Hito)', 'Mudfish (Dalag)', 'Milkfish (Bangus - Fishpond)'],
+        'Saltwater Fish' => ['Galunggong', 'Lapu-Lapu', 'Red Snapper (Maya-Maya)', 'Tuna', 'Milkfish (Bangus - Marine)'],
+        'Crustaceans & Others' => ['Shrimp/Prawn (Sugpo/Suahe)', 'Crab (Alimango/Alimasag)', 'Squid (Pusit)', 'Seaweed (Guso/Lato)', 'Shellfish (Tahong/Talaba)'],
+    ],
+    'Poultry' => [
+        'Birds' => ['Chicken (Broiler)', 'Chicken (Layer)', 'Chicken (Native)', 'Duck (Itik/Bibe)', 'Quail (Pugo)', 'Turkey'],
+        'Eggs' => ['Chicken Eggs (White)', 'Chicken Eggs (Brown)', 'Quail Eggs', 'Duck Eggs (Balut/Penoy)', 'Salted Eggs (Itlog na Maalat)'],
+    ],
+    'Dairy' => [
+        'Fresh Milk' => ['Cow\'s Milk', 'Goat\'s Milk', 'Carabao\'s Milk'],
+        'Dairy Products' => ['Kesong Puti', 'Yogurt', 'Butter', 'Fresh Pastillas'],
+    ],
+    'Spices & Herbs' => [
+        'Spices' => ['Black Pepper (Pimienta)', 'Turmeric (Luyang Dilaw)', 'Cinnamon', 'Cloves', 'Star Anise', 'Vanilla', 'Chili Flakes'],
+        'Herbs' => ['Basil', 'Coriander (Wansoy)', 'Parsley', 'Mint', 'Lemongrass (Tanglad)', 'Pandan'],
+    ],
+    'Industrial Crops' => [
+        'Coconut' => ['Copra', 'Mature Coconut', 'Young Coconut (Buko)'],
+        'Beverage & Others' => ['Sugar Cane', 'Coffee (Arabica)', 'Coffee (Robusta)', 'Cacao (Tablea)', 'Tobacco', 'Rubber', 'Abaca'],
+    ],
+    'Processed Products' => [
+        'Preserved' => ['Dried Fish (Tuyô/Tinapa)', 'Dried Mangoes', 'Banana Chips', 'Peanut Butter', 'Fruit Jams'],
+        'Condiments' => ['Vinegar (Sukang Paombong)', 'Soy Sauce', 'Bagoong (Alamang)', 'Bagoong (Isda)', 'Patis', 'Atchara'],
+        'Value-Added' => ['Coconut Oil (VCO)', 'Coconut Oil (Cooking)', 'Coffee Grounds', 'Fruit Wines'],
+    ],
+];

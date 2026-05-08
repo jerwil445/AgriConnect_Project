@@ -218,16 +218,20 @@
     @vite('resources/js/farmer/farmer-analytics.js')
 
     <script>
+        // Register datalabels plugin globally immediately
+        if (typeof ChartDataLabels !== 'undefined') {
+            Chart.register(ChartDataLabels);
+            console.log('ChartDataLabels registered successfully');
+        } else {
+            console.error('ChartDataLabels not found');
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
-            // Register datalabels plugin globally
-            if (typeof ChartDataLabels !== 'undefined') {
-                Chart.register(ChartDataLabels);
-            }
-            
             const data = window.farmerAnalyticsData;
             if (!data) return;
 
             // 1. Revenue Trend Chart (Large dots, premium tooltips)
+            console.log('Initializing Farmer Revenue Trend with All Days forced');
             const revenueCanvas = document.getElementById('revenueChart');
             if (revenueCanvas) {
                 const rtx = revenueCanvas.getContext('2d');
@@ -270,11 +274,7 @@
                         },
                         plugins: {
                             datalabels: {
-                                display: true,
-                                align: 'top',
-                                color: '#16a34a',
-                                font: { weight: 'bold', size: 10 },
-                                formatter: (value) => value > 0 ? '₱' + value.toLocaleString() : ''
+                                display: false
                             },
                             legend: { display: true, position: 'top' },
                             tooltip: {
@@ -298,7 +298,16 @@
                             }
                         },
                         scales: {
-                            x: { grid: { display: false } },
+                            x: { 
+                                grid: { display: false },
+                                ticks: {
+                                    autoSkip: false,
+                                    source: 'labels',
+                                    maxTicksLimit: 100,
+                                    maxRotation: 45,
+                                    minRotation: 45
+                                }
+                            },
                             y: {
                                 beginAtZero: true,
                                 grid: { color: '#f3f4f6', borderDash: [5, 5] },
@@ -323,7 +332,15 @@
                         datasets: [{
                             label: 'Total Revenue (₱)',
                             data: data.productRevenues,
-                            backgroundColor: ['#4ade80', '#22c55e', '#16a34a', '#15803d', '#166534'],
+                            backgroundColor: [
+                                '#3b82f6', // Blue
+                                '#10b981', // Green
+                                '#f59e0b', // Amber
+                                '#ef4444', // Red
+                                '#8b5cf6', // Purple
+                                '#06b6d4', // Cyan
+                                '#f43f5e'  // Rose
+                            ],
                             borderRadius: 8,
                         }]
                     },
@@ -412,7 +429,9 @@
                             datalabels: {
                                 display: true,
                                 color: '#fff',
-                                font: { weight: 'bold' }
+                                font: { weight: 'bold' },
+                                anchor: 'center',
+                                align: 'center'
                             },
                             legend: { position: 'bottom' }
                         }
@@ -439,7 +458,9 @@
                             datalabels: {
                                 display: true,
                                 color: '#fff',
-                                font: { weight: 'bold' }
+                                font: { weight: 'bold' },
+                                anchor: 'center',
+                                align: 'center'
                             },
                             legend: { position: 'right' }
                         }
@@ -457,7 +478,13 @@
                         datasets: [{
                             label: 'Orders',
                             data: data.deliveryStatus.datasets,
-                            backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                            backgroundColor: [
+                                '#3b82f6', // Blue
+                                '#10b981', // Green
+                                '#f59e0b', // Amber
+                                '#ef4444', // Red
+                                '#8b5cf6'  // Purple
+                            ],
                             borderRadius: 8
                         }]
                     },

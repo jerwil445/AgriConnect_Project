@@ -218,4 +218,72 @@ document.addEventListener('DOMContentLoaded', function () {
     const priceEl = document.getElementById('price');
     if (quantityEl) quantityEl.addEventListener('input', updateTotalAmount);
     if (priceEl) priceEl.addEventListener('input', updateTotalAmount);
+    
+    // Dynamic Category and Product Logic
+    const categorySelect = document.getElementById('category');
+    const productNameSelect = document.getElementById('product_name');
+    const otherProductContainer = document.getElementById('other_product_container');
+    const otherProductInput = document.getElementById('other_product_name');
+    const mappingDataEl = document.getElementById('product-mapping-data');
+
+    if (categorySelect && productNameSelect && mappingDataEl) {
+        const productMapping = JSON.parse(mappingDataEl.textContent);
+
+        function updateProductOptions(selectedCategory, selectedProduct = null) {
+            // Clear current options
+            productNameSelect.innerHTML = '<option value="" disabled selected>Select a product</option>';
+            
+            if (selectedCategory && productMapping[selectedCategory]) {
+                const subCategories = productMapping[selectedCategory];
+                let allProducts = [];
+                
+                // Flatten all products under the category
+                Object.values(subCategories).forEach(products => {
+                    allProducts = allProducts.concat(products);
+                });
+                
+                // Sort and add options
+                [...new Set(allProducts)].sort().forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product;
+                    option.textContent = product;
+                    if (selectedProduct === product) option.selected = true;
+                    productNameSelect.appendChild(option);
+                });
+
+                // Add "Others" option
+                const othersOption = document.createElement('option');
+                othersOption.value = 'Others';
+                othersOption.textContent = 'Others (Custom)';
+                if (selectedProduct === 'Others') othersOption.selected = true;
+                productNameSelect.appendChild(othersOption);
+            }
+        }
+
+        categorySelect.addEventListener('change', function() {
+            updateProductOptions(this.value);
+            // Hide other product name if category changes
+            otherProductContainer.classList.add('hidden');
+            otherProductInput.removeAttribute('required');
+            otherProductInput.value = '';
+        });
+
+        productNameSelect.addEventListener('change', function() {
+            if (this.value === 'Others') {
+                otherProductContainer.classList.remove('hidden');
+                otherProductInput.setAttribute('required', 'required');
+                otherProductInput.focus();
+            } else {
+                otherProductContainer.classList.add('hidden');
+                otherProductInput.removeAttribute('required');
+                otherProductInput.value = '';
+            }
+        });
+
+        // Initialize if there's an old value (e.g. after validation error)
+        if (categorySelect.value) {
+            const oldProduct = productNameSelect.getAttribute('data-old-value') || '';
+            updateProductOptions(categorySelect.value, oldProduct);
+        }
+    }
 });

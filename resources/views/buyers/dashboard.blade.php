@@ -8,6 +8,7 @@
                 $varietySize !== '' ||
                 $location !== '' ||
                 $statusFilter !== '' ||
+                $categoryFilter !== '' ||
                 $unitFilter !== '' ||
                 $sort !== 'latest' ||
                 $perPage !== 12;
@@ -33,7 +34,7 @@
                 @if ($hasFilters)
                     <span
                         class="ml-1 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-green-600 rounded-full">
-                        {{ collect([$search, $varietySize, $location, $statusFilter, $unitFilter])->filter()->count() + ($sort !== 'latest' ? 1 : 0) + ($perPage !== 12 ? 1 : 0) }}
+                        {{ collect([$search, $varietySize, $location, $statusFilter, $categoryFilter, $unitFilter])->filter()->count() + ($sort !== 'latest' ? 1 : 0) + ($perPage !== 12 ? 1 : 0) }}
                     </span>
                 @endif
             </button>
@@ -82,6 +83,16 @@
                         </a>
                     </span>
                 @endif
+                @if ($categoryFilter)
+                    <span
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
+                        Category: {{ $categoryFilter }}
+                        <a href="{{ request()->fullUrlWithQuery(array_diff_key(request()->query(), ['category' => ''])) }}"
+                            class="ml-1 hover:text-green-600">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </span>
+                @endif
                 @if ($unitFilter)
                     <span
                         class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
@@ -101,7 +112,7 @@
         <!-- Filter Form -->
         <div id="filter-panel" class="hidden md:block bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
             <form id="filter-form" method="GET" action="{{ route('buyer.dashboard') }}" class="space-y-4">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-7">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-8">
                     <div>
                         <label for="search" class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Search
                             Products</label>
@@ -134,6 +145,20 @@
                             @foreach (['Available'] as $statusOption)
                                 <option value="{{ $statusOption }}" {{ $statusFilter === $statusOption ? 'selected' : '' }}>
                                     {{ $statusOption }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="category"
+                            class="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Category</label>
+                        <select name="category" id="category"
+                            class="w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-green-500 focus:ring-green-500">
+                            <option value="">All Categories</option>
+                            @foreach(array_keys(config('agricultural_products', [])) as $cat)
+                                <option value="{{ $cat }}" {{ $categoryFilter === $cat ? 'selected' : '' }}>
+                                    {{ $cat }}
                                 </option>
                             @endforeach
                         </select>

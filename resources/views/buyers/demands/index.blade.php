@@ -79,6 +79,11 @@
                                 <!-- Title + Quantity -->
                                 <div class="flex items-start justify-between gap-3">
                                     <div>
+                                        @if ($demand->category)
+                                            <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold px-2 py-0.5 rounded-lg mb-1">
+                                                {{ $demand->category }}
+                                            </span>
+                                        @endif
                                         <h2 class="text-lg font-extrabold text-gray-900 leading-tight">{{ $demandName }}
                                         </h2>
                                         @if ($demandVariety)
@@ -187,6 +192,7 @@
                                     <button type="button"
                                         class="edit-demand-btn flex-1 inline-flex justify-center items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
                                         data-id="{{ $demand->id }}"
+                                        data-category="{{ $demand->category }}"
                                         data-product-name="{{ $demand->product_name }}"
                                         data-variety-size="{{ $demand->variety_size }}"
                                         data-quantity="{{ $demand->quantity }}"
@@ -272,15 +278,42 @@
                         <div class="space-y-4">
                             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Product Details</p>
 
+                            {{-- Hidden product mapping for JS --}}
+                            <script id="product-mapping-data" type="application/json">
+                                {!! json_encode(config('agricultural_products', [])) !!}
+                            </script>
+
+                            <!-- Agricultural Category -->
+                            <div>
+                                <label for="modal_category" class="block text-sm font-bold text-gray-700 mb-1.5">
+                                    Agricultural Category <span class="text-red-400">*</span>
+                                </label>
+                                <select name="category" id="modal_category"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all bg-white"
+                                    required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    @foreach(array_keys(config('agricultural_products', [])) as $category)
+                                        <option value="{{ $category }}" {{ old('category') === $category ? 'selected' : '' }}>
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('category')
+                                    <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <!-- Product Name -->
                             <div>
                                 <label for="modal_product_name" class="block text-sm font-bold text-gray-700 mb-1.5">
                                     Product Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="product_name" id="modal_product_name"
-                                    value="{{ old('product_name') }}" placeholder="Banana, Tomatoes, Rice, etc."
-                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all"
+                                <select name="product_name" id="modal_product_name"
+                                    data-old-value="{{ old('product_name') }}"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all bg-white"
                                     required>
+                                    <option value="" disabled selected>Select a category first</option>
+                                </select>
                                 @error('product_name')
                                     <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p>
                                 @enderror
@@ -319,20 +352,14 @@
                                     <select name="unit" id="modal_unit"
                                         class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all bg-white">
                                         <option value="">Select</option>
-                                        <option value="pieces" {{ old('unit') == 'pieces' ? 'selected' : '' }}>Pieces
-                                        </option>
-                                        <option value="trays" {{ old('unit') == 'trays' ? 'selected' : '' }}>Trays
-                                        </option>
-                                        <option value="dozen" {{ old('unit') == 'dozen' ? 'selected' : '' }}>Dozen
-                                        </option>
-                                        <option value="kilos" {{ old('unit') == 'kilos' ? 'selected' : '' }}>Kilos
-                                        </option>
-                                        <option value="boxes" {{ old('unit') == 'boxes' ? 'selected' : '' }}>Boxes
-                                        </option>
-                                        <option value="bunches" {{ old('unit') == 'bunches' ? 'selected' : '' }}>Bunches
-                                        </option>
-                                        <option value="sacks" {{ old('unit') == 'sacks' ? 'selected' : '' }}>Sacks
-                                        </option>
+                                        <option value="kg" {{ old('unit') == 'kg' ? 'selected' : '' }}>Kg</option>
+                                        <option value="sack" {{ old('unit') == 'sack' ? 'selected' : '' }}>Sack</option>
+                                        <option value="tray" {{ old('unit') == 'tray' ? 'selected' : '' }}>Tray</option>
+                                        <option value="box" {{ old('unit') == 'box' ? 'selected' : '' }}>Box</option>
+                                        <option value="bundle" {{ old('unit') == 'bundle' ? 'selected' : '' }}>Bundle</option>
+                                        <option value="piece" {{ old('unit') == 'piece' ? 'selected' : '' }}>Piece</option>
+                                        <option value="dozen" {{ old('unit') == 'dozen' ? 'selected' : '' }}>Dozen</option>
+                                        <option value="liter" {{ old('unit') == 'liter' ? 'selected' : '' }}>Liter</option>
                                     </select>
                                     @error('unit')
                                         <p class="mt-1 text-xs text-red-500 font-medium">{{ $message }}</p>
@@ -489,13 +516,32 @@
                         <div class="space-y-4">
                             <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Product Details</p>
 
+                            <!-- Agricultural Category -->
+                            <div>
+                                <label for="edit_category" class="block text-sm font-bold text-gray-700 mb-1.5">
+                                    Agricultural Category <span class="text-red-400">*</span>
+                                </label>
+                                <select name="category" id="edit_category"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-white"
+                                    required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    @foreach(array_keys(config('agricultural_products', [])) as $category)
+                                        <option value="{{ $category }}">
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
                             <div>
                                 <label for="edit_product_name" class="block text-sm font-bold text-gray-700 mb-1.5">
                                     Product Name <span class="text-red-400">*</span>
                                 </label>
-                                <input type="text" name="product_name" id="edit_product_name"
-                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all"
+                                <select name="product_name" id="edit_product_name"
+                                    class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-white"
                                     required>
+                                    <option value="" disabled selected>Select a category first</option>
+                                </select>
                             </div>
 
                             <div>
@@ -521,13 +567,14 @@
                                     <select name="unit" id="edit_unit"
                                         class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all bg-white">
                                         <option value="">Select</option>
-                                        <option value="pieces">Pieces</option>
-                                        <option value="trays">Trays</option>
+                                        <option value="kg">Kg</option>
+                                        <option value="sack">Sack</option>
+                                        <option value="tray">Tray</option>
+                                        <option value="box">Box</option>
+                                        <option value="bundle">Bundle</option>
+                                        <option value="piece">Piece</option>
                                         <option value="dozen">Dozen</option>
-                                        <option value="kilos">Kilos</option>
-                                        <option value="boxes">Boxes</option>
-                                        <option value="bunches">Bunches</option>
-                                        <option value="sacks">Sacks</option>
+                                        <option value="liter">Liter</option>
                                     </select>
                                 </div>
                             </div>

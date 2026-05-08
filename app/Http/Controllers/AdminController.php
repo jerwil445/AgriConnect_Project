@@ -33,29 +33,60 @@ class AdminController extends Controller
         // Pending notifications (simplified - in a real app, you might want to count unread messages, pending orders, etc.)
         $pendingNotifications = DemandMatch::where('status', 'Pending')->count();
 
-        // Sales/Revenue Trends
+        // Sales/Revenue Trends (Continuous data filling)
         $range = request('sales_range', 'daily');
-        $salesQuery = Transaction::query();
+        $salesQuery = Transaction::query()
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics']);
 
+        $trendData = collect();
         if ($range === 'yearly') {
-            $salesTrends = $salesQuery->where('created_at', '>=', now()->subYears(5))
-                ->selectRaw("to_char(created_at, 'YYYY') as date, SUM(total_amount) as total")
-                ->groupBy('date')
-                ->orderBy('date')
+            $revenueData = $salesQuery->where('created_at', '>=', now()->subYears(5))
+                ->selectRaw("to_char(created_at, 'YYYY') as period, SUM(total_amount) as total")
+                ->groupBy('period')
                 ->get();
+
+            for ($i = 4; $i >= 0; $i--) {
+                $period = now()->subYears($i)->format('Y');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push((object)[
+                    'date' => $period,
+                    'total' => $record ? (float)$record->total : 0
+                ]);
+            }
         } elseif ($range === 'monthly') {
-            $salesTrends = $salesQuery->where('created_at', '>=', now()->subMonths(12))
-                ->selectRaw("to_char(created_at, 'Mon YYYY') as date, SUM(total_amount) as total")
-                ->groupBy('date')
-                ->orderByRaw("MIN(created_at)")
+            $revenueData = $salesQuery->where('created_at', '>=', now()->subMonths(12))
+                ->selectRaw("to_char(created_at, 'Mon YYYY') as period, SUM(total_amount) as total, to_char(created_at, 'YYYY-MM') as sort_key")
+                ->groupBy('period', 'sort_key')
+                ->orderBy('sort_key')
                 ->get();
+
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $period = $date->format('M Y');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push((object)[
+                    'date' => $period,
+                    'total' => $record ? (float)$record->total : 0
+                ]);
+            }
         } else { // daily
-            $salesTrends = $salesQuery->where('created_at', '>=', now()->subDays(30))
-                ->selectRaw("to_char(created_at, 'Mon DD') as date, SUM(total_amount) as total")
-                ->groupBy('date')
-                ->orderByRaw("MIN(created_at)")
+            $revenueData = $salesQuery->where('created_at', '>=', now()->subDays(30))
+                ->selectRaw("to_char(created_at, 'Mon DD') as period, SUM(total_amount) as total, DATE(created_at) as raw_date")
+                ->groupBy('period', 'raw_date')
+                ->orderBy('raw_date')
                 ->get();
+
+            for ($i = 29; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $period = $date->format('M d');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push((object)[
+                    'date' => $period,
+                    'total' => $record ? (float)$record->total : 0
+                ]);
+            }
         }
+        $salesTrends = $trendData;
 
         // Product Popularity (top 5 products by transaction count)
         $productPopularity = Transaction::join('products', 'transactions.product_id', '=', 'products.id')

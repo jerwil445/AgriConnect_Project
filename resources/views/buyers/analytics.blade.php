@@ -89,9 +89,9 @@
     </div>
 
     {{-- Charts Section --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
+    <div class="flex flex-col gap-8 mb-10">
         {{-- Capital Trend Chart --}}
-        <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden w-full">
             <div class="flex items-center justify-between mb-10">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
@@ -120,33 +120,46 @@
             </div>
         </div>
 
-        {{-- Sourcing Split Chart --}}
-        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm flex flex-col">
-            <div class="flex items-center gap-4 mb-10">
+    {{-- Secondary Charts Grid --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
+        {{-- Category Allocation Chart --}}
+        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm flex flex-col w-full">
+            <div class="flex items-center gap-4 mb-8">
                 <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center">
                     <i class="fas fa-chart-pie text-xs"></i>
                 </div>
                 <h3 class="text-xl font-black text-gray-900 tracking-tight">Category Allocation</h3>
             </div>
-            <div class="flex-1 flex flex-col items-center justify-center relative">
-                <div class="h-[250px] w-full">
-                    <canvas id="categorySplitChart"></canvas>
-                </div>
-                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none -mt-4">
-                    <div class="text-2xl font-black text-gray-900">₱{{ number_format($totalSpent / 1000, 1) }}k</div>
-                    <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Spent</div>
-                </div>
+            <div class="h-[300px] w-full mb-8">
+                <canvas id="categorySplitChart"></canvas>
             </div>
-            <div class="mt-8 space-y-3">
+            <div class="space-y-3">
                 @foreach($productStats as $stat)
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                         <div class="flex items-center gap-2">
-                            <div class="w-2 h-2 rounded-full" style="background-color: {{ ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'][$loop->index] ?? '#cbd5e1' }}"></div>
-                            <span class="text-xs font-bold text-gray-600">{{ $stat->product_name }}</span>
+                            <div class="w-2.5 h-2.5 rounded-full" style="background-color: {{ ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'][$loop->index] ?? '#cbd5e1' }}"></div>
+                            <span class="text-xs font-bold text-gray-700">{{ $stat->product_name }}</span>
                         </div>
                         <span class="text-xs font-black text-gray-900">₱{{ number_format($stat->total_spent, 0) }}</span>
                     </div>
                 @endforeach
+            </div>
+        </div>
+
+        {{-- Order Status Bar --}}
+        <div class="bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-truck-loading text-xs"></i>
+                </div>
+                <h3 class="text-xl font-black text-gray-900 tracking-tight">Procurement Status</h3>
+            </div>
+            <div class="h-[300px] mb-8">
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+            <div class="p-6 bg-purple-50 rounded-2xl">
+                <div class="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-1">Procurement Efficiency</div>
+                <div class="text-sm font-bold text-purple-900">Tracking lifecycle of current sourcing mandates.</div>
             </div>
         </div>
     </div>
@@ -176,19 +189,6 @@
             </div>
             <div class="h-[300px]">
                 <canvas id="matchStatusChart"></canvas>
-            </div>
-        </div>
-
-        {{-- Order Status Bar --}}
-        <div class="lg:col-span-2 bg-white rounded-[2.5rem] p-10 border border-gray-100 shadow-sm overflow-hidden">
-            <div class="flex items-center gap-4 mb-10">
-                <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                    <i class="fas fa-truck-loading text-xs"></i>
-                </div>
-                <h3 class="text-xl font-black text-gray-900 tracking-tight">Procurement Status Distribution</h3>
-            </div>
-            <div class="h-[300px]">
-                <canvas id="orderStatusChart"></canvas>
             </div>
         </div>
     </div>
@@ -276,6 +276,7 @@
 
 {{-- Chart.js and Initialization --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <script>
         document.getElementById('sourcingRangeFilter').addEventListener('change', function() {
             const range = this.value;

@@ -1,6 +1,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Buyer Demands Index JS Loaded');
     
+    // Initialize product mapping from script tag
+    const mappingDataElement = document.getElementById('product-mapping-data');
+    const productMapping = mappingDataElement ? JSON.parse(mappingDataElement.textContent) : {};
+    
     const modal = document.getElementById('demandModal');
     const backdrop = document.getElementById('modalBackdrop');
     const openBtns = [
@@ -28,6 +32,74 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('closeModal')?.addEventListener('click', closeModal);
     document.getElementById('cancelModal')?.addEventListener('click', closeModal);
     backdrop?.addEventListener('click', closeModal);
+
+    // Dynamic Product Loading logic
+    function populateProducts(categorySelectId, productSelectId, oldValue = null) {
+        const categorySelect = document.getElementById(categorySelectId);
+        const productSelect = document.getElementById(productSelectId);
+        
+        if (!categorySelect || !productSelect) return;
+
+        const category = categorySelect.value;
+        let allProducts = [];
+
+        // Flatten nested products if the category mapping is an object of subcategories
+        if (category && productMapping[category]) {
+            const subCategories = productMapping[category];
+            
+            if (Array.isArray(subCategories)) {
+                allProducts = subCategories;
+            } else {
+                Object.values(subCategories).forEach(products => {
+                    if (Array.isArray(products)) {
+                        allProducts = allProducts.concat(products);
+                    }
+                });
+            }
+        }
+
+        // Remove duplicates and sort
+        allProducts = [...new Set(allProducts)].sort();
+
+        // Clear existing options
+        productSelect.innerHTML = '<option value="" disabled selected>Select a product</option>';
+
+        // Add products from mapping
+        allProducts.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product;
+            option.textContent = product;
+            if (oldValue && product === oldValue) {
+                option.selected = true;
+            }
+            productSelect.appendChild(option);
+        });
+
+        // Add "Others" option
+        const othersOption = document.createElement('option');
+        othersOption.value = 'Others';
+        othersOption.textContent = 'Others';
+        if (oldValue && oldValue === 'Others') {
+            othersOption.selected = true;
+        }
+        productSelect.appendChild(othersOption);
+    }
+
+    const createCategorySelect = document.getElementById('modal_category');
+    if (createCategorySelect) {
+        createCategorySelect.addEventListener('change', () => populateProducts('modal_category', 'modal_product_name'));
+        
+        // If there's an old value (e.g. after validation error), populate it
+        const createProductSelect = document.getElementById('modal_product_name');
+        if (createProductSelect && createProductSelect.dataset.oldValue) {
+            populateProducts('modal_category', 'modal_product_name', createProductSelect.dataset.oldValue);
+        }
+    }
+
+    const editCategorySelect = document.getElementById('edit_category');
+    if (editCategorySelect) {
+        editCategorySelect.addEventListener('change', () => populateProducts('edit_category', 'edit_product_name'));
+    }
 
     // ══ EDIT DEMAND MODAL LOGIC ══
     const editModal = document.getElementById('editDemandModal');
@@ -84,6 +156,16 @@ document.addEventListener('DOMContentLoaded', function() {
         setVal('edit_barangay', d.barangay);
         setVal('edit_municipality_city', d.municipalityCity);
         setVal('edit_province', d.province);
+
+        // Handle category and dynamic product population for Edit
+        const editCategorySelect = document.getElementById('edit_category');
+        if (editCategorySelect && d.category) {
+            editCategorySelect.value = d.category;
+            populateProducts('edit_category', 'edit_product_name', d.productName);
+        } else {
+            // Fallback if category is missing in dataset
+            populateProducts('edit_category', 'edit_product_name', d.productName);
+        }
 
         openEditModal();
     });

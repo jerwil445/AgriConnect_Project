@@ -286,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Generic Category Chips Logic
-    function initializeCategoryChips(containerId, inputId) {
+    function initializeCategoryChips(containerId, inputId, isSingle = false) {
         const container = document.getElementById(containerId);
         const input = document.getElementById(inputId);
         if (!container || !input) return;
@@ -308,7 +308,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     chip.classList.remove('border-green-500', 'text-green-600', 'bg-green-50');
                     chip.classList.add('border-gray-100', 'text-gray-500', 'bg-white');
                 } else {
-                    selected.push(category);
+                    if (isSingle) {
+                        // Deselect others
+                        chips.forEach(c => {
+                            c.classList.remove('border-green-500', 'text-green-600', 'bg-green-50');
+                            c.classList.add('border-gray-100', 'text-gray-500', 'bg-white');
+                        });
+                        selected = [category];
+                    } else {
+                        selected.push(category);
+                    }
                     chip.classList.add('border-green-500', 'text-green-600', 'bg-green-50');
                     chip.classList.remove('border-gray-100', 'text-gray-500', 'bg-white');
                 }
@@ -324,8 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    initializeCategoryChips('farmer-categories', 'categories-input');
-    initializeCategoryChips('buyer-categories', 'buyer-categories-input');
+    initializeCategoryChips('farmer-categories', 'farmer-categories-input', false);
+    initializeCategoryChips('buyer-categories', 'buyer-categories-input', false);
 
     form.addEventListener("submit", (event) => {
         let formIsValid = true;

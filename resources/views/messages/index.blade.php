@@ -4,13 +4,21 @@
 
 @section('content')
 <div class="h-screen flex flex-col">
-    <div class="bg-white shadow-md flex-shrink-0">
+    <div class="bg-white border-b border-gray-100 flex-shrink-0">
         <!-- Header -->
-        <div class="bg-green-700 px-6 py-4">
+        <div class="px-6 py-4">
             <div class="flex justify-between items-center">
-                <h1 class="text-xl font-bold text-white">Messages</h1>
-                <span class="px-3 py-1 bg-white bg-opacity-20 text-white rounded-full text-sm">
-                    {{ count($transactions ?? []) }} Conversations
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-comments text-xs"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-black text-gray-900 tracking-tight">Messages</h1>
+                        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Secure Network</p>
+                    </div>
+                </div>
+                <span class="px-4 py-1.5 bg-green-50 text-green-700 border border-green-100 rounded-full text-xs font-black uppercase tracking-widest">
+                    {{ count($transactions ?? []) }} Active
                 </span>
             </div>
         </div>
@@ -31,13 +39,13 @@
                                 $isActiveThread = isset($selectedTransaction) && $selectedTransaction->conversation_thread_id == $transaction->conversation_thread_id;
                                 $displayTransactionId = $isActiveThread ? $selectedTransaction->id : $transaction->id;
                             @endphp
-                            <div class="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer conversation-item {{ $isActiveThread ? 'bg-indigo-100 border-l-4 border-l-indigo-500' : '' }}" 
+                            <div class="p-4 border-b border-gray-50 hover:bg-gray-50/80 cursor-pointer conversation-item transition-all duration-200 {{ $isActiveThread ? 'bg-green-50/50 border-l-4 border-l-green-500 shadow-sm' : '' }}" 
                                  data-transaction-id="{{ $displayTransactionId }}"
                                  data-conversation-thread-id="{{ $transaction->conversation_thread_id }}"
                                  data-other-party-id="{{ Auth::id() == $transaction->buyer_id ? $transaction->farmer_id : $transaction->buyer_id }}">
                                 <div class="flex items-start">
-                                    <div class="bg-indigo-100 rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0">
-                                        <span class="text-indigo-800 font-bold">
+                                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-sm border border-green-100">
+                                        <span class="text-green-800 font-black text-lg">
                                             @if(Auth::id() == $transaction->buyer_id)
                                                 {{ substr($transaction->farmer->first_name, 0, 1) }}
                                             @else
@@ -63,7 +71,7 @@
                                             <!-- <span class="text-xs text-gray-500">
                                                 #{{ $transaction->id }}
                                             </span> -->
-                                            <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs">
+                                            <span class="px-2.5 py-1 bg-white border border-gray-100 text-gray-900 rounded-lg text-[10px] font-black tracking-tight shadow-sm">
                                                 ₱{{ number_format($transaction->total_amount, 0) }}
                                             </span>
                                             

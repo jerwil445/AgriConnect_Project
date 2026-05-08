@@ -84,6 +84,7 @@ export default defineConfig({
                 "resources/js/partials/buyers/partial-buyers-header.js",
                 "resources/js/partials/admin/partial-admin-sidebar-header.js",
                 "resources/js/partials/farmers/partial-farmers-header.js",
+                "resources/js/role-toggle.js",
             ],
 
             refresh: true,

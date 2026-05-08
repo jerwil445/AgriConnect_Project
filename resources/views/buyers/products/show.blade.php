@@ -131,13 +131,27 @@
                         </div>
 
                         <!-- Stat Cards -->
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
 
                             @php
                                 $varietySize = $product->variety_size;
                                 $sizeOptions = ['small', 'medium', 'large'];
                                 $isSize = $varietySize && in_array(strtolower($varietySize), $sizeOptions);
                             @endphp
+
+                            <!-- Category -->
+                            <div
+                                class="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex flex-col gap-2 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-default">
+                                <div class="w-9 h-9 bg-blue-100 rounded-xl flex items-center justify-center">
+                                    <i class="fa-solid fa-leaf text-blue-500 text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-blue-400">Category</p>
+                                    <p class="text-sm font-bold text-blue-700 mt-0.5 leading-tight">
+                                        {{ $product->category ?: '—' }}
+                                    </p>
+                                </div>
+                            </div>
 
                             <!-- Variety / Size -->
                             <div

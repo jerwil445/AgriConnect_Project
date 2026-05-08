@@ -309,14 +309,30 @@
                                     <i class="fas fa-box text-emerald-600 text-xl"></i>
                                 </div>
                                 <div>
-                                    <h2 class="text-2xl font-bold text-gray-900">
+                                    <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
                                         {{ $demand->product_name ?: ($demand->egg_type ? ucfirst(str_replace('_', ' ', $demand->egg_type)) : 'Product') }}
+                                        @if($demand->category)
+                                            <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase tracking-wider">
+                                                {{ $demand->category }}
+                                            </span>
+                                        @endif
                                     </h2>
                                     <p class="text-sm text-gray-500">Posted {{ $demand->created_at->format('M d, Y') }}</p>
                                 </div>
                             </div>
 
                             <div class="flex flex-col space-y-0 divide-y divide-green-200 ">
+                                <!-- Category -->
+                                <div class="bg-slate-50 py-2  flex justify-between items-center">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <i class="fas fa-layer-group text-green-700"></i>
+                                        <p class="text-sm text-gray-500">Category</p>
+                                    </div>
+                                    <p class="font-semibold text-gray-800 text-xs">
+                                        {{ $demand->category ?? 'N/A' }}
+                                    </p>
+                                </div>
+
                                 <!-- Variety/Size -->
                                 <div class="bg-slate-50 py-2  flex justify-between items-center">
                                     @php

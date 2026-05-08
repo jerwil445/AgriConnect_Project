@@ -116,11 +116,19 @@ class ProductController extends Controller
             return redirect()->route('login');
         }
 
-        if (!Auth::user()->farmer) {
+        $user = Auth::user();
+        if (!$user->farmer) {
             abort(403, 'Access denied. Farmer profile required.');
         }
 
-        return view('farmers.products.create');
+        // Get farmer's registered categories
+        $farmerCategories = array_map('trim', explode(',', $user->farmer->categories));
+        $allProductMapping = config('agricultural_products', []);
+        
+        // Only include categories the farmer is registered for
+        $registeredCategories = array_intersect(array_keys($allProductMapping), $farmerCategories);
+
+        return view('farmers.products.create', compact('registeredCategories', 'allProductMapping'));
     }
 
     /**
@@ -139,6 +147,17 @@ class ProductController extends Controller
 
         $validated = $this->validateProduct($request);
         $validated['farmer_id'] = $user->farmer->id;
+        $validated['category'] = $request->input('category');
+        
+        // Handle "Others" for product name
+        if ($request->input('product_name') === 'Others' && $request->filled('other_product_name')) {
+            $validated['product_name'] = $request->input('other_product_name');
+        }
+
+        // Combine variety and size_grade for the legacy variety_size field if needed, 
+        // or just ensure they are saved to their own columns
+        $validated['variety_size'] = trim(($validated['variety'] ?? '') . ' ' . ($validated['size_grade'] ?? ''));
+
         $validated['total_amount'] = $this->calculateTotalAmount($validated['quantity'], $validated['price']);
         $validated['status'] = $validated['status'] ?? 'Available';
 
@@ -204,7 +223,14 @@ class ProductController extends Controller
 
         $product->load(['images', 'remainingInventory']);
 
-        return view('farmers.products.edit', compact('product'));
+        // Get farmer's registered categories
+        $farmerCategories = array_map('trim', explode(',', $user->farmer->categories));
+        $allProductMapping = config('agricultural_products', []);
+        
+        // Only include categories the farmer is registered for
+        $registeredCategories = array_intersect(array_keys($allProductMapping), $farmerCategories);
+
+        return view('farmers.products.edit', compact('product', 'registeredCategories', 'allProductMapping'));
     }
 
     /**
@@ -311,7 +337,11 @@ class ProductController extends Controller
     private function validateProduct(Request $request): array
     {
         return $request->validate([
+            'category' => 'required|string',
             'product_name' => 'required|string|max:255',
+            'other_product_name' => 'required_if:product_name,Others|nullable|string|max:255',
+            'variety' => 'nullable|string|max:255',
+            'size_grade' => 'nullable|string|max:255',
             'variety_size' => 'nullable|string|max:255',
             'description' => 'nullable|string|max:1000',
             'quantity' => 'required|integer|min:1',

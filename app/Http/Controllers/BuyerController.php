@@ -24,6 +24,7 @@ class BuyerController extends Controller
         $varietySize = trim((string) $request->input('variety_size', ''));
         $location = trim((string) $request->input('location', ''));
         $statusFilter = $request->input('status');
+        $categoryFilter = $request->input('category');
         $unitFilter = $request->input('unit');
         $sort = $request->input('sort', 'latest');
         $perPage = (int) $request->input('per_page', 12);
@@ -70,6 +71,10 @@ class BuyerController extends Controller
             $productsQuery->where('unit', $unitFilter);
         }
 
+        if ($categoryFilter && $categoryFilter !== '') {
+            $productsQuery->where('category', $categoryFilter);
+        }
+
         if ($varietySize !== '') {
             $productsQuery->where('variety_size', 'LIKE', '%' . $varietySize . '%');
         }
@@ -99,6 +104,7 @@ class BuyerController extends Controller
             $varietySize !== '' ||
             $location !== '' ||
             $statusFilter !== '' ||
+            $categoryFilter !== '' ||
             $unitFilter !== '' ||
             $sort !== 'latest' ||
             $perPage !== 12;
@@ -110,6 +116,7 @@ class BuyerController extends Controller
                 'varietySize',
                 'location',
                 'statusFilter',
+                'categoryFilter',
                 'unitFilter',
                 'sort',
                 'perPage',
@@ -123,6 +130,7 @@ class BuyerController extends Controller
             'varietySize',
             'location',
             'statusFilter',
+            'categoryFilter',
             'unitFilter',
             'sort',
             'perPage'
@@ -324,44 +332,63 @@ class BuyerController extends Controller
             ->take(5)
             ->get();
 
-        // 4. Monthly Spending & Volume Trends
+        // 4. Monthly Spending & Volume Trends (Continuous data filling)
         $range = request('sourcing_range', 'monthly');
-        $query = Transaction::where('transactions.buyer_id', $user->id);
+        $query = Transaction::where('transactions.buyer_id', $user->id)
+            ->whereIn('status', ['paid', 'completed', 'delivered', 'accepted', 'Accepted', 'Paid', 'Prepared', 'Assigned Logistics']);
 
+        $trendData = collect();
         if ($range === 'yearly') {
-            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subYears(5))
-                ->select(
-                    DB::raw("to_char(transactions.created_at, 'YYYY') as month"),
-                    DB::raw('SUM(transactions.total_amount) as total'),
-                    DB::raw('SUM(transactions.final_quantity) as volume'),
-                    DB::raw('MIN(transactions.created_at) as sort_date')
-                )
-                ->groupBy(DB::raw("to_char(transactions.created_at, 'YYYY')"))
-                ->orderBy('sort_date')
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subYears(5))
+                ->selectRaw("to_char(transactions.created_at, 'YYYY') as period, SUM(total_amount) as total, SUM(final_quantity) as volume")
+                ->groupBy('period')
                 ->get();
+
+            for ($i = 4; $i >= 0; $i--) {
+                $period = now()->subYears($i)->format('Y');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push([
+                    'month' => $period,
+                    'total' => $record ? (float)$record->total : 0,
+                    'volume' => $record ? (float)$record->volume : 0
+                ]);
+            }
         } elseif ($range === 'daily') {
-            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subDays(30))
-                ->select(
-                    DB::raw("to_char(transactions.created_at, 'Mon DD') as month"),
-                    DB::raw('SUM(transactions.total_amount) as total'),
-                    DB::raw('SUM(transactions.final_quantity) as volume'),
-                    DB::raw('MIN(transactions.created_at) as sort_date')
-                )
-                ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon DD')"))
-                ->orderBy('sort_date')
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subDays(30))
+                ->selectRaw("to_char(transactions.created_at, 'Mon DD') as period, SUM(total_amount) as total, SUM(final_quantity) as volume, DATE(transactions.created_at) as raw_date")
+                ->groupBy('period', 'raw_date')
+                ->orderBy('raw_date')
                 ->get();
-        } else { // monthly (default)
-            $monthlySpending = $query->where('transactions.created_at', '>=', now()->subMonths(12))
-                ->select(
-                    DB::raw("to_char(transactions.created_at, 'Mon YYYY') as month"),
-                    DB::raw('SUM(transactions.total_amount) as total'),
-                    DB::raw('SUM(transactions.final_quantity) as volume'),
-                    DB::raw('MIN(transactions.created_at) as sort_date')
-                )
-                ->groupBy(DB::raw("to_char(transactions.created_at, 'Mon YYYY')"))
-                ->orderBy('sort_date')
+
+            for ($i = 29; $i >= 0; $i--) {
+                $date = now()->subDays($i);
+                $period = $date->format('M d');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push([
+                    'month' => $period,
+                    'total' => $record ? (float)$record->total : 0,
+                    'volume' => $record ? (float)$record->volume : 0
+                ]);
+            }
+        } else { // monthly
+            $revenueData = $query->where('transactions.created_at', '>=', now()->subMonths(12))
+                ->selectRaw("to_char(transactions.created_at, 'Mon YYYY') as period, SUM(total_amount) as total, SUM(final_quantity) as volume, to_char(transactions.created_at, 'YYYY-MM') as sort_key")
+                ->groupBy('period', 'sort_key')
+                ->orderBy('sort_key')
                 ->get();
+
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $period = $date->format('M Y');
+                $record = $revenueData->firstWhere('period', $period);
+                $trendData->push([
+                    'month' => $period,
+                    'total' => $record ? (float)$record->total : 0,
+                    'volume' => $record ? (float)$record->volume : 0
+                ]);
+            }
         }
+        $monthlySpending = $trendData;
 
         // 5. Calculate Spending Trend (vs Last Month)
         $thisMonthSpent = Transaction::where('buyer_id', $user->id)

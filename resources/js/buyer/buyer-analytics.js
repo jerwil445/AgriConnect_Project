@@ -1,10 +1,20 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    // Register datalabels plugin globally
+    if (typeof ChartDataLabels !== 'undefined') {
+        Chart.register(ChartDataLabels);
+    }
+
     const data = window.buyerAnalyticsData || {};
-    
+
     // 1. Sourcing Trend Chart (Line/Area)
+    console.log('Initializing Buyer Sourcing Trend with All Days forced - v1.1');
     const trendCanvas = document.getElementById('sourcingTrendChart');
     if (trendCanvas) {
         const trendCtx = trendCanvas.getContext('2d');
+        const gradient = trendCtx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, 'rgba(22, 163, 74, 0.2)');
+        gradient.addColorStop(1, 'rgba(22, 163, 74, 0)');
+
         new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -13,15 +23,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     {
                         label: 'Capital (₱)',
                         data: data.monthlySpending?.spending || [],
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                        borderWidth: 4,
-                        tension: 0.4,
+                        borderColor: '#16a34a',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
                         fill: true,
-                        pointRadius: 6,
-                        pointBackgroundColor: '#fff',
-                        pointBorderWidth: 3,
-                        yAxisID: 'y',
+                        tension: 0.4,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#16a34a',
+                        pointBorderWidth: 2.5,
+                        pointRadius: 5,
+                        pointHoverRadius: 10,
+                        pointHoverBackgroundColor: '#16a34a',
+                        pointHoverBorderColor: '#ffffff',
+                        pointHoverBorderWidth: 3,
+                        pointHitRadius: 15
                     },
                     {
                         label: 'Volume (kg)',
@@ -29,10 +44,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         borderColor: '#10b981',
                         borderWidth: 2,
                         borderDash: [5, 5],
-                        tension: 0.4,
                         fill: false,
-                        pointRadius: 2,
-                        yAxisID: 'y1',
+                        tension: 0.4,
+                        pointRadius: 0,
+                        yAxisID: 'y1'
                     }
                 ]
             },
@@ -40,6 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    datalabels: {
+                        display: false
+                    },
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -55,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         displayColors: true,
                         boxPadding: 6,
                         callbacks: {
-                            label: function(context) {
+                            label: function (context) {
                                 let label = context.dataset.label || '';
                                 if (context.datasetIndex === 0) { // Capital
                                     label = 'Capital: ' + new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
@@ -79,26 +97,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     },
                     x: {
                         grid: { display: false },
-                        ticks: { font: { family: 'Inter', weight: 'bold', size: 10 }, color: '#94a3b8' }
+                        ticks: {
+                            font: { family: 'Inter', weight: 'bold', size: 10 },
+                            color: '#94a3b8',
+                            autoSkip: false,
+                            source: 'labels',
+                            maxTicksLimit: 100,
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
                     }
                 }
             }
         });
     }
 
-    // 2. Category Allocation Chart (Donut)
+    // 2. Category Allocation Chart (Pie)
     const splitCanvas = document.getElementById('categorySplitChart');
     if (splitCanvas) {
         const splitCtx = splitCanvas.getContext('2d');
         new Chart(splitCtx, {
-            type: 'doughnut',
+            type: 'pie',
             data: {
                 labels: data.productStats?.labels || [],
                 datasets: [{
                     data: data.productStats?.spent || [],
                     backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#64748b'],
                     borderWidth: 0,
-                    cutout: '80%',
                     hoverOffset: 15
                 }]
             },
@@ -106,6 +131,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { weight: 'bold' },
+                        anchor: 'center',
+                        align: 'center',
+                        formatter: (value, ctx) => {
+                            let sum = 0;
+                            let dataArr = ctx.chart.data.datasets[0].data;
+                            dataArr.map(data => { sum += parseFloat(data) || 0; });
+                            if (sum === 0) return '';
+                            let percentage = (value * 100 / sum).toFixed(1) + "%";
+                            return value > 0 ? percentage : '';
+                        }
+                    },
                     legend: { display: false },
                     tooltip: {
                         backgroundColor: 'rgba(255, 255, 255, 0.98)',
@@ -120,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         usePointStyle: true,
                         boxPadding: 6,
                         callbacks: {
-                            label: function(item) {
+                            label: function (item) {
                                 return ' ₱' + item.raw.toLocaleString();
                             }
                         }
@@ -149,6 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 cutout: '70%',
                 plugins: {
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { weight: 'bold' }
+                    },
                     legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
                 }
             }
@@ -171,6 +216,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
+                    datalabels: {
+                        display: true,
+                        color: '#fff',
+                        font: { weight: 'bold' }
+                    },
                     legend: { position: 'right' }
                 }
             }
@@ -187,13 +237,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Procurement Cycle Count',
                     data: data.orderStatus.datasets,
-                    backgroundColor: 'rgba(139, 92, 246, 0.7)',
+                    backgroundColor: [
+                        '#3b82f6', // Blue
+                        '#10b981', // Green
+                        '#f59e0b', // Amber
+                        '#ef4444', // Red
+                        '#8b5cf6'  // Purple
+                    ],
                     borderRadius: 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#64748b',
+                        font: { weight: 'bold' }
+                    }
+                },
                 scales: {
                     y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
                     x: { grid: { display: false } }

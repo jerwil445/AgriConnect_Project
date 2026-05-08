@@ -13,26 +13,74 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
                     <div class="space-y-4 lg:space-y-6">
-                        <div>
-                            <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Product
-                                Name</label>
-                            <input type="text" name="product_name" id="product_name" value="{{ old('product_name') }}"
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Agricultural Category</label>
+                                <select name="category" id="category"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    @foreach($registeredCategories as $category)
+                                        <option value="{{ $category }}" {{ old('category') === $category ? 'selected' : '' }}>
+                                            {{ $category }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('category')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="product_name" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                                <select name="product_name" id="product_name"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+                                    data-old-value="{{ old('product_name') }}"
+                                    required>
+                                    <option value="" disabled selected>Select a category first</option>
+                                    {{-- Populated via JavaScript --}}
+                                </select>
+                                @error('product_name')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Hidden product mapping for JS --}}
+                        <script id="product-mapping-data" type="application/json">
+                            {!! json_encode($allProductMapping) !!}
+                        </script>
+
+                        <div id="other_product_container" class="{{ old('product_name') === 'Others' ? '' : 'hidden' }}">
+                            <label for="other_product_name" class="block text-sm font-medium text-gray-700 mb-1">Custom Product Name</label>
+                            <input type="text" name="other_product_name" id="other_product_name" value="{{ old('other_product_name') }}"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                required>
-                            @error('product_name')
+                                placeholder="Enter your custom product name">
+                            @error('other_product_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="variety_size"
-                                class="block text-sm font-medium text-gray-700 mb-1">Variety/Size</label>
-                            <input type="text" name="variety_size" id="variety_size" value="{{ old('variety_size') }}"
-                                placeholder="Large, Medium, Grade A, Bundle, etc."
-                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
-                            @error('variety_size')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="variety" class="block text-sm font-medium text-gray-700 mb-1">Variety</label>
+                                <input type="text" name="variety" id="variety" value="{{ old('variety') }}"
+                                    placeholder="e.g., Dinorado, Wagwag, Cavendish"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                @error('variety')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="size_grade" class="block text-sm font-medium text-gray-700 mb-1">Size / Grade</label>
+                                <input type="text" name="size_grade" id="size_grade" value="{{ old('size_grade') }}"
+                                    placeholder="e.g., Large, Grade A, Premium"
+                                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500">
+                                @error('size_grade')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <div>
@@ -141,7 +189,7 @@
                                 <select name="unit" id="unit"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
-                                    @foreach (['pieces', 'trays', 'dozen', 'kilos', 'boxes', 'bunches', 'sacks'] as $unit)
+                                    @foreach (['kg', 'sack', 'tray', 'box', 'bundle', 'piece', 'dozen', 'liter'] as $unit)
                                         <option value="{{ $unit }}" {{ old('unit') === $unit ? 'selected' : '' }}>
                                             {{ ucfirst($unit) }}
                                         </option>

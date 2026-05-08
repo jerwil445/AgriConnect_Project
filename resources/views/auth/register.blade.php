@@ -301,20 +301,20 @@
 
                                 </div>
 
-                                <!-- Crops Category -->
+                                <!-- Agricultural Categories -->
                                 <div class="space-y-4 mb-6" data-role-field="farmer">
                                     <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
-                                        Crops Category
+                                        Agricultural Categories
                                     </h4>
                                     <div class="flex flex-wrap gap-2.5" id="farmer-categories">
-                                        @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                        @foreach(array_keys(config('agricultural_products')) as $category)
                                             <button type="button" data-category="{{ $category }}"
                                                 class="category-chip px-6 py-3 rounded-2xl border-2 border-gray-100 bg-white text-sm font-bold text-gray-500 hover:border-green-400 hover:text-green-600 transition-all shadow-sm active:scale-95">
                                                 {{ $category }}
                                             </button>
                                         @endforeach
                                     </div>
-                                    <input type="hidden" name="categories" id="categories-input"
+                                    <input type="hidden" name="categories" id="farmer-categories-input"
                                         value="{{ old('categories') }}" data-role-field="farmer" data-role-required="farmer">
                                     @php($categoriesError = $errors->first('categories'))
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $categoriesError ? '' : 'hidden' }}"
@@ -395,7 +395,7 @@
                                             Interest Categories
                                         </h4>
                                         <div class="flex flex-wrap gap-2.5" id="buyer-categories">
-                                            @foreach(['Grains & Cereals', 'Fruits & Berries', 'Vegetables', 'Livestock', 'Poultry & Eggs', 'Fisheries', 'Roots & Tubers', 'Herbs & Spices', 'Dairy', 'Industrial Crops'] as $category)
+                                            @foreach(array_keys(config('agricultural_products')) as $category)
                                                 <button type="button" data-category="{{ $category }}"
                                                     class="category-chip px-6 py-3 rounded-2xl border-2 border-gray-100 bg-white text-sm font-bold text-gray-500 hover:border-green-400 hover:text-green-600 transition-all shadow-sm active:scale-95">
                                                     {{ $category }}

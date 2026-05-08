@@ -158,43 +158,52 @@
                 </div>
 
                 <!-- Primary Charts (Trends & Popularity) -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="flex flex-col gap-8 mb-8">
                     <!-- Sales Trends Chart -->
                     <div
-                        class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800 flex items-center">
-                                <span class="w-2 h-6 bg-blue-500 rounded-full mr-2"></span>
+                        class="glassmorphic shadow-lg p-8 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40 rounded-[2rem]">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-2xl font-black text-gray-900 flex items-center tracking-tight">
+                                <div
+                                    class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-chart-line text-xs"></i>
+                                </div>
                                 Sales Trends
                             </h2>
-                            <select id="salesRangeFilter" class="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
-                                <option value="daily" {{ request('sales_range') == 'daily' ? 'selected' : '' }}>Daily (30 Days)</option>
-                                <option value="monthly" {{ request('sales_range') == 'monthly' ? 'selected' : '' }}>Monthly (12 Months)</option>
-                                <option value="yearly" {{ request('sales_range') == 'yearly' ? 'selected' : '' }}>Yearly (5 Years)</option>
+                            <select id="salesRangeFilter"
+                                class="text-[10px] font-black text-gray-500 uppercase tracking-widest bg-gray-50 border border-gray-100 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer">
+                                <option value="daily" {{ request('sales_range') == 'daily' ? 'selected' : '' }}>Daily (30
+                                    Days)</option>
+                                <option value="monthly" {{ request('sales_range', 'monthly') == 'monthly' ? 'selected' : '' }}>Monthly (12 Months)</option>
+                                <option value="yearly" {{ request('sales_range') == 'yearly' ? 'selected' : '' }}>Yearly (5
+                                    Years)</option>
                             </select>
                         </div>
-                        <div class="h-80">
+                        <div class="h-96">
                             <canvas id="salesTrendsChart"></canvas>
                         </div>
                     </div>
 
                     <!-- Product Popularity Chart -->
                     <div
-                        class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-lg font-bold text-gray-800 flex items-center">
-                                <span class="w-2 h-6 bg-purple-500 rounded-full mr-2"></span>
+                        class="glassmorphic shadow-lg p-8 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40 rounded-[2rem]">
+                        <div class="flex items-center justify-between mb-8">
+                            <h2 class="text-2xl font-black text-gray-900 flex items-center tracking-tight">
+                                <div
+                                    class="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mr-4">
+                                    <i class="fas fa-fire text-xs"></i>
+                                </div>
                                 Product Popularity
                             </h2>
                         </div>
-                        <div class="h-80">
+                        <div class="h-96">
                             <canvas id="productPopularityChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-                <!-- Secondary Charts (Regional, Status, etc.) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Secondary Charts Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mt-8">
                     <!-- Regional Demand Chart -->
                     <div
                         class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
@@ -236,10 +245,6 @@
                             <canvas id="orderStatusChart"></canvas>
                         </div>
                     </div>
-                </div>
-
-                <!-- Performance & Supply/Demand Charts -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
                     <!-- Top Farmers -->
                     <div
                         class="glassmorphic shadow-lg p-6 group transition-all duration-300 hover:shadow-xl bg-white/80 backdrop-blur-sm border border-white/40">
@@ -387,7 +392,7 @@
     <!-- Include Chart.js Plugin for Data Labels -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script>
-        document.getElementById('salesRangeFilter').addEventListener('change', function() {
+        document.getElementById('salesRangeFilter').addEventListener('change', function () {
             const range = this.value;
             const url = new URL(window.location.href);
             url.searchParams.set('sales_range', range);

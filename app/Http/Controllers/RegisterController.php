@@ -32,7 +32,7 @@ class RegisterController extends Controller
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'required_if:role,buyer|string|max:50',
             'other_business_type' => 'required_if:business_type,others|nullable|string|max:255',
-            'categories' => 'required_if:role,buyer|string',
+            'categories' => 'required_if:role,buyer|nullable|string',
             'preferred_products' => 'nullable|string',
             'buyer_address' => 'required_if:role,buyer|string|max:255',
         ]);

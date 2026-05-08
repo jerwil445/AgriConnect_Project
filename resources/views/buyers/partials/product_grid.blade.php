@@ -21,12 +21,19 @@
         @endphp
         <div
             class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100 group hover:shadow-md transition-shadow duration-200">
-            <span
-                class="px-2 py-1 text-[10px] rounded-full font-bold absolute m-4 uppercase z-10
-                    {{ $product->status == 'Available' ? 'bg-green-100 text-green-700 border border-green-200' :
-            ($product->status == 'Sold Out' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200') }}">
-                {{ $product->status }}
-            </span>
+            <div class="absolute m-4 z-10 flex flex-col gap-1">
+                <span
+                    class="px-2 py-1 text-[10px] rounded-full font-bold uppercase
+                        {{ $product->status == 'Available' ? 'bg-green-100 text-green-700 border border-green-200' :
+                ($product->status == 'Sold Out' ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-yellow-100 text-yellow-700 border border-yellow-200') }}">
+                    {{ $product->status }}
+                </span>
+                @if($product->category)
+                    <span class="px-2 py-1 text-[10px] rounded-full font-bold uppercase bg-blue-100 text-blue-700 border border-blue-200">
+                        {{ $product->category }}
+                    </span>
+                @endif
+            </div>
             <div class="h-48 bg-gray-100 relative overflow-hidden">
                 @if ($product->image)
                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->product_name }}"

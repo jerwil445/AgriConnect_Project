@@ -1,5 +1,10 @@
-<div class="p-4 border-b border-gray-200 bg-white">
-    <h2 class="text-lg font-bold text-gray-900">Transaction Details</h2>
+<div class="p-5 border-b border-gray-100 bg-white">
+    <h2 class="text-xl font-black text-gray-900 tracking-tight flex items-center">
+        <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mr-3">
+            <i class="fas fa-info-circle text-[10px]"></i>
+        </div>
+        Transaction Details
+    </h2>
 </div>
 
 @php
@@ -7,29 +12,34 @@
     $currentTotal = $transaction->total_amount ?: (($transaction->product->total_amount ?? ($transaction->product->quantity * $transaction->product->price)));
 @endphp
 
-<div class="flex-1 overflow-y-auto p-4">
-    <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <h3 class="font-bold text-gray-900 mb-3">Product Information</h3>
-        <div class="space-y-3">
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span class="text-gray-600">Product</span>
-                <span class="font-medium">{{ $transaction->product->product_name }}</span>
+<div class="flex-1 overflow-y-auto p-5">
+    <div class="mb-6 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div class="flex items-center mb-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Core Summary</p>
+            <div class="flex-1 h-px bg-gray-50 ml-4"></div>
+        </div>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Product</span>
+                <span class="text-sm font-black text-gray-800">{{ $transaction->product->product_name }}</span>
             </div>
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span class="text-gray-600">Variety/Size</span>
-                <span class="font-medium">{{ $transaction->product->variety_size ?: 'N/A' }}</span>
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Variety/Size</span>
+                <span class="text-sm font-bold text-gray-600">{{ $transaction->product->variety_size ?: 'N/A' }}</span>
             </div>
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span class="text-gray-600">Available Quantity</span>
-                <span class="font-medium quantity-value">{{ $availableQuantity }} {{ $transaction->product->unit }}</span>
+            <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Availability</span>
+                <span class="text-xs font-black px-2 py-1 bg-green-50 text-green-700 rounded-lg">{{ $availableQuantity }} {{ $transaction->product->unit }}</span>
             </div>
-            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
-                <span class="text-gray-600">Price per Unit</span>
-                <span class="font-medium price-value">₱{{ number_format($transaction->product->price, 2) }}/{{ $transaction->product->unit }}</span>
-            </div>
-            <div class="flex justify-between items-center pt-2">
-                <span class="text-gray-900 font-medium">Total Amount</span>
-                <span class="font-bold text-green-600 text-lg total-amount">₱{{ number_format($currentTotal, 2) }}</span>
+            <div class="pt-4 border-t border-gray-50 flex justify-between items-end">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">Unit Price</p>
+                    <p class="text-sm font-black text-gray-800">₱{{ number_format($transaction->product->price, 2) }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-bold text-green-600 uppercase">Est. Total</p>
+                    <p class="text-xl font-black text-green-700">₱{{ number_format($currentTotal, 2) }}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -510,28 +520,31 @@
         </div>
     </div>
 
-    <div class="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
-        <h3 class="font-bold text-gray-900 mb-3">Parties</h3>
+    <div class="mb-6 p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
+        <div class="flex items-center mb-4">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Network Parties</p>
+            <div class="flex-1 h-px bg-gray-50 ml-4"></div>
+        </div>
         <div class="space-y-4">
-            <div class="flex items-center p-1 bg-gray-50 rounded-lg">
-                <div class="bg-indigo-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
-                    <span class="text-indigo-800 font-bold text-lg">{{ substr($transaction->buyer->first_name, 0, 1) }}</span>
+            <div class="flex items-center p-3 bg-gray-50/50 rounded-xl border border-gray-50">
+                <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl w-10 h-10 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span class="text-blue-800 font-black">{{ substr($transaction->buyer->first_name, 0, 1) }}</span>
                 </div>
-                <div class="ml-4">
-                    <h4 class="font-bold text-gray-900">Buyer</h4>
-                    <p class="text-gray-700">{{ $transaction->buyer->first_name }} {{ $transaction->buyer->last_name }}</p>
-                    <p class="text-sm text-gray-500">{{ $transaction->buyer->email }}</p>
+                <div class="ml-4 min-w-0">
+                    <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Buyer</p>
+                    <h4 class="font-black text-gray-900 truncate leading-none mt-1">{{ $transaction->buyer->first_name }} {{ $transaction->buyer->last_name }}</h4>
+                    <p class="text-[10px] text-gray-400 truncate mt-1">{{ $transaction->buyer->email }}</p>
                 </div>
             </div>
 
-            <div class="flex items-center p-1 bg-gray-50 rounded-lg">
-                <div class="bg-green-100 rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0">
-                    <span class="text-green-800 font-bold text-lg">{{ substr($transaction->farmer->first_name, 0, 1) }}</span>
+            <div class="flex items-center p-3 bg-gray-50/50 rounded-xl border border-gray-50">
+                <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-xl w-10 h-10 flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <span class="text-green-800 font-black">{{ substr($transaction->farmer->first_name, 0, 1) }}</span>
                 </div>
-                <div class="ml-4">
-                    <h4 class="font-bold text-gray-900">Farmer</h4>
-                    <p class="text-gray-700">{{ $transaction->farmer->first_name }} {{ $transaction->farmer->last_name }}</p>
-                    <p class="text-sm text-gray-500">{{ $transaction->farmer->email }}</p>
+                <div class="ml-4 min-w-0">
+                    <p class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Farmer</p>
+                    <h4 class="font-black text-gray-900 truncate leading-none mt-1">{{ $transaction->farmer->first_name }} {{ $transaction->farmer->last_name }}</h4>
+                    <p class="text-[10px] text-gray-400 truncate mt-1">{{ $transaction->farmer->email }}</p>
                 </div>
             </div>
         </div>

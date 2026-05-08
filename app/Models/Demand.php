@@ -11,6 +11,7 @@ class Demand extends Model
 
     protected $fillable = [
         'buyer_id',
+        'category',
         'product_name',
         'variety_size',
         'quantity',

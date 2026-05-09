@@ -27,6 +27,7 @@ class User extends Authenticatable
     protected $fillable = [
         'first_name',
         'last_name',
+        'sex',
         'email',
         'password',
         'role',
@@ -89,5 +90,57 @@ class User extends Authenticatable
     public function demandMatches()
     {
         return $this->hasManyThrough(DemandMatch::class, Demand::class, 'buyer_id', 'demand_id');
+    }
+
+    /**
+     * Get all verifications for the user.
+     */
+    public function verifications()
+    {
+        return $this->hasMany(Verification::class);
+    }
+
+    /**
+     * Check if the user is fully verified.
+     */
+    public function isVerified()
+    {
+        if ($this->role === 'farmer') {
+            return $this->farmer && $this->farmer->is_verified;
+        } elseif ($this->role === 'buyer') {
+            return $this->buyer && $this->buyer->verified;
+        }
+        return $this->kyc_status === 'verified';
+    }
+
+    /**
+     * Calculate profile completeness percentage.
+     */
+    public function profileCompleteness()
+    {
+        $baseFields = ['first_name', 'last_name', 'email', 'phone_number', 'address', 'profile_picture'];
+        $filled = 0;
+
+        foreach ($baseFields as $field) {
+            if (!empty($this->$field)) $filled++;
+        }
+
+        $totalFields = count($baseFields);
+
+        if ($this->role === 'farmer' && $this->farmer) {
+            $farmerFields = ['farm_name', 'farm_size', 'main_category', 'farm_address'];
+            foreach ($farmerFields as $field) {
+                if (!empty($this->farmer->$field)) $filled++;
+            }
+            $totalFields += count($farmerFields);
+        } elseif ($this->role === 'buyer' && $this->buyer) {
+            $buyerFields = ['company_name', 'business_type', 'address'];
+            foreach ($buyerFields as $field) {
+                if (!empty($this->buyer->$field)) $filled++;
+            }
+            $totalFields += count($buyerFields);
+        }
+
+        return round(($filled / $totalFields) * 100);
     }
 }

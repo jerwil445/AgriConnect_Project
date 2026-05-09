@@ -11,6 +11,9 @@ const fieldValidations = {
     city_region: {
         rules: [{ type: "required", message: "City/Region is required." }],
     },
+    sex: {
+        rules: [{ type: "required", message: "Sex is required." }],
+    },
     address: {
         rules: [{ type: "required", message: "Full address is required." }],
     },
@@ -172,6 +175,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const businessTypeSelect = document.getElementById("business_type");
     const otherBusinessTypeContainer = document.getElementById("other_business_type_container");
     const otherBusinessTypeInput = document.getElementById("other_business_type");
+    const phoneInput = document.getElementById("phone");
+
+    // Phone number auto-start with 0
+    if (phoneInput) {
+        phoneInput.addEventListener("input", function() {
+            if (this.value.length > 0 && this.value[0] !== '0') {
+                this.value = '0' + this.value;
+            }
+        });
+        
+        // Ensure it has 0 on focus if empty
+        phoneInput.addEventListener("focus", function() {
+            if (this.value.length === 0) {
+                this.value = '0';
+            }
+        });
+    }
 
     const roleScopedFields = form.querySelectorAll("[data-role-field]");
 

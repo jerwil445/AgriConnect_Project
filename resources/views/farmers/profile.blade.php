@@ -16,7 +16,11 @@
             </div>
             <div class="absolute top-6 right-8">
                 <span class="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest border border-white/30">
-                    Trusted Producer
+                    @if($user->farmer->is_verified)
+                        <i class="fas fa-check-circle mr-1 text-emerald-400"></i> Verified Producer
+                    @else
+                        Trusted Producer
+                    @endif
                 </span>
             </div>
         </div>
@@ -39,8 +43,12 @@
                     <p class="text-emerald-600 font-bold tracking-tight">{{ Auth::user()->email }}</p>
                 </div>
                 <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
-                        <i class="fas fa-certificate text-[10px]"></i> Standard Farmer
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg {{ $user->farmer->is_verified ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-gray-50 text-gray-500 border-gray-200' }} text-xs font-bold border">
+                        <i class="fas {{ $user->farmer->is_verified ? 'fa-certificate text-emerald-500' : 'fa-award' }} text-[10px]"></i> 
+                        {{ $user->farmer->is_verified ? 'Verified Farmer' : 'Standard Farmer' }}
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
+                        <i class="fas fa-reply text-[10px]"></i> {{ number_format($user->farmer->response_rate, 0) }}% Response
                     </span>
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-50 text-gray-600 text-xs font-bold border border-gray-200">
                         <i class="fas fa-user-clock text-[10px]"></i> Active Member since {{ Auth::user()->created_at->format('M Y') }}
@@ -207,9 +215,22 @@
                     </div>
                     <div>
                         <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Level</div>
-                        <div class="text-lg font-black text-gray-900 tracking-tight">Rising Producer</div>
+                        <div class="text-lg font-black text-gray-900 tracking-tight">{{ $user->farmer->reputation_score > 100 ? 'Master Producer' : ($user->farmer->reputation_score > 50 ? 'Certified Producer' : 'Rising Producer') }}</div>
                     </div>
                 </div>
+
+                @if($user->verifications->where('status', 'approved')->count() > 0)
+                    <div class="mt-6 pt-6 border-t border-emerald-100/50">
+                        <h4 class="text-[10px] font-black text-emerald-900 uppercase tracking-widest mb-4">Verified Certifications</h4>
+                        <div class="space-y-2">
+                            @foreach($user->verifications->where('status', 'approved') as $v)
+                                <div class="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-white px-4 py-2 rounded-xl border border-emerald-50">
+                                    <i class="fas fa-check-circle text-[10px]"></i> {{ $v->document_type }}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

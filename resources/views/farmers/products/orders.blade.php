@@ -15,6 +15,7 @@
                     <h2 class="text-xl font-bold text-gray-900">Order History</h2>
                     <p class="text-sm text-gray-500 mt-1">Showing all buyers for 
                         <span class="font-semibold text-green-600">{{ $product->product_name }}</span>
+                        <span class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest ml-2 border-l border-gray-200 pl-2">{{ $product->category ?? 'General' }}</span>
                     </p>
                 </div>
             </div>

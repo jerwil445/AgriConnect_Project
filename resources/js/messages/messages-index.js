@@ -125,14 +125,29 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     // Add message to container
                     const isSender = data.data.is_sender;
+                    const messageText = data.data.message;
+                    
+                    // Check if the viewer is the farmer of this transaction
+                    const farmerId = parseInt(messageForm.getAttribute('data-farmer-id'));
+                    const currentUserId = parseInt(messageForm.getAttribute('data-current-user-id'));
+                    const isFarmerSide = (farmerId === currentUserId);
                     const messageElement = document.createElement('div');
-                    messageElement.className = 'mb-4 ' + (isSender ? 'text-right' : 'text-left');
+                    messageElement.className = 'mb-6 ' + (isSender ? 'flex justify-end' : 'flex justify-start');
                     messageElement.innerHTML = `
-                        <div class="inline-block max-w-xs md:max-w-md ${isSender ? 'bg-indigo-500 text-white rounded-l-lg rounded-tr-lg' : 'bg-white border border-gray-200 rounded-r-lg rounded-tl-lg'} px-4 py-2 rounded-lg">
-                            <p class="text-sm whitespace-pre-line">${data.data.message}</p>
-                            <p class="text-xs mt-1 ${isSender ? 'text-indigo-200' : 'text-gray-500'}">
-                                ${data.data.sender} • ${data.data.created_at}
-                            </p>
+                        <div class="max-w-[80%] md:max-w-[70%]">
+                            <div class="px-5 py-3.5 shadow-sm ${isSender ? 'bg-green-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-none'}">
+                                <p class="text-sm leading-relaxed whitespace-pre-line">${messageText}</p>
+                            </div>
+                            <div class="flex items-center mt-2 px-1 ${isSender ? 'justify-end' : 'justify-start'}">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                                    ${data.data.created_at}
+                                </p>
+                                ${isSender ? `
+                                    <div class="ml-2 flex items-center">
+                                        <i class="fas fa-check text-[8px] text-gray-300"></i>
+                                    </div>
+                                ` : ''}
+                            </div>
                         </div>
                     `;
                     messagesContainer.appendChild(messageElement);
@@ -143,14 +158,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Refresh message counts after sending a message
                     refreshUnreadCounts();
-
-                    // Check if this is the first message in the conversation for auto-followup
-                    const messageCount = messagesContainer.querySelectorAll('.mb-4').length;
-                    if (messageCount === 1 && !data.data.message.toLowerCase().includes('is this available?')) {
-                        setTimeout(() => {
-                            sendFollowUpMessage(transactionId);
-                        }, 1000);
-                    }
                 } else {
                     alert('Error sending message: ' + data.message);
                 }
@@ -170,54 +177,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Expose to window for manual re-init
     window.initializeMessaging = initializeMessaging;
-
-    // Function to send automatic follow-up message
-    function sendFollowUpMessage(transactionId) {
-        const conversationHeader = document.querySelector('#conversation-container .p-4.border-b');
-        let productName = 'this product';
-        if (conversationHeader) {
-            const productTitle = conversationHeader.querySelector('h2.text-lg.font-bold');
-            if (productTitle) productName = productTitle.textContent.trim();
-        }
-
-        let messageLines = ['Is this available?'];
-        messageLines.push(`Product: ${productName}`);
-
-        const messageText = messageLines.join('\n');
-
-        fetch(`/transactions/${transactionId}/messages`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: JSON.stringify({ message: messageText })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const messagesContainer = document.getElementById('messages-container');
-                if (messagesContainer) {
-                    const isSender = data.data.is_sender;
-                    const messageElement = document.createElement('div');
-                    messageElement.className = 'mb-4 ' + (isSender ? 'text-right' : 'text-left');
-                    messageElement.innerHTML = `
-                        <div class="inline-block max-w-xs md:max-w-md ${isSender ? 'bg-indigo-500 text-white rounded-l-lg rounded-tr-lg' : 'bg-white border border-gray-200 rounded-r-lg rounded-tl-lg'} px-4 py-2 rounded-lg">
-                            <p class="text-sm whitespace-pre-line">${data.data.message}</p>
-                            <p class="text-xs mt-1 ${isSender ? 'text-indigo-200' : 'text-gray-500'}">
-                                ${data.data.sender} • ${data.data.created_at}
-                            </p>
-                        </div>
-                    `;
-                    messagesContainer.appendChild(messageElement);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Error sending follow-up message:', error);
-        });
-    }
 
     // Auto-resize textarea
     document.addEventListener('input', function (e) {

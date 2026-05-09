@@ -142,29 +142,15 @@ class BuyerController extends Controller
      */
     public function showProfile()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['buyer', 'verifications']);
 
         // Calculate Stats
         $totalDemands = \App\Models\Demand::where('buyer_id', $user->id)->count();
         $activeDemands = \App\Models\Demand::where('buyer_id', $user->id)->where('status', 'Available')->count();
         $totalOrders = \App\Models\Transaction::where('buyer_id', $user->id)->count();
 
-        // Calculate Profile Completeness
-        $fields = [
-            $user->first_name,
-            $user->last_name,
-            $user->email,
-            $user->phone_number,
-            $user->address,
-            $user->profile_picture,
-            $user->buyer?->company_name,
-            $user->buyer?->business_type,
-            $user->buyer?->categories,
-            $user->buyer?->preferred_products,
-            $user->buyer?->address
-        ];
-        $filled = count(array_filter($fields));
-        $completeness = round(($filled / count($fields)) * 100);
+        // Use model method for completeness
+        $completeness = $user->profileCompleteness();
 
         return view('buyers.profile', compact('user', 'totalDemands', 'activeDemands', 'totalOrders', 'completeness'));
     }
@@ -216,7 +202,7 @@ class BuyerController extends Controller
      */
     public function editProfile()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['buyer', 'verifications']);
         return view('buyers.profile-edit', compact('user'));
     }
 
@@ -231,9 +217,11 @@ class BuyerController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'sex' => 'nullable|string|in:Male,Female,Other',
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|string|min:8|confirmed',
             // Buyer specific fields
             'company_name' => 'nullable|string|max:255',
             'business_type' => 'nullable|string|max:255',
@@ -243,13 +231,20 @@ class BuyerController extends Controller
         ]);
 
         // Update user information
-        $user->update($request->only([
-            'first_name',
-            'last_name',
-            'email',
-            'phone_number',
-            'address'
-        ]));
+        $userData = [
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'sex' => $request->sex,
+            'phone_number' => $request->phone_number,
+            'address' => $request->address,
+        ];
+
+        if ($request->filled('password')) {
+            $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->update($userData);
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {

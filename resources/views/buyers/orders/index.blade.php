@@ -119,6 +119,8 @@
                                                 <div class="text-sm font-black text-gray-900 leading-none">
                                                     {{ $order->product->product_name ?? 'N/A' }}</div>
                                                 <div class="flex items-center gap-2 mt-1.5">
+                                                    <div class="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">{{ $order->product->category ?? 'General' }}</div>
+                                                    <div class="w-1 h-1 rounded-full bg-gray-300"></div>
                                                     <div class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{ $order->product->variety_size ?? 'Standard' }}</div>
                                                     <div class="w-1 h-1 rounded-full bg-gray-300"></div>
                                                     <div class="text-[10px] font-black text-indigo-500 uppercase tracking-tighter">{{ $order->final_quantity }} {{ $order->product->unit ?? 'Units' }}</div>

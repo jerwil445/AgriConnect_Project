@@ -241,4 +241,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     validateQuantity('modal_quantity', 'modal_quantity_error', 'submitBtn');
     validateQuantity('edit_quantity', 'edit_quantity_error', 'submitEditBtn');
+
+    // Disable scrolling on number inputs to prevent accidental value changes
+    document.addEventListener('wheel', function (event) {
+        if (document.activeElement.type === 'number') {
+            document.activeElement.blur();
+        }
+    });
 });

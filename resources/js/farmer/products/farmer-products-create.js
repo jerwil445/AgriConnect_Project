@@ -233,9 +233,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // Clear current options
             productNameSelect.innerHTML = '<option value="" disabled selected>Select a product</option>';
             
+            let allProducts = [];
             if (selectedCategory && productMapping[selectedCategory]) {
                 const subCategories = productMapping[selectedCategory];
-                let allProducts = [];
                 
                 // Flatten all products under the category
                 Object.values(subCategories).forEach(products => {
@@ -250,13 +250,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (selectedProduct === product) option.selected = true;
                     productNameSelect.appendChild(option);
                 });
+            }
 
-                // Add "Others" option
+            // Always add "Others" option if a category is selected
+            if (selectedCategory) {
                 const othersOption = document.createElement('option');
                 othersOption.value = 'Others';
                 othersOption.textContent = 'Others (Custom)';
                 if (selectedProduct === 'Others') othersOption.selected = true;
                 productNameSelect.appendChild(othersOption);
+
+                // If no products in mapping or if the selectedProduct is not in mapping, default to Others
+                if (allProducts.length === 0 || (selectedProduct && !allProducts.includes(selectedProduct) && selectedProduct !== '')) {
+                    othersOption.selected = true;
+                    // Trigger show container if it was selected automatically
+                    if (othersOption.selected) {
+                        otherProductContainer.classList.remove('hidden');
+                        otherProductInput.setAttribute('required', 'required');
+                    }
+                }
             }
         }
 

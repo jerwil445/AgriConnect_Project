@@ -140,21 +140,11 @@
                                                 </div>
                                                 <div>
                                                     <div class="text-sm font-black text-gray-800">
-                                                        @php
-                                                            $eggTypes = [
-                                                                'chicken' => 'Chicken',
-                                                                'duck' => 'Duck',
-                                                                'quail' => 'Quail',
-                                                                'native_chicken' => 'Native Chicken',
-                                                                'brown' => 'Brown Egg',
-                                                                'white' => 'White Egg',
-                                                            ];
-                                                        @endphp
-                                                        {{ $eggTypes[$product->egg_type] ?? ucfirst(str_replace('_', ' ', $product->egg_type)) }}
+                                                        {{ $product->product_name }}
                                                     </div>
                                                     <div
                                                         class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase tracking-tighter">
-                                                        {{ $product->product_name }}
+                                                        {{ $product->category }}
                                                     </div>
                                                 </div>
                                             </div>

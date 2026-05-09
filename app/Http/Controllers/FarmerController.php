@@ -232,36 +232,20 @@ class FarmerController extends Controller
      */
     public function showProfile()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['farmer', 'verifications']);
 
         // Calculate Stats
-        $totalProducts = \App\Models\Product::where('farmer_id', $user->id)->count();
+        $totalProducts = 0;
+        $activeListings = 0;
         if ($user->farmer) {
             $totalProducts = \App\Models\Product::where('farmer_id', $user->farmer->id)->count();
-        }
-
-        $activeListings = \App\Models\Product::where('farmer_id', $user->id)->where('status', 'Available')->count();
-        if ($user->farmer) {
             $activeListings = \App\Models\Product::where('farmer_id', $user->farmer->id)->where('status', 'Available')->count();
         }
 
         $totalSales = \App\Models\Transaction::where('farmer_id', $user->id)->where('status', 'completed')->count();
 
-        // Calculate Profile Completeness
-        $fields = [
-            $user->first_name,
-            $user->last_name,
-            $user->email,
-            $user->phone_number,
-            $user->address,
-            $user->profile_picture,
-            $user->farmer?->farm_name,
-            $user->farmer?->farm_size,
-            $user->farmer?->product_type,
-            $user->farmer?->farm_address
-        ];
-        $filled = count(array_filter($fields));
-        $completeness = round(($filled / count($fields)) * 100);
+        // Use model method for completeness
+        $completeness = $user->profileCompleteness();
 
         return view('farmers.profile', compact('user', 'totalProducts', 'activeListings', 'totalSales', 'completeness'));
     }
@@ -271,7 +255,7 @@ class FarmerController extends Controller
      */
     public function editProfile()
     {
-        $user = Auth::user();
+        $user = Auth::user()->load(['farmer', 'verifications']);
         return view('farmers.profile-edit', compact('user'));
     }
 
@@ -286,9 +270,11 @@ class FarmerController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'sex' => 'nullable|string|in:Male,Female,Other',
             'phone_number' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|string|min:8|confirmed',
             // Farmer specific fields
             'farm_name' => 'nullable|string|max:255',
             'farm_size' => 'nullable|string|max:255',
@@ -303,9 +289,14 @@ class FarmerController extends Controller
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
+            'sex' => $request->sex,
             'phone_number' => $request->phone_number,
             'address' => $request->address,
         ];
+
+        if ($request->filled('password')) {
+            $userData['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
         $user->update($userData);
 
         // Handle profile picture upload

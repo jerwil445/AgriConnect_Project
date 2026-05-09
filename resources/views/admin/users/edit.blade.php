@@ -221,6 +221,20 @@
                                     Farm Address
                                 </label>
                             </div>
+
+                            <div class="relative w-full group">
+                                <select name="is_verified" id="is_verified" 
+                                        class="peer w-full px-4 py-3 border border-white/60 rounded-xl bg-white/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent shadow-[0_2px_10px_rgb(0,0,0,0.02)] appearance-none">
+                                    <option value="1" {{ old('is_verified', $farmer->is_verified ?? '') == '1' ? 'selected' : '' }}>Yes (Verified Farmer)</option>
+                                    <option value="0" {{ old('is_verified', $farmer->is_verified ?? '') == '0' ? 'selected' : '' }}>No (Unverified)</option>
+                                </select>
+                                <label for="is_verified" class="absolute left-4 -top-2.5 text-xs font-medium bg-emerald-50 px-1 text-green-700 rounded transition-all">
+                                    Farmer Verification
+                                </label>
+                                <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-green-500">
+                                    <i class="fas fa-chevron-down text-sm"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

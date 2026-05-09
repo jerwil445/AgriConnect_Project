@@ -55,13 +55,13 @@
                         placeholder=" " value="{{ old('email') }}" required autocomplete="email" />
                     <label for="email"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-                        Admin Email
+                        Admin Email <span class="text-red-500">*</span>
                     </label>
                     @if($emailError)
                         <p class="text-sm text-red-600 mt-1">{{ $emailError }}</p>
                     @endif
                 </div>
-
+ 
                 <!-- Password -->
                 <div class="relative mb-4">
                     @php($passwordError = $errors->first('password'))
@@ -70,7 +70,7 @@
                         placeholder=" " required autocomplete="current-password" />
                     <label for="password"
                         class="absolute left-3 -top-2 text-sm text-gray-600 bg-white px-1 transition-all duration-200 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-sm peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400">
-                        Password
+                        Password <span class="text-red-500">*</span>
                     </label>
                     @if($passwordError)
                         <p class="text-sm text-red-600 mt-1">{{ $passwordError }}</p>

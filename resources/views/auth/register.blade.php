@@ -134,7 +134,7 @@
                                         placeholder=" " value="{{ old('first_name') }}" required />
                                     <label for="first_name"
                                         class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                        First Name
+                                        First Name <span class="text-red-500">*</span>
                                     </label>
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $firstNameError ? '' : 'hidden' }}"
                                         data-error-for="first_name">
@@ -149,13 +149,33 @@
                                         placeholder=" " value="{{ old('last_name') }}" required />
                                     <label for="last_name"
                                         class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                        Last Name
+                                        Last Name <span class="text-red-500">*</span>
                                     </label>
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $lastNameError ? '' : 'hidden' }}"
                                         data-error-for="last_name">
                                         {{ $lastNameError }}
                                     </p>
                                 </div>
+                            </div>
+
+                            <div class="relative w-full">
+                                @php($sexError = $errors->first('sex'))
+                                <select id="sex" name="sex"
+                                    class="peer w-full px-3 py-2.5 border border-gray-300 rounded-md focus:ring-1 focus:ring-green-500 focus:border-green-500 bg-white"
+                                    required>
+                                    <option value="" disabled {{ old('sex') ? '' : 'selected' }} hidden></option>
+                                    <option value="Male" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
+                                    <option value="Female" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
+                                    <option value="Other" {{ old('sex') == 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                <label for="sex"
+                                    class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
+                                    Sex <span class="text-red-500">*</span>
+                                </label>
+                                <p class="input-error text-sm text-red-600 mt-1 {{ $sexError ? '' : 'hidden' }}"
+                                    data-error-for="sex">
+                                    {{ $sexError }}
+                                </p>
                             </div>
 
                             <div class="flex space-x-2">
@@ -166,7 +186,7 @@
                                         placeholder=" " value="{{ old('phone_number') }}" required />
                                     <label for="phone"
                                         class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                        Phone
+                                        Phone <span class="text-red-500">*</span>
                                     </label>
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $phoneError ? '' : 'hidden' }}"
                                         data-error-for="phone_number">
@@ -181,7 +201,7 @@
                                         placeholder=" " value="{{ old('city_region') }}" required />
                                     <label for="city"
                                         class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                        City/Region
+                                        City/Region <span class="text-red-500">*</span>
                                     </label>
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $cityError ? '' : 'hidden' }}"
                                         data-error-for="city_region">
@@ -197,7 +217,7 @@
                                     placeholder=" " value="{{ old('address') }}" required />
                                 <label for="address"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                    Full Address
+                                    Full Address <span class="text-red-500">*</span>
                                 </label>
                                 <p class="input-error text-sm text-red-600 mt-1 {{ $addressError ? '' : 'hidden' }}"
                                     data-error-for="address">
@@ -212,7 +232,7 @@
                                     placeholder=" " value="{{ old('email') }}" required />
                                 <label for="email"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                    Email
+                                    Email <span class="text-red-500">*</span>
                                 </label>
                                 <p class="input-error text-sm text-red-600 mt-1 {{ $emailError ? '' : 'hidden' }}"
                                     data-error-for="email">
@@ -232,7 +252,7 @@
                                 </button>
                                 <label for="password"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                    Password
+                                    Password <span class="text-red-500">*</span>
                                 </label>
                                 <p class="input-error text-sm text-red-600 mt-1 {{ $passwordError ? '' : 'hidden' }}"
                                     data-error-for="password">
@@ -252,7 +272,7 @@
                                 </button>
                                 <label for="password_confirmation"
                                     class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600">
-                                    Confirm Password
+                                    Confirm Password <span class="text-red-500">*</span>
                                 </label>
                                 <p class="input-error text-sm text-red-600 mt-1 {{ $passwordConfirmationError ? '' : 'hidden' }}"
                                     data-error-for="password_confirmation">
@@ -290,7 +310,7 @@
                                             required />
                                         <label for="farm-size"
                                             class="absolute left-3 -top-2 text-sm bg-white px-1 rounded-sm text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                            Farm Size (Acres/Hectares)
+                                            Farm Size (Hectares) <span class="text-red-500">*</span>
                                         </label>
                                         <p class="input-error text-sm text-red-600 mt-1 {{ $farmSizeError ? '' : 'hidden' }}"
                                             data-error-for="farm_size">
@@ -304,7 +324,7 @@
                                 <!-- Agricultural Categories -->
                                 <div class="space-y-4 mb-6" data-role-field="farmer">
                                     <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
-                                        Agricultural Categories
+                                        Agricultural Categories <span class="text-red-500">*</span>
                                     </h4>
                                     <div class="flex flex-wrap gap-2.5" id="farmer-categories">
                                         @foreach(array_keys(config('agricultural_products')) as $category)
@@ -381,7 +401,7 @@
                                         </select>
                                         <label for="business_type"
                                             class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all">
-                                            Business Type
+                                            Business Type <span class="text-red-500">*</span>
                                         </label>
                                         <p class="input-error text-sm text-red-600 mt-1 {{ $businessTypeError ? '' : 'hidden' }}"
                                             data-error-for="business_type">
@@ -392,7 +412,7 @@
                                     <!-- Buyer Interest Categories -->
                                     <div class="space-y-4 mb-2" data-role-field="buyer">
                                         <h4 class="text-md font-bold text-gray-700 border-b border-green-500 pb-2">
-                                            Interest Categories
+                                            Interest Categories <span class="text-red-500">*</span>
                                         </h4>
                                         <div class="flex flex-wrap gap-2.5" id="buyer-categories">
                                             @foreach(array_keys(config('agricultural_products')) as $category)
@@ -454,7 +474,7 @@
                                         required />
                                     <label for="b_address"
                                         class="absolute left-3 -top-2 text-sm bg-white px-1 text-gray-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-focus:-top-2 peer-focus:text-green-600 peer-focus:text-xs">
-                                        Address
+                                        Address <span class="text-red-500">*</span>
                                     </label>
                                     <p class="input-error text-sm text-red-600 mt-1 {{ $buyerAddressError ? '' : 'hidden' }}"
                                         data-error-for="buyer_address">

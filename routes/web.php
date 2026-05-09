@@ -9,6 +9,8 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\DemandMatchingController;
 use App\Http\Controllers\FarmerController;
+use App\Http\Controllers\VerificationController;
+
 
 // Public Routes
 Route::get('/', function () {
@@ -76,6 +78,11 @@ Route::delete('/admin/matches/{match}', [AdminController::class, 'deleteMatch'])
 // Admin Transaction Routes
 Route::get('/admin/transactions', [AdminController::class, 'transactions'])->name('admin.transactions.index');
 Route::get('/admin/transactions/{transaction}', [AdminController::class, 'viewTransaction'])->name('admin.transactions.view');
+
+// Admin Verification Moderation Routes
+Route::get('/admin/verifications', [AdminController::class, 'verificationsIndex'])->name('admin.verifications.index');
+Route::post('/admin/verifications/{verification}/approve', [AdminController::class, 'approveVerification'])->name('admin.verifications.approve');
+Route::post('/admin/verifications/{verification}/reject', [AdminController::class, 'rejectVerification'])->name('admin.verifications.reject');
 
 // Farmer Product Routes
 Route::middleware('auth')->group(function () {
@@ -160,4 +167,8 @@ Route::middleware('auth')->group(function () {
 
     // List all transactions for a user
     Route::get('/transactions', [DemandMatchingController::class, 'listTransactions'])->name('transactions.index');
+
+    // Document Verification Routes
+    Route::post('/verifications', [VerificationController::class, 'store'])->name('verifications.store');
+    Route::delete('/verifications/{verification}', [VerificationController::class, 'destroy'])->name('verifications.destroy');
 });

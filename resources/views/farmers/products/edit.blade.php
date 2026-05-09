@@ -65,11 +65,11 @@
                         @endphp
 
                         <div id="other_product_container" class="{{ $isCustom ? '' : 'hidden' }}">
-                            <label for="other_product_name" class="block text-sm font-medium text-gray-700 mb-1">Custom Product Name</label>
+                            <label for="other_product_name" class="block text-sm font-medium text-gray-700 mb-1">Product Name (Custom)</label>
                             <input type="text" name="other_product_name" id="other_product_name" 
                                 value="{{ $isCustom ? $product->product_name : '' }}"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                placeholder="Enter your custom product name">
+                                placeholder="Enter specific product name">
                             @error('other_product_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -221,11 +221,26 @@
                     <div class="space-y-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Available Quantity</label>
+                                @php
+                                    $availableQty = $product->remainingInventory 
+                                        ? $product->remainingInventory->remaining_quantity 
+                                        : $product->quantity;
+                                    $soldQty = $product->remainingInventory 
+                                        ? ($product->remainingInventory->original_quantity - $product->remainingInventory->remaining_quantity) 
+                                        : 0;
+                                @endphp
                                 <input type="number" name="quantity" id="quantity"
-                                    value="{{ old('quantity', $product->quantity) }}"
+                                    value="{{ old('quantity', $availableQty) }}"
                                     class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
                                     required>
+                                <p class="text-xs text-gray-500 mt-1">Enter the current number of units available for sale.</p>
+                                @if($soldQty > 0)
+                                    <p class="text-xs text-amber-600 font-medium italic mt-1">
+                                        <i class="fas fa-info-circle mr-1"></i>
+                                        You have already sold {{ $soldQty }} {{ $product->unit }}{{ $soldQty > 1 ? 's' : '' }}.
+                                    </p>
+                                @endif
                                 <p id="quantity-error" class="mt-1 text-sm text-red-600 hidden">Quantity cannot be negative.</p>
                                 @error('quantity')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

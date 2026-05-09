@@ -252,19 +252,69 @@ class ProductController extends Controller
         }
 
         $validated = $this->validateProduct($request);
-        $validated['total_amount'] = $this->calculateTotalAmount($validated['quantity'], $validated['price']);
+        
+        // Handle "Others" for product name
+        if ($request->input('product_name') === 'Others' && $request->filled('other_product_name')) {
+            $validated['product_name'] = $request->input('other_product_name');
+        }
 
-        $product->fill(collect($validated)->except(['images'])->all());
-        $product->save();
+        // Refresh and load inventory data to get current sold count
+        $product->load(['remainingInventory']);
+        $inventory = $product->remainingInventory;
+        
+        // Sold Quantity = (Old Total) - (Old Available)
+        $soldQuantity = $inventory 
+            ? max(0, (int)$inventory->original_quantity - (int)$inventory->remaining_quantity) 
+            : 0;
 
+        // The user is providing the NEW available quantity (how many they have left now)
+        $newAvailable = (int)$validated['quantity'];
+        
+        // The NEW Total Stock = New Available + Old Sold
+        $newTotalStock = $newAvailable + $soldQuantity;
+        
+        // Update product attributes
+        $updateData = collect($validated)->except(['images'])->all();
+        $updateData['quantity'] = $newTotalStock;
+        $updateData['total_amount'] = $this->calculateTotalAmount($newTotalStock, $validated['price']);
+        
+        $product->update($updateData);
+
+        // Handle Images
         $this->syncImages($request, $product, true);
-        $this->syncRemainingInventory($product);
 
-        // Run matching engine in case updating properties makes it match new demands
+        // Update Remaining Inventory record explicitly
+        if ($inventory) {
+            $inventory->update([
+                'original_quantity' => $newTotalStock,
+                'remaining_quantity' => $newAvailable,
+                'original_price' => $this->calculateTotalAmount($newTotalStock, $product->price),
+                'remaining_price' => $this->calculateTotalAmount($newAvailable, $product->price),
+                'last_updated' => now(),
+            ]);
+        } else {
+            RemainingInventory::create([
+                'product_id' => $product->id,
+                'original_quantity' => $newTotalStock,
+                'remaining_quantity' => $newAvailable,
+                'original_price' => $this->calculateTotalAmount($newTotalStock, $product->price),
+                'remaining_price' => $this->calculateTotalAmount($newAvailable, $product->price),
+                'last_updated' => now(),
+            ]);
+        }
+
+        // Synchronize product status based on availability
+        if ($newAvailable <= 0 && $product->status !== 'Sold Out') {
+            $product->update(['status' => 'Sold Out']);
+        } elseif ($newAvailable > 0 && $product->status === 'Sold Out') {
+            $product->update(['status' => 'Available']);
+        }
+
+        // Run matching engine
         app(\App\Http\Controllers\DemandMatchingController::class)->runMatchingEngineForProduct($product);
 
         return redirect()->route('farmer.products.index')
-            ->with('success', 'Product updated successfully.');
+            ->with('success', 'Product updated successfully. Available stock is now ' . $newAvailable . '.');
     }
 
     /**

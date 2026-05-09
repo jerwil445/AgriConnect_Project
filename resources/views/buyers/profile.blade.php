@@ -17,7 +17,11 @@
                 <div class="absolute top-6 right-8">
                     <span
                         class="px-4 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs font-bold uppercase tracking-widest border border-white/30">
-                        Sourcing Partner
+                        @if($user->buyer->verified)
+                            <i class="fas fa-check-circle mr-1 text-blue-400"></i> Verified Partner
+                        @else
+                            Sourcing Partner
+                        @endif
                     </span>
                 </div>
             </div>
@@ -44,12 +48,16 @@
                     </div>
                     <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
                         <span
-                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-bold border border-green-100">
-                            <i class="fas fa-shield-alt"></i> Verified Account
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg {{ $user->buyer->verified ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-gray-50 text-gray-500 border-gray-200' }} text-xs font-bold border">
+                            <i class="fas {{ $user->buyer->verified ? 'fa-shield-alt text-blue-500' : 'fa-user-circle' }} text-[10px]"></i> 
+                            {{ $user->buyer->verified ? 'Verified Buyer' : 'Standard Account' }}
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-100">
+                            <i class="fas fa-reply text-[10px]"></i> {{ number_format($user->buyer->response_rate, 0) }}% Response
                         </span>
                         <span
                             class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gray-50 text-gray-600 text-xs font-bold border border-gray-200">
-                            <i class="fas fa-calendar-alt"></i> Joined {{ Auth::user()->created_at->format('M Y') }}
+                            <i class="fas fa-calendar-alt text-[10px]"></i> Joined {{ Auth::user()->created_at->format('M Y') }}
                         </span>
                     </div>
                 </div>
@@ -237,10 +245,23 @@
                     <p class="text-sm font-medium opacity-90 leading-relaxed mb-6 italic">The more detailed your sourcing
                         interests, the better farmers can serve you.</p>
                     <div class="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/30 text-center">
-                        <div class="text-2xl font-black">TOP BUYER</div>
-                        <div class="text-[10px] font-black uppercase tracking-tighter opacity-80 mt-1">Tier 1 Recognition
+                        <div class="text-2xl font-black">{{ $user->buyer->reputation_score > 100 ? 'PLATINUM' : ($user->buyer->reputation_score > 50 ? 'GOLD' : 'SILVER') }}</div>
+                        <div class="text-[10px] font-black uppercase tracking-tighter opacity-80 mt-1">Trust Reputation Score: {{ $user->buyer->reputation_score }}
                         </div>
                     </div>
+
+                    @if($user->verifications->where('status', 'approved')->count() > 0)
+                        <div class="mt-6 pt-6 border-t border-white/10">
+                            <h4 class="text-[10px] font-black text-white uppercase tracking-widest mb-4">Verified Credentials</h4>
+                            <div class="space-y-2">
+                                @foreach($user->verifications->where('status', 'approved') as $v)
+                                    <div class="flex items-center gap-2 text-xs font-bold text-white bg-white/10 px-4 py-2 rounded-xl border border-white/10">
+                                        <i class="fas fa-check-circle text-[10px]"></i> {{ $v->document_type }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

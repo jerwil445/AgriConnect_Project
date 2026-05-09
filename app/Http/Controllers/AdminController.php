@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Demand;
 use App\Models\DemandMatch;
 use App\Models\Transaction;
+use App\Models\Verification;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
@@ -302,7 +303,9 @@ class AdminController extends Controller
      */
     public function editProduct(Product $product)
     {
-        return view('admin.products.edit', compact('product'));
+        $allProductMapping = config('agricultural_products', []);
+        $registeredCategories = array_keys($allProductMapping);
+        return view('admin.products.edit', compact('product', 'registeredCategories', 'allProductMapping'));
     }
 
     /**
@@ -312,6 +315,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'product_name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
             'variety_size' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'quantity' => 'required|integer|min:1',
@@ -327,7 +331,13 @@ class AdminController extends Controller
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $productData = $request->except(['_token', '_method', 'images']);
+        $productData = $request->except(['_token', '_method', 'images', 'other_product_name']);
+        
+        // Handle 'Others' product name override
+        if ($request->input('product_name') === 'Others' && $request->filled('other_product_name')) {
+            $productData['product_name'] = $request->input('other_product_name');
+        }
+
         $productData['total_amount'] = number_format(
             ((float) $request->input('quantity')) * ((float) $request->input('price')),
             2,
@@ -467,7 +477,10 @@ class AdminController extends Controller
             ->get()
             ->sortBy('first_name');
 
-        return view('admin.demands.edit', compact('demand', 'buyers'));
+        $allProductMapping = config('agricultural_products', []);
+        $registeredCategories = array_keys($allProductMapping);
+
+        return view('admin.demands.edit', compact('demand', 'buyers', 'registeredCategories', 'allProductMapping'));
     }
 
     /**
@@ -476,7 +489,9 @@ class AdminController extends Controller
     public function updateDemand(Request $request, Demand $demand)
     {
         $request->validate([
+            'category' => 'required|string|max:255',
             'product_name' => 'required|string|max:255',
+            'other_product_name' => 'nullable|string|max:255',
             'variety_size' => 'nullable|string|max:255',
             'quantity' => 'required|numeric|min:0',
             'unit' => 'nullable|string|max:50',
@@ -491,6 +506,7 @@ class AdminController extends Controller
         ]);
 
         $demandData = $request->only([
+            'category',
             'product_name',
             'variety_size',
             'quantity',
@@ -504,6 +520,11 @@ class AdminController extends Controller
             'status',
             'buyer_id',
         ]);
+
+        // Handle 'Others' product name override
+        if ($request->input('product_name') === 'Others' && $request->filled('other_product_name')) {
+            $demandData['product_name'] = $request->input('other_product_name');
+        }
 
         $demand->update($demandData);
 
@@ -838,6 +859,19 @@ class AdminController extends Controller
 
         $user->update($userData);
 
+        // Sync verification status to sub-profiles if KYC status changed
+        if (isset($userData['kyc_status'])) {
+            $isVerified = $userData['kyc_status'] === 'verified';
+            if ($user->role === 'farmer' && $user->farmer) {
+                $user->farmer->update([
+                    'is_verified' => $isVerified,
+                    'verified_at' => $isVerified ? ($user->farmer->verified_at ?? now()) : null
+                ]);
+            } elseif ($user->role === 'buyer' && $user->buyer) {
+                $user->buyer->update(['verified' => $isVerified]);
+            }
+        }
+
         // Update farmer or buyer information if applicable
         if ($user->role === 'farmer') {
             $this->updateFarmerInfo($request, $user);
@@ -859,28 +893,31 @@ class AdminController extends Controller
             'product_type' => 'nullable|string|max:255',
             'certification' => 'nullable|string|max:255',
             'farm_address' => 'nullable|string|max:255',
+            'is_verified' => 'nullable|boolean',
         ]);
 
         $farmer = Farmer::where('user_id', $user->id)->first();
+        $farmerData = $request->only([
+            'farm_name',
+            'farm_size',
+            'product_type',
+            'certification',
+            'farm_address'
+        ]);
+
+        if ($request->has('is_verified')) {
+            $farmerData['is_verified'] = $request->boolean('is_verified');
+            if ($farmerData['is_verified'] && (!$farmer || !$farmer->verified_at)) {
+                $farmerData['verified_at'] = now();
+            } elseif (!$farmerData['is_verified']) {
+                $farmerData['verified_at'] = null;
+            }
+        }
+
         if ($farmer) {
-            $farmer->update($request->only([
-                'farm_name',
-                'farm_size',
-                'product_type',
-                'certification',
-                'farm_address'
-            ]));
+            $farmer->update($farmerData);
         } else {
-            Farmer::create(array_merge(
-                $request->only([
-                    'farm_name',
-                    'farm_size',
-                    'product_type',
-                    'certification',
-                    'farm_address'
-                ]),
-                ['user_id' => $user->id]
-            ));
+            Farmer::create(array_merge($farmerData, ['user_id' => $user->id]));
         }
     }
 
@@ -1015,4 +1052,73 @@ class AdminController extends Controller
         $user = auth()->user();
         return view('admin.profile-edit', compact('user'));
     }
+
+    /**
+     * Display a listing of pending verifications.
+     */
+    public function verificationsIndex(Request $request)
+    {
+        $status = $request->input('status', 'pending');
+        $verifications = Verification::with('user')
+            ->where('status', $status)
+            ->latest()
+            ->paginate(15);
+
+        return view('admin.verifications.index', compact('verifications', 'status'));
+    }
+
+    /**
+     * Approve a verification document.
+     */
+    public function approveVerification(Verification $verification)
+    {
+        $verification->update([
+            'status' => 'approved',
+            'verified_at' => now(),
+        ]);
+
+        $user = $verification->user;
+        
+        // If all essential documents are approved, we can mark the user as verified
+        // For now, let's just mark them if they have at least one approved document
+        $user->update(['kyc_status' => 'verified']);
+
+        if ($user->role === 'farmer' && $user->farmer) {
+            $user->farmer->update([
+                'is_verified' => true,
+                'verified_at' => now()
+            ]);
+        } elseif ($user->role === 'buyer' && $user->buyer) {
+            $user->buyer->update(['verified' => true]);
+        }
+
+        return back()->with('success', 'Document approved successfully.');
+    }
+
+    /**
+     * Reject a verification document.
+     */
+    public function rejectVerification(Request $request, Verification $verification)
+    {
+        $request->validate([
+            'rejection_reason' => 'required|string|max:500',
+        ]);
+
+        $verification->update([
+            'status' => 'rejected',
+            'rejection_reason' => $request->rejection_reason,
+        ]);
+
+        // Check if user has any other pending or approved documents
+        $hasOtherValid = Verification::where('user_id', $verification->user_id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->exists();
+
+        if (!$hasOtherValid) {
+            $verification->user->update(['kyc_status' => 'rejected']);
+        }
+
+        return back()->with('success', 'Document rejected successfully.');
+    }
 }
+

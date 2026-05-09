@@ -117,7 +117,10 @@
                                             </div>
                                             <div>
                                                 <div class="text-sm font-black text-gray-800">{{ $product->product_name }}</div>
-                                                <div class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded inline-block mt-0.5 uppercase tracking-tighter">{{ $product->variety_size ?: 'Standard' }}</div>
+                                                <div class="flex items-center gap-1.5 mt-0.5">
+                                                    <div class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">{{ $product->category ?? 'General' }}</div>
+                                                    <div class="text-[10px] font-bold text-gray-400 border border-gray-100 px-1.5 py-0.5 rounded uppercase tracking-tighter">{{ $product->variety_size ?: 'Standard' }}</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </td>

@@ -102,7 +102,10 @@
                                 <div class="space-y-4">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xs font-bold text-gray-500 uppercase">Product Listing</span>
-                                        <span class="text-xs font-black text-indigo-700">{{ $transaction->product->product_name ?? 'Archived Entry' }}</span>
+                                        <div class="text-right">
+                                            <p class="text-xs font-black text-indigo-700 leading-none">{{ $transaction->product->product_name ?? 'Archived Entry' }}</p>
+                                            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ $transaction->product->category ?? 'General' }}</p>
+                                        </div>
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="text-xs font-bold text-gray-500 uppercase">Market Requirement</span>

@@ -35,6 +35,12 @@
                                 {{ $product->status }}
                             </span>
                             
+                            @if($product->category)
+                                <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border bg-emerald-50 text-emerald-700 border-emerald-200">
+                                    <i class="fas fa-leaf mr-1.5 mt-0.5"></i> {{ $product->category }}
+                                </span>
+                            @endif
+
                             @if($product->variety_size)
                                 <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border bg-gray-50 text-gray-600 border-gray-200">
                                     <i class="fas fa-tag mr-1.5 mt-0.5"></i> {{ $product->variety_size }}

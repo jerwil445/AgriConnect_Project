@@ -24,6 +24,10 @@
                 <span class="text-sm font-black text-gray-800">{{ $transaction->product->product_name }}</span>
             </div>
             <div class="flex justify-between items-center">
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Category</span>
+                <span class="text-sm font-bold text-gray-600">{{ $transaction->product->category ?: 'N/A' }}</span>
+            </div>
+            <div class="flex justify-between items-center">
                 <span class="text-xs font-bold text-gray-400 uppercase tracking-tighter">Variety/Size</span>
                 <span class="text-sm font-bold text-gray-600">{{ $transaction->product->variety_size ?: 'N/A' }}</span>
             </div>

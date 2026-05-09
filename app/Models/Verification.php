@@ -5,21 +5,21 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Buyer extends Model
+class Verification extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'company_name',
-        'business_type',
-        'categories',
-        'preferred_products',
-        'address',
-        'verified',
-        'response_rate',
-        'response_time',
-        'reputation_score',
+        'document_type',
+        'file_path',
+        'status',
+        'rejection_reason',
+        'verified_at',
+    ];
+
+    protected $casts = [
+        'verified_at' => 'datetime',
     ];
 
     public function user()

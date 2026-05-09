@@ -42,6 +42,25 @@ class AuthController extends Controller
             ])->withInput($request->only('email', 'password'));
         }
 
+        $user = Auth::user();
+
+        // Check KYC status for non-admin users
+        if ($user->role !== 'admin') {
+            if ($user->kyc_status === 'pending') {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account is currently pending administrative approval. Please wait for the audit to complete.',
+                ])->withInput($request->only('email'));
+            }
+
+            if ($user->kyc_status === 'rejected') {
+                Auth::logout();
+                return back()->withErrors([
+                    'email' => 'Your account has been rejected. Please contact support for more information.',
+                ])->withInput($request->only('email'));
+            }
+        }
+
         $request->session()->regenerate();
 
         $user = Auth::user();

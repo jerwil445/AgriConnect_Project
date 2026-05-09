@@ -233,9 +233,9 @@ document.addEventListener('DOMContentLoaded', function () {
             // Clear current options
             productNameSelect.innerHTML = '<option value="" disabled selected>Select a product</option>';
             
+            let allProducts = [];
             if (selectedCategory && productMapping[selectedCategory]) {
                 const subCategories = productMapping[selectedCategory];
-                let allProducts = [];
                 
                 // Flatten all products under the category
                 Object.values(subCategories).forEach(products => {
@@ -250,15 +250,21 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (selectedProduct === product) option.selected = true;
                     productNameSelect.appendChild(option);
                 });
+            }
 
-                // Add "Others" option
+            // Always add "Others" option if a category is selected
+            if (selectedCategory) {
                 const othersOption = document.createElement('option');
                 othersOption.value = 'Others';
                 othersOption.textContent = 'Others (Custom)';
                 
                 // Check if current selectedProduct is "Others" or custom
                 const isCustom = selectedProduct && selectedProduct !== '' && !allProducts.includes(selectedProduct);
-                if (selectedProduct === 'Others' || isCustom) othersOption.selected = true;
+                if (selectedProduct === 'Others' || isCustom) {
+                    othersOption.selected = true;
+                    otherProductContainer.classList.remove('hidden');
+                    otherProductInput.setAttribute('required', 'required');
+                }
                 
                 productNameSelect.appendChild(othersOption);
             }
@@ -290,4 +296,11 @@ document.addEventListener('DOMContentLoaded', function () {
             updateProductOptions(categorySelect.value, oldProduct);
         }
     }
+
+    // Disable scrolling on number inputs to prevent accidental value changes
+    document.addEventListener('wheel', function (event) {
+        if (document.activeElement.type === 'number') {
+            document.activeElement.blur();
+        }
+    });
 });

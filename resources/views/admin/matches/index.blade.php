@@ -115,6 +115,7 @@
                                             <div class="flex items-center gap-2">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                                 <span class="text-sm font-black text-gray-800 leading-none">{{ $match->product->product_name ?: $match->product->egg_type }}</span>
+                                                <span class="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded uppercase ml-1">{{ $match->product->category ?? 'General' }}</span>
                                                 @if($match->product->variety_size)
                                                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">{{ $match->product->variety_size }}</span>
                                                 @endif
@@ -125,7 +126,9 @@
                                                     @php
                                                         $eggTypes = ['chicken' => 'Chicken', 'duck' => 'Duck', 'quail' => 'Quail', 'native_chicken' => 'Native Chicken', 'brown' => 'Brown Egg', 'white' => 'White Egg'];
                                                     @endphp
-                                                    {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }} Requirement
+                                                    {{ $eggTypes[$match->demand->egg_type] ?? ucfirst(str_replace('_', ' ', $match->demand->egg_type)) }}
+                                                    <span class="text-[9px] font-bold text-blue-600 bg-blue-50 px-1 py-0.5 rounded uppercase ml-1">{{ $match->demand->category ?? 'General' }}</span>
+                                                    Requirement
                                                 </span>
                                             </div>
                                         </div>

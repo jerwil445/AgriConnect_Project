@@ -148,6 +148,11 @@
                 <i class="fa-regular fa-handshake text-base text-gray-800 dark:text-black"></i>
                 Transactions
             </a>
+            <a href="{{ route('admin.verifications.index') }}" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
+                {{ request()->routeIs('admin.verifications.*') ? 'bg-green-100 text-green-600' : '' }}">
+                <i class="fas fa-user-check text-base text-gray-800 dark:text-black"></i>
+                Verifications
+            </a>
             <a href="{{ route('admin.settings') }}" class="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-green-100 hover:text-green-600 font-medium transition-all duration-300
                 {{ request()->routeIs('admin.settings') ? 'bg-green-100 text-green-600' : '' }}">
                 <svg class="w-6 h-6 text-gray-800 dark:text-black" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"

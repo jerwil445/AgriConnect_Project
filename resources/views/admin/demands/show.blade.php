@@ -17,19 +17,21 @@
                         <i class="fas fa-bullhorn rotate-[-12deg]"></i>
                     </div>
                     <div>
-                        <h2 class="text-3xl font-black text-gray-800 tracking-tight">Demand Specification</h2>
-                        <div class="flex flex-wrap items-center mt-3 gap-2">
-                            <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border
-                                @if($demand->status == 'matched') bg-emerald-50 text-emerald-700 border-emerald-200
-                                @elseif($demand->status == 'unmatched') bg-amber-50 text-amber-700 border-amber-200
-                                @elseif($demand->status == 'in negotiation') bg-blue-50 text-blue-700 border-blue-200
-                                @elseif($demand->status == 'completed') bg-purple-50 text-purple-700 border-purple-200
-                                @else bg-gray-50 text-gray-700 border-gray-200 @endif">
-                                {{ ucfirst($demand->status ?? 'unmatched') }}
-                            </span>
-                            <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border bg-gray-50 text-gray-600 border-gray-200 capitalize">
-                                <i class="fas fa-egg mr-1.5 mt-0.5"></i> {{ $demand->egg_type }}
-                            </span>
+                            <h2 class="text-3xl font-black text-gray-800 tracking-tight">{{ $demand->product_name ?: ucfirst($demand->egg_type) }}</h2>
+                            <div class="flex flex-wrap items-center mt-3 gap-2">
+                                <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border
+                                    @if($demand->status == 'matched') bg-emerald-50 text-emerald-700 border-emerald-200
+                                    @elseif($demand->status == 'unmatched') bg-amber-50 text-amber-700 border-amber-200
+                                    @elseif($demand->status == 'in negotiation') bg-blue-50 text-blue-700 border-blue-200
+                                    @elseif($demand->status == 'completed') bg-purple-50 text-purple-700 border-purple-200
+                                    @else bg-gray-50 text-gray-700 border-gray-200 @endif">
+                                    {{ ucfirst($demand->status ?? 'unmatched') }}
+                                </span>
+                                @if($demand->category)
+                                    <span class="px-3 py-1 inline-flex text-[11px] font-bold uppercase tracking-wider rounded-full shadow-sm border bg-blue-50 text-blue-700 border-blue-200">
+                                        <i class="fas fa-leaf mr-1.5 mt-0.5"></i> {{ $demand->category }}
+                                    </span>
+                                @endif
                             <span class="text-sm text-gray-500 font-medium ml-2">ID: #DMND_{{ str_pad($demand->id, 5, '0', STR_PAD_LEFT) }}</span>
                         </div>
                     </div>

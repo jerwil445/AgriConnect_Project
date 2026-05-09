@@ -21,6 +21,7 @@ class RegisterController extends Controller
             'password' => 'required|min:6|confirmed',
             'role' => 'required|in:farmer,buyer',
             'phone_number' => 'required|string|max:20',
+            'sex' => 'required|string|in:Male,Female,Other',
             'city_region' => 'required|string|max:255',
             'address' => 'required|string|max:255',
             // Farmer fields
@@ -44,6 +45,7 @@ class RegisterController extends Controller
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
+            'sex' => $request->sex,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,

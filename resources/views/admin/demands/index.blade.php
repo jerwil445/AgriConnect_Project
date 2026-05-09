@@ -109,7 +109,10 @@
                                     </td>
                                     <td class="px-8 py-6 whitespace-nowrap">
                                         <div class="text-sm font-black text-gray-800 tracking-tight">{{ $demand->egg_type }}</div>
-                                        <div class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block mt-1 uppercase tracking-tighter shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors cursor-default">Active Request</div>
+                                        <div class="flex items-center gap-1.5 mt-1">
+                                            <div class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded uppercase tracking-tighter shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors cursor-default">Active Request</div>
+                                            <div class="text-[10px] font-bold text-gray-400 border border-gray-100 px-2 py-0.5 rounded uppercase tracking-tighter">{{ $demand->category ?? 'General' }}</div>
+                                        </div>
                                     </td>
                                     <td class="px-8 py-6 whitespace-nowrap">
                                         <div class="text-sm font-black text-gray-800">{{ $demand->quantity }} <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest leading-none">Units</span></div>

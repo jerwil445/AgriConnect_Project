@@ -28,7 +28,7 @@
             </div>
         @endif
 
-        <form action="{{ route('farmer.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+        <form id="profile-form" action="{{ route('farmer.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             @method('PUT')
 
@@ -56,8 +56,42 @@
                             class="mt-2 text-[10px] font-black text-emerald-500 uppercase tracking-widest bg-emerald-50 px-3 py-1 rounded-full inline-block">
                             Registered Producer</div>
 
+                        <div class="mt-8 grid grid-cols-2 gap-4">
+                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Response Rate</div>
+                                <div class="text-lg font-black text-emerald-600">{{ number_format(Auth::user()->farmer->response_rate, 0) }}%</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+                                <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Reputation</div>
+                                <div class="text-lg font-black text-amber-600">{{ Auth::user()->farmer->reputation_score }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 pt-10 border-t border-gray-50 space-y-4 text-left">
+                            <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2 mb-4">Trust Indicators</h4>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-gray-50/50">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Identity</span>
+                                    @if(Auth::user()->kyc_status === 'verified')
+                                        <i class="fas fa-check-circle text-emerald-500 text-xs"></i>
+                                    @else
+                                        <i class="fas fa-clock text-amber-400 text-xs"></i>
+                                    @endif
+                                </div>
+                                <div class="flex items-center justify-between px-3 py-2 rounded-xl bg-gray-50/50">
+                                    <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Certifications</span>
+                                    @php $hasApproved = Auth::user()->verifications->where('status', 'approved')->count(); @endphp
+                                    @if($hasApproved > 0)
+                                        <span class="text-[10px] font-black text-emerald-600">{{ $hasApproved }} Verified</span>
+                                    @else
+                                        <span class="text-[10px] font-bold text-gray-400">None Verified</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="mt-10 pt-10 border-t border-gray-50 space-y-4">
-                            <button type="submit"
+                            <button type="submit" form="profile-form"
                                 class="w-full bg-emerald-600 text-white px-8 py-5 rounded-[1.5rem] font-black uppercase tracking-widest text-xs hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-100 active:scale-95">
                                 Commit Bio Updates
                             </button>
@@ -123,6 +157,20 @@
                                     value="{{ old('phone_number', Auth::user()->phone_number) }}"
                                     class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
                                 @error('phone_number')
+                                    <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="space-y-3">
+                                <label for="sex"
+                                    class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Biological Sex</label>
+                                <select name="sex" id="sex" 
+                                    class="w-full bg-gray-50 border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:bg-white focus:ring-4 focus:ring-emerald-50 transition-all border outline-none">
+                                    <option value="" disabled {{ !Auth::user()->sex ? 'selected' : '' }} hidden>Select Sex</option>
+                                    <option value="Male" {{ old('sex', Auth::user()->sex) === 'Male' ? 'selected' : '' }}>Male</option>
+                                    <option value="Female" {{ old('sex', Auth::user()->sex) === 'Female' ? 'selected' : '' }}>Female</option>
+                                    <option value="Other" {{ old('sex', Auth::user()->sex) === 'Other' ? 'selected' : '' }}>Other</option>
+                                </select>
+                                @error('sex')
                                     <p class="text-[10px] text-red-500 font-bold mt-1 px-2">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -222,6 +270,135 @@
                             </div>
                         </div>
                     @endif
+
+                    {{-- Verification Documents Card --}}
+                    <div class="bg-white rounded-[2.5rem] border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-10 py-8 border-b border-gray-50 flex items-center justify-between bg-indigo-50/10">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                                    <i class="fas fa-certificate text-sm"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-black text-gray-900 tracking-tight uppercase text-xs tracking-[0.2em]">
+                                        Professional Credentials</h3>
+                                    <p class="text-[10px] font-bold text-gray-400 mt-0.5">Upload PhilGAP, Organic, or Business Permits to earn trust badges.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-10 space-y-10">
+                            {{-- Upload Form --}}
+                            <div class="bg-gray-50/50 p-8 rounded-[2rem] border border-dashed border-gray-200">
+                                <form action="{{ route('verifications.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                                    @csrf
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div class="space-y-3">
+                                            <label for="document_type" class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Credential Type</label>
+                                            <select name="document_type" id="document_type" class="w-full bg-white border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-900 focus:ring-4 focus:ring-indigo-50 transition-all border outline-none">
+                                                <option value="PhilGAP Certificate">PhilGAP Certificate</option>
+                                                <option value="Organic Certification">Organic Certification</option>
+                                                <option value="Business Permit">Business Permit</option>
+                                                <option value="Farm Registration">Farm Registration</option>
+                                                <option value="Other Certification">Other Certification</option>
+                                            </select>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Document File</label>
+                                            <div class="relative group">
+                                                <input type="file" name="file" id="verification_file" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+                                                <label for="verification_file" class="flex items-center justify-between w-full bg-white border-gray-100 rounded-2xl px-5 py-4 font-bold text-gray-400 cursor-pointer group-hover:border-indigo-400 transition-all border">
+                                                    <span id="file-name">Select PDF or Image...</span>
+                                                    <i class="fas fa-upload text-xs group-hover:scale-110 transition-transform"></i>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button type="submit" class="bg-indigo-600 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95">
+                                            Upload for Review
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            {{-- Existing Verifications List --}}
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-black text-gray-400 uppercase tracking-widest px-2">Uploaded Records</h4>
+                                <div class="grid grid-cols-1 gap-4">
+                                    @forelse(Auth::user()->verifications as $v)
+                                        <div class="flex items-center justify-between p-6 rounded-[1.5rem] bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                            <div class="flex items-center gap-5">
+                                                <div class="w-12 h-12 rounded-xl {{ $v->status === 'approved' ? 'bg-emerald-50 text-emerald-600' : ($v->status === 'rejected' ? 'bg-red-50 text-red-600' : 'bg-amber-50 text-amber-600') }} flex items-center justify-center shrink-0">
+                                                    <i class="fas {{ $v->status === 'approved' ? 'fa-check' : ($v->status === 'rejected' ? 'fa-times' : 'fa-clock') }} text-sm"></i>
+                                                </div>
+                                                <div>
+                                                    <h5 class="font-black text-gray-900 text-sm tracking-tight">{{ $v->document_type }}</h5>
+                                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Submitted {{ $v->created_at->format('M d, Y') }}</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-4">
+                                                <span class="px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest {{ $v->status === 'approved' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : ($v->status === 'rejected' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-600 border border-amber-100') }}">
+                                                    {{ $v->status }}
+                                                </span>
+                                                <a href="{{ asset('storage/' . $v->file_path) }}" target="_blank" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-gray-900 transition-all border border-gray-50">
+                                                    <i class="fas fa-eye text-xs"></i>
+                                                </a>
+                                                @if($v->status !== 'approved')
+                                                    <form action="{{ route('verifications.destroy', $v) }}" method="POST">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="w-10 h-10 rounded-xl bg-gray-50 text-gray-400 flex items-center justify-center hover:bg-red-50 hover:text-red-600 transition-all border border-gray-50">
+                                                            <i class="fas fa-trash text-xs"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @if($v->status === 'rejected' && $v->rejection_reason)
+                                            <div class="mt-2 ml-16 p-4 rounded-2xl bg-red-50/50 border border-red-100">
+                                                <p class="text-xs font-bold text-red-700"><i class="fas fa-exclamation-circle mr-2"></i>Reason: {{ $v->rejection_reason }}</p>
+                                            </div>
+                                        @endif
+                                    @empty
+                                        <div class="text-center py-10 bg-gray-50/30 rounded-[2rem] border border-dashed border-gray-100">
+                                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">No documents uploaded yet.</p>
+                                        </div>
+                                    @endforelse
+                        </div>
+                    </div>
+
+                    {{-- Security & Credentials Card --}}
+                    <div class="bg-gray-900 rounded-[2.5rem] border border-gray-800 shadow-xl overflow-hidden relative group">
+                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                        <div class="px-10 py-8 border-b border-white/5 flex items-center justify-between">
+                            <div class="flex items-center gap-4 relative z-10">
+                                <div class="w-10 h-10 rounded-2xl bg-white/5 text-emerald-400 flex items-center justify-center border border-white/10">
+                                    <i class="fas fa-key text-xs"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-black text-white tracking-tight uppercase text-xs tracking-[0.2em]">Security Protocol</h3>
+                                    <p class="text-[10px] font-bold text-gray-500 mt-0.5">Update your password to maintain account integrity.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-10 space-y-8 relative z-10">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="space-y-3">
+                                    <label for="password" class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-2">New Security Key</label>
+                                    <input type="password" name="password" id="password" placeholder="Leave empty to maintain current"
+                                        class="w-full bg-white/5 border-white/10 rounded-2xl px-6 py-4 font-bold text-white focus:bg-white/10 focus:ring-4 focus:ring-emerald-500/20 transition-all border outline-none placeholder:text-gray-600">
+                                    @error('password')
+                                        <p class="text-[10px] text-red-400 font-bold mt-1 px-2">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="space-y-3">
+                                    <label for="password_confirmation" class="text-[10px] font-black text-gray-500 uppercase tracking-widest px-2">Confirm Key</label>
+                                    <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Repeat new security key"
+                                        class="w-full bg-white/5 border-white/10 rounded-2xl px-6 py-4 font-bold text-white focus:bg-white/10 focus:ring-4 focus:ring-emerald-500/20 transition-all border outline-none placeholder:text-gray-600">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </form>
@@ -229,6 +406,13 @@
 
     @vite('resources/js/farmer/farmer-profile-edit.js')
 
+
+    <script>
+        document.getElementById('verification_file')?.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name || 'Select PDF or Image...';
+            document.getElementById('file-name').textContent = fileName;
+        });
+    </script>
 
     <style>
         .animate-fade-in-down {

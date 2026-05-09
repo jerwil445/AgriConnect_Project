@@ -16,9 +16,13 @@ class Farmer extends Model
         'main_category',
         'categories',
         'product_type',
-
         'certification',
         'farm_address',
+        'response_rate',
+        'response_time',
+        'reputation_score',
+        'is_verified',
+        'verified_at',
     ];
 
     public function user()

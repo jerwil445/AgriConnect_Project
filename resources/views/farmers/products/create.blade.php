@@ -52,10 +52,10 @@
                         </script>
 
                         <div id="other_product_container" class="{{ old('product_name') === 'Others' ? '' : 'hidden' }}">
-                            <label for="other_product_name" class="block text-sm font-medium text-gray-700 mb-1">Custom Product Name</label>
+                            <label for="other_product_name" class="block text-sm font-medium text-gray-700 mb-1">Product Name (Custom)</label>
                             <input type="text" name="other_product_name" id="other_product_name" value="{{ old('other_product_name') }}"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                                placeholder="Enter your custom product name">
+                                placeholder="Enter specific product name">
                             @error('other_product_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror

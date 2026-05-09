@@ -28,6 +28,14 @@
 <div id="messages-container" class="flex-1 overflow-y-auto p-6 bg-gray-50/30">
     @if($messages->count() > 0)
         @foreach($messages as $message)
+            @php
+                // Completely hide automated inquiry messages from the farmer's view
+                $messageContent = $message->message;
+                $isAutomated = (strpos($messageContent, 'Is this available?') !== false);
+                $isFarmer = (int)Auth::id() === (int)$transaction->farmer_id;
+            @endphp
+
+
             <div class="mb-6 {{ $message->sender_id == Auth::id() ? 'flex justify-end' : 'flex justify-start' }}">
                 <div class="max-w-[80%] md:max-w-[70%]">
                     <div class="px-5 py-3.5 shadow-sm {{ $message->sender_id == Auth::id() ? 'bg-green-600 text-white rounded-2xl rounded-tr-none' : 'bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-none' }}">
@@ -61,7 +69,10 @@
 </div>
 
 <!-- Message Input -->
-<form id="message-form" class="p-6 border-t border-gray-50 bg-white" data-transaction-id="{{ $transaction->id }}">
+<form id="message-form" class="p-6 border-t border-gray-50 bg-white" 
+      data-transaction-id="{{ $transaction->id }}"
+      data-farmer-id="{{ $transaction->farmer_id }}"
+      data-current-user-id="{{ Auth::id() }}">
     @csrf
     <div class="flex items-end space-x-4">
         <div class="flex-1 relative">

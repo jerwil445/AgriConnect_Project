@@ -110,6 +110,7 @@
                         <thead>
                             <tr class="bg-gray-50/50">
                                 <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Settlement ID</th>
+                                <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Product Info</th>
                                 <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Agreement Stakeholders</th>
                                 <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Settlement Value</th>
                                 <th class="px-8 py-5 text-left text-[10px] font-black text-gray-400 uppercase tracking-[0.15em]">Status States</th>
@@ -122,6 +123,10 @@
                                     <td class="px-8 py-6 whitespace-nowrap">
                                         <div class="text-xs font-black text-gray-300 tracking-widest">#TXN_{{ str_pad($transaction->id, 6, '0', STR_PAD_LEFT) }}</div>
                                         <div class="text-[10px] font-bold text-gray-400 mt-1 uppercase">{{ $transaction->created_at->format('M d, Y') }}</div>
+                                    </td>
+                                    <td class="px-8 py-6 whitespace-nowrap">
+                                        <div class="text-sm font-black text-gray-800">{{ $transaction->product->product_name ?? 'N/A' }}</div>
+                                        <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-1">{{ $transaction->product->category ?? 'General' }}</div>
                                     </td>
                                     <td class="px-8 py-6 whitespace-nowrap">
                                         <div class="flex flex-col gap-2">

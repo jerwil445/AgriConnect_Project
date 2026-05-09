@@ -134,6 +134,7 @@
                         <!-- Product Details -->
                         <div class="flex-1 w-full">
                             <p class="text-xl font-extrabold text-gray-900 mb-1">{{ $order->product->product_name }}</p>
+                            <p class="text-xs font-bold text-green-600 uppercase tracking-widest mb-1">{{ $order->product->category ?? 'General' }}</p>
                             <p class="text-sm text-gray-400 mb-4">
                                 {{ $order->product->variety_size ?: 'No variety/size specified' }}</p>
 

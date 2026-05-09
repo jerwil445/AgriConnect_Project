@@ -70,18 +70,60 @@
                                     class="text-sm font-bold uppercase tracking-wider text-green-700 mb-6 pb-2 border-b border-gray-100">
                                     Primary Details</h3>
                                 <div class="space-y-6">
-                                    <div class="relative w-full">
-                                        <input type="text" name="product_name" id="product_name"
-                                            value="{{ old('product_name', $product->product_name) }}" placeholder=" "
-                                            required
-                                            class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
-                                        <label for="product_name"
-                                            class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
-                                            Product Name
+                                    <div class="relative w-full group">
+                                        <select name="category" id="category" required
+                                            class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent shadow-sm appearance-none font-semibold text-gray-700">
+                                            <option value="" disabled>Select a category</option>
+                                            @foreach($registeredCategories as $cat)
+                                                <option value="{{ $cat }}" {{ old('category', $product->category) === $cat ? 'selected' : '' }}>
+                                                    {{ $cat }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <label for="category"
+                                            class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all rounded">
+                                            Agricultural Category
                                         </label>
+                                        <div
+                                            class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-chevron-down text-sm"></i>
+                                        </div>
                                     </div>
 
-                                    <div class="relative w-full">
+                                    <div class="relative w-full group">
+                                        <select name="product_name" id="product_name" required
+                                            data-old-value="{{ old('product_name', $product->product_name) }}"
+                                            class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent shadow-sm appearance-none font-semibold text-gray-700">
+                                            <option value="" disabled>Select a category first</option>
+                                        </select>
+                                        <label for="product_name"
+                                            class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all rounded">
+                                            Product Name
+                                        </label>
+                                        <div
+                                            class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-chevron-down text-sm"></i>
+                                        </div>
+                                    </div>
+
+                                    {{-- Hidden product mapping for JS --}}
+                                    <script id="product-mapping-data" type="application/json">
+                                        {!! json_encode($allProductMapping) !!}
+                                    </script>
+
+                                    <div id="other_product_container" class="hidden pt-2">
+                                        <div class="relative w-full">
+                                            <input type="text" name="other_product_name" id="other_product_name"
+                                                value="{{ old('other_product_name', $product->product_name) }}" placeholder=" "
+                                                class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
+                                            <label for="other_product_name"
+                                                class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
+                                                Product Name (Custom)
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="relative w-full pt-2">
                                         <input type="text" name="variety_size" id="variety_size"
                                             value="{{ old('variety_size', $product->variety_size) }}" placeholder=" "
                                             class="peer w-full px-4 py-3 border border-gray-200 rounded-xl bg-white/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder-transparent shadow-sm">
@@ -89,7 +131,7 @@
                                             class="absolute left-4 -top-2.5 text-xs font-medium bg-white px-1 text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-green-600 rounded cursor-text">
                                             Variety / Size
                                         </label>
-                                        <p class="text-[10px] text-gray-400 mt-1 ml-2">e.g. Large, Medium, Grade A</p>
+                                        <p class="text-[10px] text-gray-400 mt-1.5 ml-2 font-medium">e.g. Large, Medium, Grade A</p>
                                     </div>
 
                                     <div class="relative w-full">
